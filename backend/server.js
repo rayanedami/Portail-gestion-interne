@@ -3,6 +3,8 @@ const cors = require("cors");
 const db = require("./config/db");
 require("dotenv").config();
 
+const utilisateurRoutes = require("./routes/utilisateurRoutes");
+
 const app = express();
 
 app.use(cors());
@@ -30,6 +32,9 @@ app.get("/test-db", async (req, res) => {
         });
     }
 });
+
+app.use("/api/utilisateurs", utilisateurRoutes);
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
