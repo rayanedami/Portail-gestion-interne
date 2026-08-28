@@ -7,6 +7,11 @@ const demandeRoutes = require("./routes/demandeRoutes");
 const validationRoutes = require("./routes/validationRoutes");
 const visiteurRoutes = require("./routes/visiteurRoutes");
 const rendezVousRoutes = require("./routes/rendezVousRoutes");
+const badgeRoutes = require("./routes/badgeRoutes");
+const visiteRoutes = require("./routes/visiteRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const logRoutes = require("./routes/logRoutes");
+
 
 require("dotenv").config();
 
@@ -20,6 +25,10 @@ app.use("/api/demandes", demandeRoutes);
 app.use("/api/validations", validationRoutes);
 app.use("/api/visiteurs", visiteurRoutes);
 app.use("/api/rendez-vous", rendezVousRoutes);
+app.use("/api/badges", badgeRoutes);
+app.use("/api/visites", visiteRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/logs", logRoutes);
 
 app.get("/", (req, res) => {
     res.json({

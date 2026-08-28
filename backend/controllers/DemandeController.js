@@ -2,6 +2,24 @@ const Demande = require("../models/Demande");
 
 const DemandeController = {
 
+    async create(req, res) {
+        try {
+            const demande = await Demande.create(req.body);
+
+            res.status(201).json({
+                message: "Demande créée avec succès",
+                demande
+            });
+
+        } catch (error) {
+            console.error("Erreur création demande :", error.message);
+
+            res.status(500).json({
+                message: "Erreur serveur"
+            });
+        }
+    },
+
     async getAll(req, res) {
         try {
             const demandes = await Demande.getAll();

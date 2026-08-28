@@ -2,6 +2,23 @@ const db = require("../config/db");
 
 const Demande = {
 
+    async create(data) {
+        const {
+            motif,
+            collaborateur_id,
+            type_demande_id
+        } = data;
+
+        const [result] = await db.query(
+            `INSERT INTO demande
+            (motif, collaborateur_id, type_demande_id)
+            VALUES (?, ?, ?)`,
+            [motif, collaborateur_id, type_demande_id]
+        );
+
+        return this.getById(result.insertId);
+    },
+
     async getAll() {
         const [rows] = await db.query(`
             SELECT
