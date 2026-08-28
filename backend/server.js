@@ -1,14 +1,16 @@
 const express = require("express");
 const cors = require("cors");
 const db = require("./config/db");
-require("dotenv").config();
+const authRoutes = require("./routes/authRoutes");
 
-const utilisateurRoutes = require("./routes/utilisateurRoutes");
+require("dotenv").config();
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
     res.json({
@@ -32,8 +34,6 @@ app.get("/test-db", async (req, res) => {
         });
     }
 });
-
-app.use("/api/utilisateurs", utilisateurRoutes);
 
 const PORT = process.env.PORT || 3000;
 
