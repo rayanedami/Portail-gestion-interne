@@ -1,0 +1,44 @@
+const Demande = require("../models/Demande");
+
+const DemandeController = {
+
+    async getAll(req, res) {
+        try {
+            const demandes = await Demande.getAll();
+
+            res.json(demandes);
+
+        } catch (error) {
+            console.error("Erreur récupération demandes :", error.message);
+
+            res.status(500).json({
+                message: "Erreur serveur"
+            });
+        }
+    },
+
+    async getById(req, res) {
+        try {
+            const { id } = req.params;
+
+            const demande = await Demande.getById(id);
+
+            if (!demande) {
+                return res.status(404).json({
+                    message: "Demande introuvable"
+                });
+            }
+
+            res.json(demande);
+
+        } catch (error) {
+            console.error("Erreur récupération demande :", error.message);
+
+            res.status(500).json({
+                message: "Erreur serveur"
+            });
+        }
+    }
+};
+
+module.exports = DemandeController;

@@ -9,7 +9,7 @@ const UtilisateurController = {
             res.json(utilisateurs);
 
         } catch (error) {
-            console.error("Erreur getAll utilisateurs :", error.message);
+            console.error("Erreur récupération utilisateurs :", error.message);
 
             res.status(500).json({
                 message: "Erreur serveur"
@@ -19,7 +19,9 @@ const UtilisateurController = {
 
     async getById(req, res) {
         try {
-            const utilisateur = await Utilisateur.getById(req.params.id);
+            const { id } = req.params;
+
+            const utilisateur = await Utilisateur.getById(id);
 
             if (!utilisateur) {
                 return res.status(404).json({
@@ -30,7 +32,7 @@ const UtilisateurController = {
             res.json(utilisateur);
 
         } catch (error) {
-            console.error("Erreur getById utilisateur :", error.message);
+            console.error("Erreur récupération utilisateur :", error.message);
 
             res.status(500).json({
                 message: "Erreur serveur"
