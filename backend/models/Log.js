@@ -25,6 +25,33 @@ const Log = {
         return this.getById(result.insertId);
     },
 
+    async update(id, data) {
+        const {
+            action,
+            adresse_ip
+        } = data;
+
+        await db.query(
+            `UPDATE log
+             SET action = ?,
+                 adresse_ip = ?
+             WHERE id = ?`,
+            [action, adresse_ip, id]
+        );
+
+        return this.getById(id);
+    },
+
+    async delete(id) {
+        const [result] = await db.query(
+            `DELETE FROM log
+             WHERE id = ?`,
+            [id]
+        );
+
+        return result.affectedRows > 0;
+    },
+
     async getAll() {
         const [rows] = await db.query(`
             SELECT

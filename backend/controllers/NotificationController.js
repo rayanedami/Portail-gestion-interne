@@ -20,6 +20,62 @@ const NotificationController = {
         }
     },
 
+    async update(req, res) {
+        try {
+            const notification = await Notification.update(
+                req.params.id,
+                req.body
+            );
+
+            if (!notification) {
+                return res.status(404).json({
+                    message: "Notification introuvable"
+                });
+            }
+
+            res.json({
+                message: "Notification modifiée avec succès",
+                notification
+            });
+
+        } catch (error) {
+            console.error(
+                "Erreur modification notification :",
+                error.message
+            );
+
+            res.status(500).json({
+                message: "Erreur serveur"
+            });
+        }
+    },
+
+    async delete(req, res) {
+        try {
+            const deleted = await Notification.delete(req.params.id);
+
+            if (!deleted) {
+                return res.status(404).json({
+                    message: "Notification introuvable"
+                });
+            }
+
+            res.json({
+                message: "Notification supprimée avec succès"
+            });
+
+        } catch (error) {
+            console.error(
+                "Erreur suppression notification :",
+                error.message
+            );
+
+            res.status(500).json({
+                message: "Erreur serveur"
+            });
+        }
+    },
+
     async getAll(req, res) {
         try {
             const notifications = await Notification.getAll();

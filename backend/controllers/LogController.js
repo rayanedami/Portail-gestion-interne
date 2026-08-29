@@ -20,6 +20,62 @@ const LogController = {
         }
     },
 
+    async update(req, res) {
+        try {
+            const log = await Log.update(
+                req.params.id,
+                req.body
+            );
+
+            if (!log) {
+                return res.status(404).json({
+                    message: "Log introuvable"
+                });
+            }
+
+            res.json({
+                message: "Log modifié avec succès",
+                log
+            });
+
+        } catch (error) {
+            console.error(
+                "Erreur modification log :",
+                error.message
+            );
+
+            res.status(500).json({
+                message: "Erreur serveur"
+            });
+        }
+    },
+
+    async delete(req, res) {
+        try {
+            const deleted = await Log.delete(req.params.id);
+
+            if (!deleted) {
+                return res.status(404).json({
+                    message: "Log introuvable"
+                });
+            }
+
+            res.json({
+                message: "Log supprimé avec succès"
+            });
+
+        } catch (error) {
+            console.error(
+                "Erreur suppression log :",
+                error.message
+            );
+
+            res.status(500).json({
+                message: "Erreur serveur"
+            });
+        }
+    },
+
     async getAll(req, res) {
         try {
             const logs = await Log.getAll();
