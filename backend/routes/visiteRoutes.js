@@ -3,6 +3,10 @@ const router = express.Router();
 
 const VisiteController = require("../controllers/VisiteController");
 
+router.post("/", VisiteController.create);
+router.put("/:id", VisiteController.update);
+router.delete("/:id", VisiteController.delete);
+
 router.get("/", VisiteController.getAll);
 router.get("/:id", VisiteController.getById);
 

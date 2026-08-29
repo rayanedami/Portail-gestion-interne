@@ -2,6 +2,24 @@ const Notification = require("../models/Notification");
 
 const NotificationController = {
 
+    async create(req, res) {
+        try {
+            const notification = await Notification.create(req.body);
+
+            res.status(201).json({
+                message: "Notification créée avec succès",
+                notification
+            });
+
+        } catch (error) {
+            console.error("Erreur création notification :", error.message);
+
+            res.status(500).json({
+                message: "Erreur serveur"
+            });
+        }
+    },
+
     async getAll(req, res) {
         try {
             const notifications = await Notification.getAll();

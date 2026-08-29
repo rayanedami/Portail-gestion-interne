@@ -2,6 +2,24 @@ const Log = require("../models/Log");
 
 const LogController = {
 
+    async create(req, res) {
+        try {
+            const log = await Log.create(req.body);
+
+            res.status(201).json({
+                message: "Log créé avec succès",
+                log
+            });
+
+        } catch (error) {
+            console.error("Erreur création log :", error.message);
+
+            res.status(500).json({
+                message: "Erreur serveur"
+            });
+        }
+    },
+
     async getAll(req, res) {
         try {
             const logs = await Log.getAll();

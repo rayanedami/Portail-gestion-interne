@@ -19,6 +19,32 @@ const Demande = {
         return this.getById(result.insertId);
     },
 
+    async update(id, data) {
+        const {
+            motif,
+            statut,
+            type_demande_id
+        } = data;
+
+        await db.query(
+            `UPDATE demande
+             SET motif = ?, statut = ?, type_demande_id = ?
+             WHERE id = ?`,
+            [motif, statut, type_demande_id, id]
+        );
+
+        return this.getById(id);
+    },
+
+    async delete(id) {
+        const [result] = await db.query(
+            `DELETE FROM demande WHERE id = ?`,
+            [id]
+        );
+
+        return result.affectedRows > 0;
+    },
+
     async getAll() {
         const [rows] = await db.query(`
             SELECT

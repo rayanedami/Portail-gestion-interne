@@ -2,6 +2,70 @@ const db = require("../config/db");
 
 const Badge = {
 
+    async create(data) {
+        const {
+            qr_code,
+            date_generation,
+            date_expiration,
+            statut,
+            rendez_vous_id
+        } = data;
+
+        const [result] = await db.query(
+            `INSERT INTO badge
+            (qr_code, date_generation, date_expiration, statut, rendez_vous_id)
+            VALUES (?, ?, ?, ?, ?)`,
+            [
+                qr_code,
+                date_generation,
+                date_expiration,
+                statut,
+                rendez_vous_id
+            ]
+        );
+
+        return this.getById(result.insertId);
+    },
+
+    async update(id, data) {
+        const {
+            qr_code,
+            date_generation,
+            date_expiration,
+            statut,
+            rendez_vous_id
+        } = data;
+
+        await db.query(
+            `UPDATE badge
+             SET qr_code = ?,
+                 date_generation = ?,
+                 date_expiration = ?,
+                 statut = ?,
+                 rendez_vous_id = ?
+             WHERE id = ?`,
+            [
+                qr_code,
+                date_generation,
+                date_expiration,
+                statut,
+                rendez_vous_id,
+                id
+            ]
+        );
+
+        return this.getById(id);
+    },
+
+    async delete(id) {
+        const [result] = await db.query(
+            `DELETE FROM badge WHERE id = ?`,
+            [id]
+        );
+
+        return result.affectedRows > 0;
+    },
+
     async getAll() {
         const [rows] = await db.query(`
             SELECT

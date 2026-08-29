@@ -5,6 +5,8 @@ const router = express.Router();
 const DemandeController = require("../controllers/DemandeController");
 
 router.post("/", DemandeController.create);
+router.put("/:id", DemandeController.update);
+router.delete("/:id", DemandeController.delete);
 
 router.get("/", DemandeController.getAll);
 
