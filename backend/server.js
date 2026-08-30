@@ -11,6 +11,7 @@ const badgeRoutes = require("./routes/badgeRoutes");
 const visiteRoutes = require("./routes/visiteRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const logRoutes = require("./routes/logRoutes");
+const pieceJointeRoutes = require("./routes/pieceJointeRoutes");
 
 
 require("dotenv").config();
@@ -29,6 +30,7 @@ app.use("/api/badges", badgeRoutes);
 app.use("/api/visites", visiteRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/logs", logRoutes);
+app.use("/api/pieces-jointes", pieceJointeRoutes);
 
 app.get("/", (req, res) => {
     res.json({

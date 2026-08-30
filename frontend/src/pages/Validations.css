@@ -1,0 +1,277 @@
+﻿.validations-page {
+    width: 100%;
+    padding: 32px;
+    color: #101828;
+}
+
+.validations-header {
+    margin-bottom: 24px;
+}
+
+.validations-title-icon {
+    display: flex;
+    width: 42px;
+    height: 42px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #edf6ff;
+    color: #0d6efd;
+}
+
+.validations-title-icon svg {
+    width: 21px;
+    height: 21px;
+}
+
+.validations-header h1 {
+    margin: 12px 0 6px;
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.validations-header p {
+    margin: 0;
+    color: #667085;
+    font-size: 14px;
+}
+
+.validations-message {
+    margin-bottom: 18px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.validations-message.success {
+    background: #ecfdf5;
+    color: #067647;
+}
+
+.validations-message.error {
+    background: #fef3f2;
+    color: #b42318;
+}
+
+.validations-loading,
+.validations-empty {
+    display: flex;
+    min-height: 220px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed #d0d5dd;
+    border-radius: 12px;
+    background: #fff;
+    color: #667085;
+    text-align: center;
+}
+
+.validations-empty svg {
+    width: 36px;
+    height: 36px;
+    margin-bottom: 12px;
+    color: #98a2b3;
+}
+
+.validations-empty h3 {
+    margin: 0 0 6px;
+    color: #344054;
+    font-size: 17px;
+}
+
+.validations-empty p {
+    margin: 0;
+    font-size: 13px;
+}
+
+.validations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.validation-card {
+    padding: 22px 20px;
+    border: 1px solid #eaecf0;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(16, 24, 40, 0.04);
+}
+
+.validation-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.validation-badge {
+    display: inline-block;
+    margin-bottom: 8px;
+    color: #ff591b;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.validation-card-header h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.validation-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #fff7e6;
+    color: #b54708;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.validation-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 24px;
+    margin-bottom: 20px;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #475467;
+    font-size: 13px;
+}
+
+.meta-item svg {
+    width: 15px;
+    height: 15px;
+    color: #667085;
+}
+
+.validation-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    transition: 0.2s ease;
+}
+
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.btn-success {
+    background: #16a34a;
+    color: #fff;
+}
+
+.btn-success:hover:not(:disabled) {
+    background: #12873d;
+}
+
+.btn-danger {
+    background: #dc2626;
+    color: #fff;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: #b91c1c;
+}
+
+.btn-secondary {
+    background: #f2f4f7;
+    color: #344054;
+}
+
+.btn-secondary:hover {
+    background: #e4e7ec;
+}
+
+.refusal-box {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 18px;
+    border-top: 1px solid #f2f4f7;
+}
+
+.refusal-box label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #344054;
+}
+
+.refusal-box textarea {
+    width: 100%;
+    min-height: 90px;
+    padding: 12px;
+    border: 1px solid #d0d5dd;
+    border-radius: 8px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+}
+
+.refusal-box textarea:focus {
+    border-color: #ff591b;
+    box-shadow: 0 0 0 3px rgba(255, 89, 27, 0.1);
+}
+
+.refusal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+@media (max-width: 700px) {
+    .validations-page {
+        padding: 20px;
+    }
+
+    .validation-card-header {
+        flex-direction: column;
+    }
+
+    .validation-meta {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .refusal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .refusal-actions .btn {
+        width: 100%;
+    }
+}

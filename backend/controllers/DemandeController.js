@@ -4,6 +4,14 @@ const DemandeController = {
 
     async create(req, res) {
         try {
+            const { motif, collaborateur_id, type_demande_id } = req.body;
+
+            if (!motif || !collaborateur_id || !type_demande_id) {
+                return res.status(400).json({
+                    message: "motif, collaborateur_id et type_demande_id sont obligatoires"
+                });
+            }
+
             const demande = await Demande.create(req.body);
 
             res.status(201).json({

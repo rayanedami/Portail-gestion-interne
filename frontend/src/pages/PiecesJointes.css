@@ -1,0 +1,266 @@
+.pieces-page {
+    min-height: 100%;
+    padding: 32px;
+    background: #f8f9fb;
+}
+
+/* HEADER */
+
+.pieces-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.pieces-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #f4511e;
+}
+
+.pieces-title-row h1 {
+    margin: 0;
+    color: #101828;
+    font-size: 28px;
+}
+
+.pieces-header p {
+    margin: 8px 0 0 34px;
+    color: #667085;
+    font-size: 14px;
+}
+
+/* BUTTON */
+
+.upload-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 17px;
+    border: 0;
+    border-radius: 7px;
+    background: #ff591b;
+    color: #fff;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.upload-button:hover {
+    background: #e94b12;
+}
+
+/* MESSAGE */
+
+.pieces-message {
+    margin-bottom: 20px;
+    padding: 12px 15px;
+    border-radius: 7px;
+    background: #fff4ed;
+    color: #d9480f;
+    font-size: 13px;
+}
+
+/* LOADING */
+
+.pieces-loading {
+    padding: 50px;
+    border-radius: 10px;
+    background: #fff;
+    color: #667085;
+    text-align: center;
+}
+
+/* EMPTY */
+
+.empty-pieces {
+    display: flex;
+    min-height: 300px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    border: 1px solid #eaecf0;
+    border-radius: 10px;
+    background: #fff;
+    text-align: center;
+}
+
+.empty-pieces svg {
+    color: #98a2b3;
+}
+
+.empty-pieces h2 {
+    margin: 16px 0 7px;
+    color: #344054;
+    font-size: 18px;
+}
+
+.empty-pieces p {
+    margin: 0;
+    color: #667085;
+    font-size: 13px;
+}
+
+/* CARD */
+
+.pieces-card {
+    overflow: hidden;
+    border: 1px solid #eaecf0;
+    border-radius: 10px;
+    background: #fff;
+}
+
+/* TABLE HEADER */
+
+.pieces-table-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 120px;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eaecf0;
+    background: #f9fafb;
+    color: #667085;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* ROW */
+
+.piece-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 120px;
+    min-height: 75px;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid #f2f4f7;
+    color: #475467;
+    font-size: 13px;
+}
+
+.piece-row:last-child {
+    border-bottom: 0;
+}
+
+/* FILE */
+
+.piece-name {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.file-icon {
+    display: flex;
+    width: 38px;
+    height: 38px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    background: #fff1eb;
+    color: #f4511e;
+}
+
+.piece-name strong {
+    display: block;
+    color: #344054;
+    font-size: 13px;
+}
+
+.piece-name small {
+    display: block;
+    margin-top: 4px;
+    color: #98a2b3;
+    font-size: 11px;
+}
+
+/* ACTIONS */
+
+.piece-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.piece-actions button {
+    display: flex;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.action-download {
+    border: 1px solid #d0d5dd;
+    background: #fff;
+    color: #475467;
+}
+
+.action-download:hover {
+    background: #f9fafb;
+}
+
+.action-delete {
+    border: 1px solid #fecdca;
+    background: #fff;
+    color: #d92d20;
+}
+
+.action-delete:hover {
+    background: #fff1f0;
+}
+
+/* INFO */
+
+.pieces-info {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 20px;
+    padding: 13px 16px;
+    border: 1px solid #eaecf0;
+    border-radius: 8px;
+    background: #fff;
+    color: #667085;
+    font-size: 12px;
+}
+
+.pieces-info svg {
+    flex-shrink: 0;
+    color: #f4511e;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 800px) {
+
+    .pieces-page {
+        padding: 20px;
+    }
+
+    .pieces-header {
+        flex-direction: column;
+    }
+
+    .pieces-table-header {
+        display: none;
+    }
+
+    .piece-row {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 18px;
+    }
+
+    .piece-actions {
+        align-self: flex-end;
+    }
+}

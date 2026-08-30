@@ -12,6 +12,7 @@ import {
     UsersRound
 } from "lucide-react";
 import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import "./Login.css";
 
 function Login() {
@@ -20,6 +21,7 @@ function Login() {
     const [message, setMessage] = useState("");
 
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -33,11 +35,7 @@ function Login() {
 
             const utilisateur = response.data.utilisateur;
 
-            localStorage.setItem(
-                "utilisateur",
-                JSON.stringify(utilisateur)
-            );
-
+            login(utilisateur);
             navigate("/accueil");
 
         } catch (error) {

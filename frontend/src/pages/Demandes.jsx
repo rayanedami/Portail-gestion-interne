@@ -80,7 +80,7 @@ function Demandes() {
                 type_demande_id: formData.type_demande_id
                     ? Number(formData.type_demande_id)
                     : null,
-                utilisateur_id: utilisateurId
+                collaborateur_id: utilisateurId
             });
 
             setMessage("Demande créée avec succès.");
@@ -204,6 +204,7 @@ function Demandes() {
                                 name="type_demande_id"
                                 value={formData.type_demande_id}
                                 onChange={handleChange}
+                                required
                             >
                                 <option value="">
                                     Sélectionner un type

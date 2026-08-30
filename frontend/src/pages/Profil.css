@@ -1,0 +1,250 @@
+* {
+    box-sizing: border-box;
+}
+
+.profil-page {
+    min-height: 100vh;
+    background: #f7f8fa;
+    color: #101828;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.profil-header {
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 45px;
+    background: #ffffff;
+    border-bottom: 1px solid #eaecf0;
+}
+
+.profil-back,
+.profil-logout {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 38px;
+    padding: 0 15px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: .2s;
+}
+
+.profil-back {
+    border: 1px solid #d0d5dd;
+    background: #ffffff;
+    color: #344054;
+}
+
+.profil-back:hover {
+    background: #f9fafb;
+}
+
+.profil-logout {
+    border: 1px solid #f04438;
+    background: #ffffff;
+    color: #d92d20;
+}
+
+.profil-logout:hover {
+    background: #fff5f4;
+}
+
+.profil-container {
+    width: 100%;
+    max-width: 1050px;
+    margin: 0 auto;
+    padding: 45px 30px 60px;
+}
+
+.profil-title {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+    margin-bottom: 30px;
+}
+
+.profil-title-icon {
+    display: flex;
+    width: 56px;
+    height: 56px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #fff1eb;
+    color: #ff591b;
+}
+
+.profil-title h1 {
+    margin: 0 0 6px;
+    color: #101828;
+    font-size: 28px;
+}
+
+.profil-title p {
+    margin: 0;
+    color: #667085;
+    font-size: 14px;
+}
+
+.profil-card {
+    overflow: hidden;
+    padding: 38px;
+    border: 1px solid #eaecf0;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 4px 15px rgba(16, 24, 40, .05);
+}
+
+.profil-avatar {
+    display: flex;
+    width: 90px;
+    height: 90px;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    border-radius: 50%;
+    background: #fff1eb;
+    color: #ff591b;
+}
+
+.profil-name {
+    text-align: center;
+}
+
+.profil-name h2 {
+    margin: 0 0 10px;
+    color: #101828;
+    font-size: 22px;
+}
+
+.profil-role {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: #fff1eb;
+    color: #f4511e;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.profil-separator {
+    width: 100%;
+    height: 1px;
+    margin: 35px 0;
+    background: #eaecf0;
+}
+
+.profil-information {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.information-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-height: 85px;
+    padding: 17px;
+    border: 1px solid #eaecf0;
+    border-radius: 10px;
+    background: #fcfcfd;
+}
+
+.information-icon {
+    display: flex;
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: #fff1eb;
+    color: #ff591b;
+}
+
+.information-item div:last-child {
+    min-width: 0;
+}
+
+.information-item span {
+    display: block;
+    margin-bottom: 5px;
+    color: #667085;
+    font-size: 12px;
+}
+
+.information-item strong {
+    display: block;
+    overflow: hidden;
+    color: #101828;
+    font-size: 14px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profil-loading {
+    display: flex;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    color: #667085;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+@media (max-width: 700px) {
+
+    .profil-header {
+        height: auto;
+        gap: 12px;
+        padding: 16px 20px;
+    }
+
+    .profil-container {
+        padding: 30px 18px;
+    }
+
+    .profil-card {
+        padding: 25px 18px;
+    }
+
+    .profil-information {
+        grid-template-columns: 1fr;
+    }
+
+    .profil-title h1 {
+        font-size: 24px;
+    }
+
+    .profil-title p {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .profil-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .profil-back,
+    .profil-logout {
+        justify-content: center;
+    }
+
+    .profil-title {
+        align-items: flex-start;
+    }
+
+    .profil-title-icon {
+        width: 46px;
+        height: 46px;
+    }
+}

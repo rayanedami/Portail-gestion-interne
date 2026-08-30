@@ -4,6 +4,7 @@ import {
     Bell,
     CalendarDays,
     ClipboardList,
+    CheckCheck,
     Home,
     LogOut,
     Menu,
@@ -14,6 +15,42 @@ import {
 import api from "../services/api";
 import { formatDate } from "../utils/formatDate";
 import "./Accueil.css";
+
+const getMenuItems = (role) => {
+    const roles = {
+        COLLABORATEUR: [
+            { label: "Accueil", route: "/accueil", icon: Home },
+            { label: "Mes demandes", route: "/demandes", icon: ClipboardList },
+            { label: "Mes rendez-vous", route: "/rendez-vous", icon: CalendarDays },
+            { label: "Notifications", route: "/notifications", icon: Bell },
+            { label: "Mon profil", route: "/profil", icon: UserRound }
+        ],
+        RESPONSABLE: [
+            { label: "Accueil", route: "/accueil", icon: Home },
+            { label: "Demandes", route: "/demandes", icon: ClipboardList },
+            { label: "Validations", route: "/validations", icon: CheckCheck },
+            { label: "Rendez-vous", route: "/rendez-vous", icon: CalendarDays },
+            { label: "Notifications", route: "/notifications", icon: Bell },
+            { label: "Mon profil", route: "/profil", icon: UserRound }
+        ],
+        ADMINISTRATEUR: [
+            { label: "Accueil", route: "/accueil", icon: Home },
+            { label: "Demandes", route: "/demandes", icon: ClipboardList },
+            { label: "Validations", route: "/validations", icon: CheckCheck },
+            { label: "Rendez-vous", route: "/rendez-vous", icon: CalendarDays },
+            { label: "Notifications", route: "/notifications", icon: Bell },
+            { label: "Mon profil", route: "/profil", icon: UserRound }
+        ],
+        AGENT_ACCUEIL: [
+            { label: "Accueil", route: "/accueil", icon: Home },
+            { label: "Rendez-vous", route: "/rendez-vous", icon: CalendarDays },
+            { label: "Notifications", route: "/notifications", icon: Bell },
+            { label: "Mon profil", route: "/profil", icon: UserRound }
+        ]
+    };
+
+    return roles[String(role || "").trim().toUpperCase()] || roles.COLLABORATEUR;
+};
 
 function Accueil() {
     const navigate = useNavigate();
@@ -115,6 +152,8 @@ function Accueil() {
         ? `${utilisateur.prenom || ""} ${utilisateur.nom || ""}`.trim()
         : "Utilisateur";
 
+    const menuItems = getMenuItems(utilisateur?.role);
+
     return (
         <div className="accueil-page">
 
@@ -137,53 +176,26 @@ function Accueil() {
                 </div>
 
                 <div className="sidebar-menu">
+                    {menuItems.map(({ label, route, icon: Icon }, index) => {
+                        const isActive = route === "/accueil";
 
-                    <button
-                        className="sidebar-item actif"
-                        onClick={() => allerVers("/accueil")}
-                    >
-                        <Home size={19} />
-                        <span>Accueil</span>
-                    </button>
+                        return (
+                            <button
+                                key={`${route}-${index}`}
+                                className={`sidebar-item ${isActive ? "actif" : ""}`}
+                                onClick={() => allerVers(route)}
+                            >
+                                <Icon size={19} />
+                                <span>{label}</span>
 
-                    <button
-                        className="sidebar-item"
-                        onClick={() => allerVers("/demandes")}
-                    >
-                        <ClipboardList size={19} />
-                        <span>Mes demandes</span>
-                    </button>
-
-                    <button
-                        className="sidebar-item"
-                        onClick={() => allerVers("/rendez-vous")}
-                    >
-                        <CalendarDays size={19} />
-                        <span>Mes rendez-vous</span>
-                    </button>
-
-                    <button
-                        className="sidebar-item"
-                        onClick={() => allerVers("/notifications")}
-                    >
-                        <Bell size={19} />
-                        <span>Notifications</span>
-
-                        {notificationsNonLues > 0 && (
-                            <span className="menu-badge">
-                                {notificationsNonLues}
-                            </span>
-                        )}
-                    </button>
-
-                    <button
-                        className="sidebar-item"
-                        onClick={() => allerVers("/profil")}
-                    >
-                        <UserRound size={19} />
-                        <span>Mon profil</span>
-                    </button>
-
+                                {route === "/notifications" && notificationsNonLues > 0 && (
+                                    <span className="menu-badge">
+                                        {notificationsNonLues}
+                                    </span>
+                                )}
+                            </button>
+                        );
+                    })}
                 </div>
 
                 <div className="sidebar-bottom">
@@ -519,11 +531,11 @@ function Accueil() {
                                                     className={`status ${String(
                                                         demande.statut || ""
                                                     )
-                                                            .toLowerCase()
-                                                            .replace(
-                                                                /\s+/g,
-                                                                "-"
-                                                            )
+                                                        .toLowerCase()
+                                                        .replace(
+                                                            /\s+/g,
+                                                            "-"
+                                                        )
                                                         }`}
                                                 >
                                                     {demande.statut ||
