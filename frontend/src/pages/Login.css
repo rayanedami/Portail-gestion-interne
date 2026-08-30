@@ -1,0 +1,380 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    margin: 0;
+    min-height: 100%;
+}
+
+body {
+    background: #fff;
+    color: #101828;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.login-page {
+    min-height: 100vh;
+}
+
+.login-header {
+    position: absolute;
+    top: 26px;
+    left: 49px;
+    z-index: 2;
+}
+
+.attijari-logo {
+    display: flex;
+    width: 320px;
+    height: 100px;
+    object-fit: cover;
+    object-position: center 68%;
+}
+
+.login-main {
+    display: flex;
+    min-height: 100vh;
+}
+
+.login-left {
+    display: flex;
+    width: 45%;
+    min-height: 100vh;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 220px 38px 28px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 500px;
+    padding: 70px 74px 62px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 9px 9px 24px rgba(16, 24, 40, .09);
+}
+
+.welcome-text {
+    margin-bottom: 7px;
+    color: #ff551b;
+    font-size: 16px;
+}
+
+.login-card h1 {
+    margin: 0;
+    color: #111827;
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.description {
+    margin: 12px 0 24px;
+    color: #667085;
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.form-group {
+    margin-bottom: 17px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 7px;
+    color: #101828;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.input-wrapper input {
+    width: 100%;
+    height: 40px;
+    padding: 0 40px 0 11px;
+    border: 1px solid #d0d5dd;
+    border-radius: 6px;
+    outline: none;
+    color: #101828;
+    font-size: 12px;
+}
+
+.input-wrapper input::placeholder {
+    color: #98a2b3;
+}
+
+.input-wrapper input:focus {
+    border-color: #ff5a1b;
+    box-shadow: 0 0 0 3px rgba(255, 90, 27, .1);
+}
+
+.input-icon {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    line-height: 1;
+}
+
+.input-icon svg {
+    width: 16px;
+    height: 16px;
+    stroke-width: 2.2;
+}
+
+.forgot-password {
+    margin: -4px 0 15px;
+    color: #f4511e;
+    cursor: pointer;
+    font-size: 12px;
+    text-align: right;
+    text-decoration: underline;
+}
+
+.login-button,
+.sso-button {
+    width: 100%;
+    height: 39px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.login-button {
+    border: 0;
+    background: #ff591b;
+    color: #fff;
+    font-weight: 700;
+}
+
+.login-button:hover {
+    background: #e94b12;
+}
+
+.separator {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 20px 0;
+}
+
+.separator span {
+    flex: 1;
+    height: 1px;
+    background: #eaecf0;
+}
+
+.separator p {
+    margin: 0;
+    color: #667085;
+    font-size: 12px;
+}
+
+.sso-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid #ff6a3d;
+    background: #fff;
+    color: #f4511e;
+}
+
+.sso-button svg {
+    width: 16px;
+    height: 16px;
+    stroke-width: 2;
+}
+
+.sso-button:hover {
+    background: #fff7f3;
+}
+
+.login-message {
+    margin-top: 14px;
+    color: #d92d20;
+    font-size: 12px;
+    text-align: center;
+}
+
+.login-right {
+    position: relative;
+    width: 55%;
+    min-height: 100vh;
+    overflow: hidden;
+    background-image: linear-gradient(to bottom, rgba(14, 21, 29, .02) 42%, rgba(10, 15, 20, .9) 78%, #141a20 100%), url("/attijari-building.jpg");
+    background-position: center;
+    background-size: cover;
+}
+
+.language-selector {
+    position: absolute;
+    top: 25px;
+    right: 47px;
+    display: flex;
+    width: 122px;
+    height: 33px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, .92);
+    color: #344054;
+    font-size: 11px;
+}
+
+.globe {
+    display: inline-flex;
+}
+
+.globe svg {
+    width: 14px;
+    height: 14px;
+}
+
+.arrow {
+    display: inline-flex;
+    color: #667085;
+}
+
+.arrow svg {
+    width: 14px;
+    height: 14px;
+}
+
+.right-overlay {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 25px 28px 28px;
+    color: #fff;
+}
+
+.right-overlay h2 {
+    margin: 0 0 18px;
+    font-size: 17px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.right-overlay h2 span {
+    color: #ff591b;
+}
+
+.features {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.feature {
+    min-height: 126px;
+    padding: 0 17px;
+    border-right: 1px solid rgba(255, 255, 255, .3);
+}
+
+.feature:last-child {
+    border-right: 0;
+}
+
+.feature-icon {
+    display: flex;
+    align-items: center;
+    height: 38px;
+    color: #ff591b;
+}
+
+.feature-icon svg {
+    width: 25px;
+    height: 25px;
+    stroke-width: 1.9;
+}
+
+.feature h3 {
+    margin: 0 0 8px;
+    color: #fff;
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+.feature p {
+    margin: 0;
+    color: #c7cbd1;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.login-footer {
+    min-height: 70px;
+    padding: 15px 20px;
+    border-top: 1px solid #eaecf0;
+    color: #667085;
+    font-size: 11px;
+    text-align: center;
+}
+
+.footer-links {
+    margin-top: 7px;
+}
+
+.footer-links span {
+    margin: 0 10px;
+    color: #98a2b3;
+}
+
+@media (max-width: 900px) {
+    .login-header {
+        position: relative;
+        top: auto;
+        left: auto;
+        padding: 22px 28px 0;
+    }
+
+    .login-main {
+        display: block;
+    }
+
+    .login-left {
+        width: 100%;
+        min-height: auto;
+        align-items: center;
+        padding: 28px 20px 50px;
+    }
+
+    .login-right {
+        width: 100%;
+        min-height: 430px;
+    }
+}
+
+@media (max-width: 560px) {
+    .login-card {
+        padding: 30px 24px;
+    }
+
+    .login-card h1 {
+        font-size: 32px;
+    }
+
+    .right-overlay {
+        padding: 22px 12px;
+    }
+
+    .feature {
+        padding: 0 8px;
+    }
+
+    .feature h3 {
+        font-size: 11px;
+    }
+
+    .feature p {
+        font-size: 9px;
+    }
+}
