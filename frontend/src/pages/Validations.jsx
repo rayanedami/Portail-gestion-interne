@@ -1,54 +1,20 @@
 ﻿import { useEffect, useState } from "react";
-import { useAuth } from "../context/AuthContext";
-import {
-    Check,
-    X,
-    ClipboardCheck,
-    User,
-    CalendarDays,
-    FileText,
-    Clock3
-} from "lucide-react";
+import { CheckCircle, XCircle, RefreshCw } from "lucide-react";
 import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import "./Validations.css";
 
-const isPendingStatus = (statut) => {
-    if (!statut) return true;
-
-    const value = String(statut).trim().toUpperCase();
-    return [
-        "EN_ATTENTE",
-        "EN ATTENTE",
-        "PENDING",
-        "ATTENTE",
-        "WAITING"
-    ].includes(value);
-};
-
-const formatDate = (value) => {
-    if (!value) return "Date non disponible";
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return value;
-    }
-
-    return new Intl.DateTimeFormat("fr-FR", {
-        dateStyle: "medium"
-    }).format(date);
-};
-
 function Validations() {
-    const { utilisateur } = useAuth();
+    const { user } = useAuth();
+
     const [demandes, setDemandes] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
     const [message, setMessage] = useState("");
-    const [processingId, setProcessingId] = useState(null);
-    const [refusalText, setRefusalText] = useState({});
+    const [error, setError] = useState("");
 
-    const responsableId = utilisateur?.id;
+    const [selectedDemande, setSelectedDemande] = useState(null);
+    const [showRefusModal, setShowRefusModal] = useState(false);
+    const [commentaire, setCommentaire] = useState("");
 
     const fetchDemandes = async () => {
         try {
@@ -56,18 +22,24 @@ function Validations() {
             setError("");
 
             const response = await api.get("/demandes");
-            const data = Array.isArray(response.data)
-                ? response.data
-                : response.data?.demandes || [];
 
-            const demandesEnAttente = data.filter((
-                demande) => demande.statut === "EN_ATTENTE"
+            const toutesDemandes = response.data;
+
+            const demandesEnAttente = toutesDemandes.filter(
+                (demande) =>
+                    String(demande.statut || "").toUpperCase() ===
+                    "EN_ATTENTE"
             );
 
             setDemandes(demandesEnAttente);
+
         } catch (err) {
-            console.error("Erreur récupération demandes :", err);
-            setError("Impossible de récupérer les demandes à valider.");
+            console.error(err);
+
+            setError(
+                err.response?.data?.message ||
+                "Impossible de récupérer les demandes."
+            );
         } finally {
             setLoading(false);
         }
@@ -77,198 +49,324 @@ function Validations() {
         fetchDemandes();
     }, []);
 
-    const handleDecision = async (demande, decision) => {
-        if (!responsableId) {
-            setError("Aucun responsable connecté.");
-            return;
+    const validerDemande = async (demande) => {
+        try {
+            setMessage("");
+            setError("");
+
+            /*
+             * 1. Créer la validation
+             */
+            await api.post("/validations", {
+                demande_id: demande.id,
+                responsable_id: user.id,
+                niveau: 1,
+                decision: "VALIDEE",
+                commentaire: "Demande validée par le responsable."
+            });
+
+            /*
+             * 2. Modifier le statut de la demande
+             */
+            await api.put(`/demandes/${demande.id}`, {
+                motif: demande.motif,
+                statut: "VALIDEE",
+                type_demande_id: demande.type_demande_id,
+                collaborateur_id: demande.collaborateur_id
+            });
+
+            /*
+             * 3. Créer la notification
+             */
+            await api.post("/notifications", {
+                utilisateur_id: demande.collaborateur_id,
+                titre: "Demande validée",
+                message: `Votre demande #${demande.id} a été validée par le responsable.`,
+                type: "VALIDATION"
+            });
+
+            setMessage(
+                `La demande #${demande.id} a été validée avec succès.`
+            );
+
+            await fetchDemandes();
+
+        } catch (err) {
+            console.error(err);
+
+            setError(
+                err.response?.data?.message ||
+                "Erreur lors de la validation de la demande."
+            );
         }
+    };
 
-        const motifRefus = (refusalText[demande.id] || "").trim();
+    const ouvrirRefus = (demande) => {
+        setSelectedDemande(demande);
+        setCommentaire("");
+        setShowRefusModal(true);
+        setMessage("");
+        setError("");
+    };
 
-        if (decision !== "VALIDEE" && !motifRefus) {
-            setError("Veuillez saisir le motif du refus avant de confirmer.");
+    const refuserDemande = async () => {
+        if (!selectedDemande) return;
+
+        if (!commentaire.trim()) {
+            setError("Veuillez indiquer le motif du refus.");
             return;
         }
 
         try {
-            setProcessingId(demande.id);
-            setError("");
             setMessage("");
+            setError("");
 
-            if (decision === "VALIDEE") {
-                // 1. Enregistrement de la validation
-                await api.post("/validations", {
-                    demande_id: demande.id,
-                    responsable_id: responsableId,
-                    niveau: 1,
-                    decision: "VALIDEE",
-                    commentaire: "Demande validée"
-                });
+            /*
+             * 1. Créer la validation
+             */
+            await api.post("/validations", {
+                demande_id: selectedDemande.id,
+                responsable_id: user.id,
+                niveau: 1,
+                decision: "REFUSEE",
+                commentaire: commentaire.trim()
+            });
 
-                // 2. Mise à jour du statut de la demande
-                await api.put(`/demandes/${demande.id}`, {
-                    motif: demande.motif,
-                    statut: "VALIDEE",
-                    type_demande_id: demande.type_demande_id,
-                    collaborateur_id: demande.collaborateur_id
-                });
+            /*
+             * 2. Modifier le statut de la demande
+             */
+            await api.put(`/demandes/${selectedDemande.id}`, {
+                motif: selectedDemande.motif,
+                statut: "REFUSEE",
+                type_demande_id: selectedDemande.type_demande_id,
+                collaborateur_id: selectedDemande.collaborateur_id
+            });
 
-                // 3. Notification d'acceptation
-                await api.post("/notifications", {
-                    utilisateur_id: demande.collaborateur_id,
-                    message: `Votre demande "${demande.motif}" a été validée par le responsable.`,
-                    type: "DEMANDE_VALIDEE"
-                });
-            } else {
-                // 1. Enregistrement du refus
-                await api.post("/validations", {
-                    demande_id: demande.id,
-                    responsable_id: responsableId,
-                    niveau: 1,
-                    decision: "REFUSEE",
-                    commentaire: motifRefus
-                });
+            /*
+             * 3. Notification
+             */
+            await api.post("/notifications", {
+                utilisateur_id: selectedDemande.collaborateur_id,
+                titre: "Demande refusée",
+                message: `Votre demande #${selectedDemande.id} a été refusée. Motif : ${commentaire.trim()}`,
+                type: "REFUS"
+            });
 
-                // 2. Mise à jour du statut de la demande
-                await api.put(`/demandes/${demande.id}`, {
-                    motif: demande.motif,
-                    statut: "REFUSEE",
-                    type_demande_id: demande.type_demande_id,
-                    collaborateur_id: demande.collaborateur_id
-                });
+            setShowRefusModal(false);
+            setSelectedDemande(null);
+            setCommentaire("");
 
-                // 3. Notification de refus
-                await api.post("/notifications", {
-                    utilisateur_id: demande.collaborateur_id,
-                    message: `Votre demande "${demande.motif}" a été refusée. Motif : ${motifRefus}`,
-                    type: "DEMANDE_REFUSEE"
-                });
-            }
+            setMessage(
+                `La demande #${selectedDemande.id} a été refusée.`
+            );
 
-            setMessage(`La demande #${demande.id} a été ${decision === "VALIDEE" ? "validée" : "refusée"}.`);
-            setRefusalText((prev) => ({ ...prev, [demande.id]: "" }));
             await fetchDemandes();
+
         } catch (err) {
-            console.error("Erreur validation demande :", err);
-            setError(err.response?.data?.message || "Erreur lors du traitement de la demande.");
-        } finally {
-            setProcessingId(null);
+            console.error(err);
+
+            setError(
+                err.response?.data?.message ||
+                "Erreur lors du refus de la demande."
+            );
         }
     };
 
     return (
         <div className="validations-page">
+
             <div className="validations-header">
                 <div>
-                    <div className="validations-title-icon">
-                        <ClipboardCheck />
-                    </div>
-                    <h1>Demandes à valider</h1>
-                    <p>Validez ou refusez les demandes soumises par les collaborateurs.</p>
+                    <h1>Validations</h1>
+                    <p>
+                        Gérez les demandes en attente de validation.
+                    </p>
                 </div>
+
+                <button
+                    className="refresh-button"
+                    onClick={fetchDemandes}
+                    type="button"
+                >
+                    <RefreshCw size={16} />
+                    Actualiser
+                </button>
             </div>
 
-            {message && <div className="validations-message success">{message}</div>}
-            {error && <div className="validations-message error">{error}</div>}
+            {message && (
+                <div className="validation-success">
+                    {message}
+                </div>
+            )}
+
+            {error && (
+                <div className="validation-error">
+                    {error}
+                </div>
+            )}
 
             {loading ? (
-                <div className="validations-loading">Chargement des demandes...</div>
+                <div className="validation-empty">
+                    Chargement des demandes...
+                </div>
             ) : demandes.length === 0 ? (
-                <div className="validations-empty">
-                    <Clock3 />
+                <div className="validation-empty">
+                    <CheckCircle size={40} />
+
                     <h3>Aucune demande en attente</h3>
-                    <p>Les demandes à valider apparaîtront ici.</p>
+
+                    <p>
+                        Toutes les demandes ont été traitées.
+                    </p>
                 </div>
             ) : (
-                <div className="validations-list">
+                <div className="validation-list">
+
                     {demandes.map((demande) => (
-                        <div className="validation-card" key={demande.id}>
+                        <div
+                            className="validation-card"
+                            key={demande.id}
+                        >
+
                             <div className="validation-card-header">
+
                                 <div>
-                                    <span className="validation-badge">Demande #{demande.id}</span>
-                                    <h2>{demande.motif || "Demande sans motif"}</h2>
+                                    <span className="demande-number">
+                                        Demande #{demande.id}
+                                    </span>
+
+                                    <h2>
+                                        {demande.motif ||
+                                            "Demande administrative"}
+                                    </h2>
                                 </div>
-                                <span className="validation-status">
-                                    {String(demande.statut || "EN_ATTENTE").toUpperCase()}
+
+                                <span className="status-badge">
+                                    EN ATTENTE
                                 </span>
+
                             </div>
 
-                            <div className="validation-meta">
-                                <div className="meta-item">
-                                    <User />
-                                    <span>Collaborateur : #{demande.collaborateur_id || "Inconnu"}</span>
+                            <div className="validation-info">
+
+                                <div>
+                                    <strong>Date :</strong>
+
+                                    <span>
+                                        {demande.date_soumission
+                                            ? new Date(
+                                                demande.date_soumission
+                                            ).toLocaleDateString("fr-FR")
+                                            : "Non renseignée"}
+                                    </span>
                                 </div>
-                                <div className="meta-item">
-                                    <CalendarDays />
-                                    <span>Date : {formatDate(demande.date_soumission)}</span>
+
+                                <div>
+                                    <strong>Collaborateur :</strong>
+
+                                    <span>
+                                        {demande.collaborateur_id ||
+                                            "Non renseigné"}
+                                    </span>
                                 </div>
-                                <div className="meta-item">
-                                    <FileText />
-                                    <span>Statut : {String(demande.statut || "EN ATTENTE").toUpperCase()}</span>
+
+                                <div>
+                                    <strong>Type :</strong>
+
+                                    <span>
+                                        {demande.type_demande_id ||
+                                            "Non renseigné"}
+                                    </span>
                                 </div>
+
                             </div>
 
                             <div className="validation-actions">
+
                                 <button
-                                    className="btn btn-success"
+                                    className="approve-button"
                                     type="button"
-                                    onClick={() => handleDecision(demande, "VALIDEE")}
-                                    disabled={processingId === demande.id}
+                                    onClick={() =>
+                                        validerDemande(demande)
+                                    }
                                 >
-                                    <Check />
-                                    {processingId === demande.id ? "Traitement..." : "Valider"}
+                                    <CheckCircle size={17} />
+                                    Valider
                                 </button>
 
                                 <button
-                                    className="btn btn-danger"
+                                    className="reject-button"
                                     type="button"
-                                    onClick={() => {
-                                        const field = document.getElementById(`refus-${demande.id}`);
-                                        if (field) field.focus();
-                                    }}
+                                    onClick={() =>
+                                        ouvrirRefus(demande)
+                                    }
                                 >
-                                    <X />
+                                    <XCircle size={17} />
                                     Refuser
                                 </button>
+
                             </div>
 
-                            <div className="refusal-box">
-                                <label htmlFor={`refus-${demande.id}`}>Motif du refus :</label>
-                                <textarea
-                                    id={`refus-${demande.id}`}
-                                    value={refusalText[demande.id] || ""}
-                                    onChange={(event) => {
-                                        setRefusalText((prev) => ({
-                                            ...prev,
-                                            [demande.id]: event.target.value
-                                        }));
-                                    }}
-                                    placeholder="Précisez la raison du refus..."
-                                />
-
-                                <div className="refusal-actions">
-                                    <button
-                                        type="button"
-                                        className="btn btn-secondary"
-                                        onClick={() => setRefusalText((prev) => ({ ...prev, [demande.id]: "" }))}
-                                    >
-                                        Annuler
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        className="btn btn-danger"
-                                        onClick={() => handleDecision(demande, "REFUSEE")}
-                                        disabled={processingId === demande.id}
-                                    >
-                                        Confirmer le refus
-                                    </button>
-                                </div>
-                            </div>
                         </div>
                     ))}
+
                 </div>
             )}
+
+            {showRefusModal && (
+                <div className="modal-overlay">
+
+                    <div className="refus-modal">
+
+                        <h2>
+                            Refuser la demande
+                        </h2>
+
+                        <p>
+                            Demande #{selectedDemande?.id}
+                        </p>
+
+                        <label>
+                            Motif du refus
+                        </label>
+
+                        <textarea
+                            value={commentaire}
+                            onChange={(e) =>
+                                setCommentaire(e.target.value)
+                            }
+                            placeholder="Indiquez le motif du refus..."
+                            rows="5"
+                        />
+
+                        <div className="modal-actions">
+
+                            <button
+                                type="button"
+                                className="cancel-button"
+                                onClick={() => {
+                                    setShowRefusModal(false);
+                                    setSelectedDemande(null);
+                                }}
+                            >
+                                Annuler
+                            </button>
+
+                            <button
+                                type="button"
+                                className="confirm-reject-button"
+                                onClick={refuserDemande}
+                            >
+                                Confirmer le refus
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            )}
+
         </div>
     );
 }

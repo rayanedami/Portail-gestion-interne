@@ -47,6 +47,16 @@ export const ROUTE_PERMISSIONS = {
         ROLES.COLLABORATEUR,
         ROLES.RESPONSABLE,
         ROLES.ADMINISTRATEUR
+    ],
+    "/utilisateurs": [
+        ROLES.ADMINISTRATEUR
+    ],
+    "/logs": [
+        ROLES.ADMINISTRATEUR
+    ],
+    "/badges": [
+        ROLES.AGENT_ACCUEIL,
+        ROLES.ADMINISTRATEUR
     ]
 };
 

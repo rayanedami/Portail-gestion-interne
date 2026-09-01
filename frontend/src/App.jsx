@@ -12,6 +12,9 @@ import Profil from "./pages/Profil";
 import PiecesJointes from "./pages/PiecesJointes";
 import Validations from "./pages/Validations";
 import Visiteurs from "./pages/Visiteurs";
+import Utilisateurs from "./pages/Utilisateurs";
+import Logs from "./pages/Logs";
+import Badges from "./pages/Badges";
 
 function App() {
     return (
@@ -92,19 +95,51 @@ function App() {
                     />
 
                     <Route
+                        path="/visiteurs"
+                        element={
+                            <ProtectedRoute
+                                element={<Visiteurs />}
+                                allowedRoles={ROUTE_PERMISSIONS["/visiteurs"]}
+                            />
+                        }
+                    />
+
+                    <Route
+                        path="/utilisateurs"
+                        element={
+                            <ProtectedRoute
+                                element={<Utilisateurs />}
+                                allowedRoles={ROUTE_PERMISSIONS["/utilisateurs"]}
+                            />
+                        }
+                    />
+
+                    <Route
+                        path="/logs"
+                        element={
+                            <ProtectedRoute
+                                element={<Logs />}
+                                allowedRoles={ROUTE_PERMISSIONS["/logs"]}
+                            />
+                        }
+                    />
+
+                    <Route
+                        path="/badges"
+                        element={
+                            <ProtectedRoute
+                                element={<Badges />}
+                                allowedRoles={ROUTE_PERMISSIONS["/badges"]}
+                            />
+                        }
+                    />
+
+                    <Route
                         path="*"
                         element={<Navigate to="/" replace />}
                     />
 
                 </Routes>
-                <Route
-                    path="/visiteurs"
-                    element={
-                        <ProtectedRoute allowedRoles={["RESPONSABLE", "ADMINISTRATEUR", "AGENT_ACCUEIL"]}>
-                            <Visiteurs />
-                        </ProtectedRoute>
-                    }
-                />
             </BrowserRouter>
         </AuthProvider>
     );
