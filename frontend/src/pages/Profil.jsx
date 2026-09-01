@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import {
     UserRound,
     Mail,
@@ -12,28 +13,16 @@ import "./Profil.css";
 
 function Profil() {
     const navigate = useNavigate();
-    const [utilisateur, setUtilisateur] = useState(null);
+    const { utilisateur, logout, isLoggedIn } = useAuth();
 
     useEffect(() => {
-        const utilisateurStocke = localStorage.getItem("utilisateur");
-
-        if (!utilisateurStocke) {
-            navigate("/");
-            return;
-        }
-
-        try {
-            const user = JSON.parse(utilisateurStocke);
-            setUtilisateur(user);
-        } catch (error) {
-            console.error("Erreur lecture utilisateur :", error);
-            localStorage.removeItem("utilisateur");
+        if (!isLoggedIn) {
             navigate("/");
         }
-    }, [navigate]);
+    }, [isLoggedIn, navigate]);
 
     const handleLogout = () => {
-        localStorage.removeItem("utilisateur");
+        logout();
         navigate("/");
     };
 

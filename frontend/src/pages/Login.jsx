@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import {
     BarChart3,
     Bell,
@@ -12,7 +13,6 @@ import {
     UsersRound
 } from "lucide-react";
 import api from "../services/api";
-import { useAuth } from "../context/AuthContext";
 import "./Login.css";
 
 function Login() {

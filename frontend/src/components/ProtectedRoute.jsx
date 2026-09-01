@@ -1,59 +1,20 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-const roleRoutes = {
-    COLLABORATEUR: [
-        "/accueil",
-        "/demandes",
-        "/rendez-vous",
-        "/notifications",
-        "/profil"
-    ],
-    RESPONSABLE: [
-        "/accueil",
-        "/demandes",
-        "/validations",
-        "/rendez-vous",
-        "/notifications",
-        "/profil"
-    ],
-    ADMINISTRATEUR: [
-        "/accueil",
-        "/demandes",
-        "/validations",
-        "/rendez-vous",
-        "/notifications",
-        "/profil"
-    ],
-    AGENT_ACCUEIL: [
-        "/accueil",
-        "/rendez-vous",
-        "/notifications",
-        "/profil"
-    ]
-};
+export function ProtectedRoute({ element, allowedRoles }) {
+    const { isLoggedIn, loading, role } = useAuth();
 
-function ProtectedRoute({ children, allowedRoles = [] }) {
-    const { user, isAuthenticated } = useAuth();
-    const location = useLocation();
-
-    if (!isAuthenticated) {
-        return <Navigate to="/" replace state={{ from: location }} />;
+    if (loading) {
+        return <div style={{ padding: "32px", textAlign: "center" }}>Chargement...</div>;
     }
 
-    const userRole = String(user?.role || "").trim().toUpperCase();
-
-    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
-        const fallbackRoute = roleRoutes[userRole] || ["/accueil"];
-        return <Navigate to={fallbackRoute[0]} replace />;
+    if (!isLoggedIn) {
+        return <Navigate to="/" replace />;
     }
 
-    const authorizedRoutes = roleRoutes[userRole] || [];
-    if (authorizedRoutes.length > 0 && !authorizedRoutes.includes(location.pathname)) {
-        return <Navigate to={authorizedRoutes[0]} replace />;
+    if (allowedRoles && !allowedRoles.includes(role)) {
+        return <Navigate to="/accueil" replace />;
     }
 
-    return children;
+    return element;
 }
-
-export default ProtectedRoute;

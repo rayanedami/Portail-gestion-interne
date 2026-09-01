@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import {
     CalendarDays,
     Clock,
@@ -13,14 +14,11 @@ import { formatDate } from "../utils/formatDate";
 import "./RendezVous.css";
 
 function RendezVous() {
+    const { utilisateur } = useAuth();
     const [rendezVous, setRendezVous] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
     const [message, setMessage] = useState("");
-
-    const utilisateur = JSON.parse(
-        localStorage.getItem("utilisateur") || "null"
-    );
 
     const utilisateurId = utilisateur?.id;
 
@@ -37,8 +35,8 @@ function RendezVous() {
             const data = Array.isArray(response.data)
                 ? response.data
                 : response.data.rendezVous ||
-                  response.data.rendez_vous ||
-                  [];
+                response.data.rendez_vous ||
+                [];
 
             const mesRendezVous = data.filter(
                 (rdv) =>

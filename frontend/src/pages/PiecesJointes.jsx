@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import { Paperclip, Download, Trash2, Upload, FileText } from "lucide-react";
 import api from "../services/api";
 import "./PiecesJointes.css";
 
 function PiecesJointes() {
+    const { utilisateur } = useAuth();
     const [pieces, setPieces] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
-
-    const utilisateur = JSON.parse(localStorage.getItem("utilisateur"));
 
     const chargerPieces = async () => {
         try {

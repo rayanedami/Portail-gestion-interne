@@ -8,11 +8,13 @@ import {
     XCircle,
     AlertCircle
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import { formatDate } from "../utils/formatDate";
 import "./Demandes.css";
 
 function Demandes() {
+    const { utilisateur } = useAuth();
     const [demandes, setDemandes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
@@ -23,10 +25,6 @@ function Demandes() {
         motif: "",
         type_demande_id: ""
     });
-
-    const utilisateur = JSON.parse(
-        localStorage.getItem("utilisateur") || "null"
-    );
 
     const utilisateurId = utilisateur?.id;
 
@@ -76,11 +74,10 @@ function Demandes() {
 
         try {
             await api.post("/demandes", {
-                motif: formData.motif,
-                type_demande_id: formData.type_demande_id
-                    ? Number(formData.type_demande_id)
-                    : null,
-                collaborateur_id: utilisateurId
+                motif,
+                type_demande_id: typeDemandeId,
+                collaborateur_id: user.id,
+                statut: "EN_ATTENTE"
             });
 
             setMessage("Demande créée avec succès.");

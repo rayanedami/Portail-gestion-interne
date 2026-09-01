@@ -1,51 +1,43 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
-const AuthContext = createContext(null);
+const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-    const [user, setUser] = useState(() => {
-        const rawUser = localStorage.getItem("utilisateur");
-
-        if (!rawUser) {
-            return null;
-        }
-
-        try {
-            return JSON.parse(rawUser);
-        } catch (error) {
-            console.error("Erreur parsing utilisateur localStorage :", error);
-            localStorage.removeItem("utilisateur");
-            return null;
-        }
-    });
+    const [utilisateur, setUtilisateur] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!user) {
-            localStorage.removeItem("utilisateur");
-            return;
+        const stored = localStorage.getItem("utilisateur");
+        if (stored) {
+            try {
+                setUtilisateur(JSON.parse(stored));
+            } catch (error) {
+                console.error("Erreur parsing utilisateur :", error);
+                localStorage.removeItem("utilisateur");
+            }
         }
+        setLoading(false);
+    }, []);
 
+    const login = (user) => {
+        setUtilisateur(user);
         localStorage.setItem("utilisateur", JSON.stringify(user));
-    }, [user]);
-
-    const login = (userData) => setUser(userData);
-
-    const logout = () => setUser(null);
-
-    const hasRole = (roleName) => {
-        if (!user || !user.role) return false;
-        return String(user.role).trim().toUpperCase() === String(roleName).trim().toUpperCase();
     };
 
-    const isAuthenticated = Boolean(user);
+    const logout = () => {
+        setUtilisateur(null);
+        localStorage.removeItem("utilisateur");
+    };
 
-    const value = useMemo(() => ({
-        user,
+    const value = {
+        utilisateur,
+        loading,
         login,
         logout,
-        hasRole,
-        isAuthenticated
-    }), [user, isAuthenticated]);
+        isLoggedIn: !!utilisateur,
+        role: utilisateur?.role || null,
+        userId: utilisateur?.id || null
+    };
 
     return (
         <AuthContext.Provider value={value}>
@@ -56,10 +48,8 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
     const context = useContext(AuthContext);
-
     if (!context) {
-        throw new Error("useAuth doit être utilisé à l’intérieur de AuthProvider");
+        throw new Error("useAuth doit être utilisé au sein d'un AuthProvider");
     }
-
     return context;
 }

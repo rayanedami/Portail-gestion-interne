@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import {
     Check,
     X,
@@ -39,6 +40,7 @@ const formatDate = (value) => {
 };
 
 function Validations() {
+    const { utilisateur } = useAuth();
     const [demandes, setDemandes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -46,7 +48,6 @@ function Validations() {
     const [processingId, setProcessingId] = useState(null);
     const [refusalText, setRefusalText] = useState({});
 
-    const utilisateur = JSON.parse(localStorage.getItem("utilisateur") || "null");
     const responsableId = utilisateur?.id;
 
     const fetchDemandes = async () => {
@@ -59,10 +60,9 @@ function Validations() {
                 ? response.data
                 : response.data?.demandes || [];
 
-            const demandesEnAttente = data.filter((demande) => {
-                const isPending = isPendingStatus(demande.statut);
-                return isPending || !demande.statut;
-            });
+            const demandesEnAttente = data.filter((
+                demande) => demande.statut === "EN_ATTENTE"
+            );
 
             setDemandes(demandesEnAttente);
         } catch (err) {
@@ -77,30 +77,15 @@ function Validations() {
         fetchDemandes();
     }, []);
 
-    const createNotification = async ({ utilisateurId, demandeId, messageText }) => {
-        await api.post("/notifications", {
-            message: messageText,
-            type: "validation",
-            date_envoi: new Date().toISOString(),
-            est_lue: false,
-            utilisateur_id: utilisateurId,
-            demande_id: demandeId,
-            rendez_vous_id: null
-        });
-    };
-
     const handleDecision = async (demande, decision) => {
         if (!responsableId) {
             setError("Aucun responsable connecté.");
             return;
         }
 
-        const statut = decision === "VALIDEE" ? "VALIDEE" : "REFUSEE";
-        const commentaire = decision === "VALIDEE"
-            ? "Demande validée par le responsable."
-            : (refusalText[demande.id] || "").trim();
+        const motifRefus = (refusalText[demande.id] || "").trim();
 
-        if (decision !== "VALIDEE" && !commentaire) {
+        if (decision !== "VALIDEE" && !motifRefus) {
             setError("Veuillez saisir le motif du refus avant de confirmer.");
             return;
         }
@@ -110,32 +95,57 @@ function Validations() {
             setError("");
             setMessage("");
 
-            await api.post("/validations", {
-                demande_id: demande.id,
-                responsable_id: responsableId,
-                niveau: 1,
-                decision: statut,
-                commentaire
-            });
+            if (decision === "VALIDEE") {
+                // 1. Enregistrement de la validation
+                await api.post("/validations", {
+                    demande_id: demande.id,
+                    responsable_id: responsableId,
+                    niveau: 1,
+                    decision: "VALIDEE",
+                    commentaire: "Demande validée"
+                });
 
-            await api.put(`/demandes/${demande.id}`, {
-                motif: demande.motif || "",
-                statut,
-                type_demande_id: demande.type_demande_id ?? 1,
-                collaborateur_id: demande.collaborateur_id,
-            });
+                // 2. Mise à jour du statut de la demande
+                await api.put(`/demandes/${demande.id}`, {
+                    motif: demande.motif,
+                    statut: "VALIDEE",
+                    type_demande_id: demande.type_demande_id,
+                    collaborateur_id: demande.collaborateur_id
+                });
 
-            const messageText = decision === "VALIDEE"
-                ? "Votre demande a été validée."
-                : "Votre demande a été refusée. Motif : " + commentaire;
+                // 3. Notification d'acceptation
+                await api.post("/notifications", {
+                    utilisateur_id: demande.collaborateur_id,
+                    message: `Votre demande "${demande.motif}" a été validée par le responsable.`,
+                    type: "DEMANDE_VALIDEE"
+                });
+            } else {
+                // 1. Enregistrement du refus
+                await api.post("/validations", {
+                    demande_id: demande.id,
+                    responsable_id: responsableId,
+                    niveau: 1,
+                    decision: "REFUSEE",
+                    commentaire: motifRefus
+                });
 
-            await createNotification({
-                utilisateurId: demande.collaborateur_id,
-                demandeId: demande.id,
-                messageText
-            });
+                // 2. Mise à jour du statut de la demande
+                await api.put(`/demandes/${demande.id}`, {
+                    motif: demande.motif,
+                    statut: "REFUSEE",
+                    type_demande_id: demande.type_demande_id,
+                    collaborateur_id: demande.collaborateur_id
+                });
 
-            setMessage(`La demande #${demande.id} a été ${statut.toLowerCase()}.`);
+                // 3. Notification de refus
+                await api.post("/notifications", {
+                    utilisateur_id: demande.collaborateur_id,
+                    message: `Votre demande "${demande.motif}" a été refusée. Motif : ${motifRefus}`,
+                    type: "DEMANDE_REFUSEE"
+                });
+            }
+
+            setMessage(`La demande #${demande.id} a été ${decision === "VALIDEE" ? "validée" : "refusée"}.`);
             setRefusalText((prev) => ({ ...prev, [demande.id]: "" }));
             await fetchDemandes();
         } catch (err) {

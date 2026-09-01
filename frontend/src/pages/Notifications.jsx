@@ -6,19 +6,17 @@ import {
     Clock,
     Search
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import { formatDate } from "../utils/formatDate";
 import "./Notifications.css";
 
 function Notifications() {
+    const { utilisateur } = useAuth();
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
     const [message, setMessage] = useState("");
-
-    const utilisateur = JSON.parse(
-        localStorage.getItem("utilisateur") || "null"
-    );
 
     const utilisateurId = utilisateur?.id;
 
@@ -224,11 +222,10 @@ function Notifications() {
 
                             return (
                                 <div
-                                    className={`notification-card ${
-                                        isUnread
+                                    className={`notification-card ${isUnread
                                             ? "notification-unread"
                                             : ""
-                                    }`}
+                                        }`}
                                     key={notification.id}
                                 >
 

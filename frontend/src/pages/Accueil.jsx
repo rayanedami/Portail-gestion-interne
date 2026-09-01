@@ -1,61 +1,43 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { MENU_ITEMS_BY_ROLE, ROLES } from "../config/roleConfig";
 import {
     Bell,
     CalendarDays,
     ClipboardList,
-    CheckCheck,
     Home,
     LogOut,
     Menu,
     UserRound,
-    X
+    X,
+    CheckCircle2,
+    Users,
+    BarChart3,
+    Settings
 } from "lucide-react";
 
 import api from "../services/api";
 import { formatDate } from "../utils/formatDate";
 import "./Accueil.css";
 
-const getMenuItems = (role) => {
-    const roles = {
-        COLLABORATEUR: [
-            { label: "Accueil", route: "/accueil", icon: Home },
-            { label: "Mes demandes", route: "/demandes", icon: ClipboardList },
-            { label: "Mes rendez-vous", route: "/rendez-vous", icon: CalendarDays },
-            { label: "Notifications", route: "/notifications", icon: Bell },
-            { label: "Mon profil", route: "/profil", icon: UserRound }
-        ],
-        RESPONSABLE: [
-            { label: "Accueil", route: "/accueil", icon: Home },
-            { label: "Demandes", route: "/demandes", icon: ClipboardList },
-            { label: "Validations", route: "/validations", icon: CheckCheck },
-            { label: "Rendez-vous", route: "/rendez-vous", icon: CalendarDays },
-            { label: "Notifications", route: "/notifications", icon: Bell },
-            { label: "Mon profil", route: "/profil", icon: UserRound }
-        ],
-        ADMINISTRATEUR: [
-            { label: "Accueil", route: "/accueil", icon: Home },
-            { label: "Demandes", route: "/demandes", icon: ClipboardList },
-            { label: "Validations", route: "/validations", icon: CheckCheck },
-            { label: "Rendez-vous", route: "/rendez-vous", icon: CalendarDays },
-            { label: "Notifications", route: "/notifications", icon: Bell },
-            { label: "Mon profil", route: "/profil", icon: UserRound }
-        ],
-        AGENT_ACCUEIL: [
-            { label: "Accueil", route: "/accueil", icon: Home },
-            { label: "Rendez-vous", route: "/rendez-vous", icon: CalendarDays },
-            { label: "Notifications", route: "/notifications", icon: Bell },
-            { label: "Mon profil", route: "/profil", icon: UserRound }
-        ]
-    };
-
-    return roles[String(role || "").trim().toUpperCase()] || roles.COLLABORATEUR;
+const ICON_MAP = {
+    "🏠": <Home size={19} />,
+    "📄": <ClipboardList size={19} />,
+    "✅": <CheckCircle2 size={19} />,
+    "👥": <Users size={19} />,
+    "📅": <CalendarDays size={19} />,
+    "🔔": <Bell size={19} />,
+    "👤": <UserRound size={19} />,
+    "🏢": <Users size={19} />,
+    "📋": <BarChart3 size={19} />,
+    "🎫": <Settings size={19} />
 };
 
 function Accueil() {
     const navigate = useNavigate();
+    const { utilisateur, logout, role, isLoggedIn } = useAuth();
 
-    const [utilisateur, setUtilisateur] = useState(null);
     const [menuOuvert, setMenuOuvert] = useState(false);
 
     const [demandes, setDemandes] = useState([]);
@@ -65,25 +47,13 @@ function Accueil() {
     const [chargement, setChargement] = useState(true);
 
     useEffect(() => {
-        const utilisateurStocke = localStorage.getItem("utilisateur");
-
-        if (!utilisateurStocke) {
+        if (!isLoggedIn) {
             navigate("/");
             return;
         }
 
-        try {
-            const utilisateurConnecte = JSON.parse(utilisateurStocke);
-
-            setUtilisateur(utilisateurConnecte);
-
-            chargerDonnees();
-        } catch (error) {
-            console.error("Erreur utilisateur :", error);
-            localStorage.removeItem("utilisateur");
-            navigate("/");
-        }
-    }, [navigate]);
+        chargerDonnees();
+    }, [isLoggedIn, navigate]);
 
     const chargerDonnees = async () => {
         try {
@@ -127,7 +97,7 @@ function Accueil() {
     };
 
     const deconnexion = () => {
-        localStorage.removeItem("utilisateur");
+        logout();
         navigate("/");
     };
 
@@ -152,7 +122,8 @@ function Accueil() {
         ? `${utilisateur.prenom || ""} ${utilisateur.nom || ""}`.trim()
         : "Utilisateur";
 
-    const menuItems = getMenuItems(utilisateur?.role);
+    const menuItems = MENU_ITEMS_BY_ROLE[role] || [];
+
 
     return (
         <div className="accueil-page">
@@ -176,26 +147,28 @@ function Accueil() {
                 </div>
 
                 <div className="sidebar-menu">
-                    {menuItems.map(({ label, route, icon: Icon }, index) => {
-                        const isActive = route === "/accueil";
+                    {menuItems.map((item) => (
+                        <button
+                            key={item.path}
+                            className="sidebar-item"
+                            onClick={() => allerVers(item.path)}
+                        >
+                            {ICON_MAP[item.icon] || <span>{item.icon}</span>}
+                            <span>{item.label}</span>
 
-                        return (
-                            <button
-                                key={`${route}-${index}`}
-                                className={`sidebar-item ${isActive ? "actif" : ""}`}
-                                onClick={() => allerVers(route)}
-                            >
-                                <Icon size={19} />
-                                <span>{label}</span>
+                            {item.path === "/notifications" && notificationsNonLues > 0 && (
+                                <span className="menu-badge">
+                                    {notificationsNonLues}
+                                </span>
+                            )}
 
-                                {route === "/notifications" && notificationsNonLues > 0 && (
-                                    <span className="menu-badge">
-                                        {notificationsNonLues}
-                                    </span>
-                                )}
-                            </button>
-                        );
-                    })}
+                            {item.path === "/demandes" && demandesEnAttente > 0 && role === ROLES.COLLABORATEUR && (
+                                <span className="menu-badge">
+                                    {demandesEnAttente}
+                                </span>
+                            )}
+                        </button>
+                    ))}
                 </div>
 
                 <div className="sidebar-bottom">

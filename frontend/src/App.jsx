@@ -1,4 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { ROLES, ROUTE_PERMISSIONS } from "./config/roleConfig";
 
 import Login from "./pages/Login";
 import Accueil from "./pages/Accueil";
@@ -8,111 +11,102 @@ import Notifications from "./pages/Notifications";
 import Profil from "./pages/Profil";
 import PiecesJointes from "./pages/PiecesJointes";
 import Validations from "./pages/Validations";
-import ProtectedRoute from "./components/ProtectedRoute";
+import Visiteurs from "./pages/Visiteurs";
 
 function App() {
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<Login />} />
+        <AuthProvider>
+            <BrowserRouter>
+                <Routes>
 
+                    <Route path="/" element={<Login />} />
+
+                    <Route
+                        path="/accueil"
+                        element={
+                            <ProtectedRoute
+                                element={<Accueil />}
+                                allowedRoles={ROUTE_PERMISSIONS["/accueil"]}
+                            />
+                        }
+                    />
+
+                    <Route
+                        path="/demandes"
+                        element={
+                            <ProtectedRoute
+                                element={<Demandes />}
+                                allowedRoles={ROUTE_PERMISSIONS["/demandes"]}
+                            />
+                        }
+                    />
+
+                    <Route
+                        path="/rendez-vous"
+                        element={
+                            <ProtectedRoute
+                                element={<RendezVous />}
+                                allowedRoles={ROUTE_PERMISSIONS["/rendez-vous"]}
+                            />
+                        }
+                    />
+
+                    <Route
+                        path="/notifications"
+                        element={
+                            <ProtectedRoute
+                                element={<Notifications />}
+                                allowedRoles={ROUTE_PERMISSIONS["/notifications"]}
+                            />
+                        }
+                    />
+
+                    <Route
+                        path="/profil"
+                        element={
+                            <ProtectedRoute
+                                element={<Profil />}
+                                allowedRoles={ROUTE_PERMISSIONS["/profil"]}
+                            />
+                        }
+                    />
+
+                    <Route
+                        path="/validations"
+                        element={
+                            <ProtectedRoute
+                                element={<Validations />}
+                                allowedRoles={ROUTE_PERMISSIONS["/validations"]}
+                            />
+                        }
+                    />
+
+                    <Route
+                        path="/pieces-jointes"
+                        element={
+                            <ProtectedRoute
+                                element={<PiecesJointes />}
+                                allowedRoles={ROUTE_PERMISSIONS["/pieces-jointes"]}
+                            />
+                        }
+                    />
+
+                    <Route
+                        path="*"
+                        element={<Navigate to="/" replace />}
+                    />
+
+                </Routes>
                 <Route
-                    path="/accueil"
+                    path="/visiteurs"
                     element={
-                        <ProtectedRoute allowedRoles={[
-                            "COLLABORATEUR",
-                            "RESPONSABLE",
-                            "ADMINISTRATEUR",
-                            "AGENT_ACCUEIL"
-                        ]}>
-                            <Accueil />
+                        <ProtectedRoute allowedRoles={["RESPONSABLE", "ADMINISTRATEUR", "AGENT_ACCUEIL"]}>
+                            <Visiteurs />
                         </ProtectedRoute>
                     }
                 />
-
-                <Route
-                    path="/demandes"
-                    element={
-                        <ProtectedRoute allowedRoles={[
-                            "COLLABORATEUR",
-                            "RESPONSABLE",
-                            "ADMINISTRATEUR"
-                        ]}>
-                            <Demandes />
-                        </ProtectedRoute>
-                    }
-                />
-
-                <Route
-                    path="/rendez-vous"
-                    element={
-                        <ProtectedRoute allowedRoles={[
-                            "COLLABORATEUR",
-                            "RESPONSABLE",
-                            "ADMINISTRATEUR",
-                            "AGENT_ACCUEIL"
-                        ]}>
-                            <RendezVous />
-                        </ProtectedRoute>
-                    }
-                />
-
-                <Route
-                    path="/notifications"
-                    element={
-                        <ProtectedRoute allowedRoles={[
-                            "COLLABORATEUR",
-                            "RESPONSABLE",
-                            "ADMINISTRATEUR",
-                            "AGENT_ACCUEIL"
-                        ]}>
-                            <Notifications />
-                        </ProtectedRoute>
-                    }
-                />
-
-                <Route
-                    path="/profil"
-                    element={
-                        <ProtectedRoute allowedRoles={[
-                            "COLLABORATEUR",
-                            "RESPONSABLE",
-                            "ADMINISTRATEUR",
-                            "AGENT_ACCUEIL"
-                        ]}>
-                            <Profil />
-                        </ProtectedRoute>
-                    }
-                />
-
-                <Route
-                    path="/validations"
-                    element={
-                        <ProtectedRoute allowedRoles={[
-                            "RESPONSABLE",
-                            "ADMINISTRATEUR"
-                        ]}>
-                            <Validations />
-                        </ProtectedRoute>
-                    }
-                />
-
-                <Route
-                    path="/pieces-jointes"
-                    element={
-                        <ProtectedRoute allowedRoles={[
-                            "COLLABORATEUR",
-                            "RESPONSABLE",
-                            "ADMINISTRATEUR"
-                        ]}>
-                            <PiecesJointes />
-                        </ProtectedRoute>
-                    }
-                />
-
-                <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-        </BrowserRouter>
+            </BrowserRouter>
+        </AuthProvider>
     );
 }
 
