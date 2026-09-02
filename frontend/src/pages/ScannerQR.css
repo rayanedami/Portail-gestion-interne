@@ -1,0 +1,241 @@
+.scanner-page {
+    min-height: 100vh;
+    padding: 30px;
+    background: #f7f8fa;
+}
+
+.scanner-header {
+    margin-bottom: 30px;
+}
+
+.scanner-header h1 {
+    margin: 0 0 8px;
+    font-size: 30px;
+    color: #222;
+}
+
+.scanner-header p {
+    margin: 0;
+    color: #777;
+    font-size: 15px;
+}
+
+.scanner-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+    align-items: start;
+}
+
+.scanner-camera-card,
+.scanner-info-card {
+    background: white;
+    border-radius: 14px;
+    padding: 25px;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.06);
+}
+
+.scanner-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.scanner-icon {
+    width: 55px;
+    height: 55px;
+    border-radius: 12px;
+    background: #fff1e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+}
+
+.scanner-title h2 {
+    margin: 0 0 5px;
+    color: #222;
+    font-size: 21px;
+}
+
+.scanner-title p {
+    margin: 0;
+    color: #777;
+    font-size: 14px;
+}
+
+.qr-reader {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+.scanner-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.btn-start-scanner,
+.btn-stop-scanner {
+    border: none;
+    border-radius: 8px;
+    padding: 13px 22px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-start-scanner {
+    background: #f58220;
+    color: white;
+}
+
+.btn-stop-scanner {
+    background: #444;
+    color: white;
+}
+
+.btn-start-scanner:hover,
+.btn-stop-scanner:hover {
+    opacity: 0.9;
+}
+
+.btn-start-scanner:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.scanner-info-card h2 {
+    margin: 0 0 25px;
+    font-size: 20px;
+    color: #222;
+}
+
+.scanner-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.scanner-step span {
+    min-width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #f58220;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.scanner-step p {
+    margin: 5px 0 0;
+    color: #555;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.scanner-loading {
+    margin-top: 20px;
+    padding: 15px 20px;
+    background: #fff8ef;
+    border-radius: 8px;
+    color: #a85d12;
+    text-align: center;
+    font-weight: 600;
+}
+
+.scanner-error {
+    margin-top: 20px;
+    padding: 15px 20px;
+    background: #fff0f0;
+    border: 1px solid #f0cccc;
+    border-radius: 8px;
+    color: #c62828;
+}
+
+.scanner-result {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.scanner-result.success {
+    background: #eaf8ef;
+    border: 1px solid #bce5c8;
+    color: #176b39;
+}
+
+.scanner-result.error {
+    background: #fff0f0;
+    border: 1px solid #f0cccc;
+    color: #b42318;
+}
+
+.result-icon {
+    width: 45px;
+    height: 45px;
+    min-width: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 23px;
+    font-weight: bold;
+}
+
+.success .result-icon {
+    background: #21a35a;
+}
+
+.error .result-icon {
+    background: #d93025;
+}
+
+.scanner-result h3 {
+    margin: 0 0 6px;
+    font-size: 18px;
+}
+
+.scanner-result p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.badge-result-details {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 900px) {
+    .scanner-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .scanner-page {
+        padding: 18px;
+    }
+
+    .scanner-camera-card,
+    .scanner-info-card {
+        padding: 20px;
+    }
+
+    .scanner-header h1 {
+        font-size: 24px;
+    }
+}

@@ -69,14 +69,41 @@ const Visite = {
     async getAll() {
         const [rows] = await db.query(`
             SELECT
-                id,
-                date_entree,
-                date_sortie,
-                statut,
-                rendez_vous_id,
-                agent_accueil_id
-            FROM visite
-            ORDER BY id DESC
+                v.id,
+                v.date_entree,
+                v.date_sortie,
+                v.statut,
+
+                v.rendez_vous_id,
+                v.agent_accueil_id,
+
+                r.date_rendez_vous,
+                r.heure_rendez_vous,
+                r.motif,
+                r.statut AS rendez_vous_statut,
+
+                vis.id AS visiteur_id,
+                vis.nom AS visiteur_nom,
+                vis.prenom AS visiteur_prenom,
+                vis.email AS visiteur_email,
+                vis.telephone AS visiteur_telephone,
+                vis.societe AS visiteur_societe,
+
+                u.nom AS agent_nom,
+                u.prenom AS agent_prenom
+
+            FROM visite v
+
+            INNER JOIN rendez_vous r
+                ON v.rendez_vous_id = r.id
+
+            INNER JOIN visiteur vis
+                ON r.visiteur_id = vis.id
+
+            LEFT JOIN utilisateur u
+                ON v.agent_accueil_id = u.id
+
+            ORDER BY v.id DESC
         `);
 
         return rows;
@@ -85,14 +112,41 @@ const Visite = {
     async getById(id) {
         const [rows] = await db.query(`
             SELECT
-                id,
-                date_entree,
-                date_sortie,
-                statut,
-                rendez_vous_id,
-                agent_accueil_id
-            FROM visite
-            WHERE id = ?
+                v.id,
+                v.date_entree,
+                v.date_sortie,
+                v.statut,
+
+                v.rendez_vous_id,
+                v.agent_accueil_id,
+
+                r.date_rendez_vous,
+                r.heure_rendez_vous,
+                r.motif,
+                r.statut AS rendez_vous_statut,
+
+                vis.id AS visiteur_id,
+                vis.nom AS visiteur_nom,
+                vis.prenom AS visiteur_prenom,
+                vis.email AS visiteur_email,
+                vis.telephone AS visiteur_telephone,
+                vis.societe AS visiteur_societe,
+
+                u.nom AS agent_nom,
+                u.prenom AS agent_prenom
+
+            FROM visite v
+
+            INNER JOIN rendez_vous r
+                ON v.rendez_vous_id = r.id
+
+            INNER JOIN visiteur vis
+                ON r.visiteur_id = vis.id
+
+            LEFT JOIN utilisateur u
+                ON v.agent_accueil_id = u.id
+
+            WHERE v.id = ?
         `, [id]);
 
         return rows[0];

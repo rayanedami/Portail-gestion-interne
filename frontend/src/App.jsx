@@ -15,6 +15,8 @@ import Visiteurs from "./pages/Visiteurs";
 import Utilisateurs from "./pages/Utilisateurs";
 import Logs from "./pages/Logs";
 import Badges from "./pages/Badges";
+import Visites from "./pages/Visites";
+import ScannerQR from "./pages/ScannerQR";
 
 function App() {
     return (
@@ -130,6 +132,26 @@ function App() {
                             <ProtectedRoute
                                 element={<Badges />}
                                 allowedRoles={ROUTE_PERMISSIONS["/badges"]}
+                            />
+                        }
+                    />
+
+                    <Route
+                        path="/visites"
+                        element={
+                            <ProtectedRoute
+                                element={<Visites />}
+                                allowedRoles={ROUTE_PERMISSIONS["/visites"]}
+                            />
+                        }
+                    />
+
+                    <Route
+                        path="/scanner-qr"
+                        element={
+                            <ProtectedRoute
+                                element={<ScannerQR />}
+                                allowedRoles={ROUTE_PERMISSIONS["/scanner-qr"]}
                             />
                         }
                     />

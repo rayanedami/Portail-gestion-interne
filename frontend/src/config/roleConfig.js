@@ -57,6 +57,14 @@ export const ROUTE_PERMISSIONS = {
     "/badges": [
         ROLES.AGENT_ACCUEIL,
         ROLES.ADMINISTRATEUR
+    ],
+    "/visites": [
+        ROLES.AGENT_ACCUEIL,
+        ROLES.ADMINISTRATEUR
+    ],
+    "/scanner-qr": [
+        ROLES.AGENT_ACCUEIL,
+        ROLES.ADMINISTRATEUR
     ]
 };
 
@@ -83,6 +91,7 @@ export const MENU_ITEMS_BY_ROLE = {
         { label: "Validations", path: "/validations", icon: "✅" },
         { label: "Utilisateurs", path: "/utilisateurs", icon: "👥" },
         { label: "Visiteurs", path: "/visiteurs", icon: "🏢" },
+        { label: "Visites", path: "/visites", icon: "📋" },
         { label: "Rendez-vous", path: "/rendez-vous", icon: "📅" },
         { label: "Notifications", path: "/notifications", icon: "🔔" },
         { label: "Logs", path: "/logs", icon: "📋" },
@@ -91,8 +100,10 @@ export const MENU_ITEMS_BY_ROLE = {
     [ROLES.AGENT_ACCUEIL]: [
         { label: "Accueil", path: "/accueil", icon: "🏠" },
         { label: "Visiteurs", path: "/visiteurs", icon: "👥" },
+        { label: "Visites", path: "/visites", icon: "📋" },
         { label: "Rendez-vous", path: "/rendez-vous", icon: "📅" },
         { label: "Badges/QR", path: "/badges", icon: "🎫" },
+        { label: "Scanner QR", path: "/scanner-qr", icon: "📱" },
         { label: "Notifications", path: "/notifications", icon: "🔔" },
         { label: "Profil", path: "/profil", icon: "👤" }
     ]

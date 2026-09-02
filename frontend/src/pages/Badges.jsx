@@ -1,13 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-    BadgeCheck,
-    QrCode,
-    UserRound,
-    CalendarDays,
-    Search,
-    RefreshCw
-} from "lucide-react";
-
+import { QrCode, Plus, Trash2, Edit, X, RefreshCw } from "lucide-react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import "./Badges.css";
@@ -17,96 +9,246 @@ function Badges() {
 
     const currentUser = user || utilisateur;
 
-    const [visiteurs, setVisiteurs] = useState([]);
-    const [search, setSearch] = useState("");
+    const [badges, setBadges] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [message, setMessage] = useState("");
     const [error, setError] = useState("");
 
-    const fetchVisiteurs = async () => {
+    const [showForm, setShowForm] = useState(false);
+    const [editingBadge, setEditingBadge] = useState(null);
+
+    const [formData, setFormData] = useState({
+        qr_code: "",
+        date_generation: "",
+        date_expiration: "",
+        statut: "ACTIF",
+        rendez_vous_id: ""
+    });
+
+    const role = String(currentUser?.role || "").toUpperCase();
+
+    const canManage =
+        role === "AGENT_ACCUEIL" ||
+        role === "ADMINISTRATEUR";
+
+    useEffect(() => {
+        fetchBadges();
+    }, []);
+
+    const fetchBadges = async () => {
         try {
             setLoading(true);
             setError("");
 
-            const response = await api.get("/visiteurs");
+            const response = await api.get("/badges");
 
-            const data = Array.isArray(response.data)
-                ? response.data
-                : response.data.visiteurs || [];
-
-            setVisiteurs(data);
-
+            setBadges(response.data || []);
         } catch (err) {
-            console.error("Erreur récupération visiteurs :", err);
+            console.error("Erreur récupération badges :", err);
 
             setError(
                 err.response?.data?.message ||
-                "Impossible de récupérer les visiteurs."
+                "Impossible de récupérer les badges."
             );
         } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        fetchVisiteurs();
-    }, []);
+    const resetForm = () => {
+        setFormData({
+            qr_code: "",
+            date_generation: "",
+            date_expiration: "",
+            statut: "ACTIF",
+            rendez_vous_id: ""
+        });
 
-    const filteredVisiteurs = visiteurs.filter((visiteur) => {
-        const texte = search.toLowerCase();
-
-        return (
-            String(visiteur.nom || "")
-                .toLowerCase()
-                .includes(texte) ||
-            String(visiteur.prenom || "")
-                .toLowerCase()
-                .includes(texte) ||
-            String(visiteur.email || "")
-                .toLowerCase()
-                .includes(texte) ||
-            String(visiteur.id || "")
-                .toLowerCase()
-                .includes(texte)
-        );
-    });
-
-    const getNomVisiteur = (visiteur) => {
-        const nom = visiteur.nom || "";
-        const prenom = visiteur.prenom || "";
-
-        const fullName = `${prenom} ${nom}`.trim();
-
-        return fullName || `Visiteur #${visiteur.id}`;
+        setEditingBadge(null);
+        setShowForm(false);
     };
 
-    const getStatut = (visiteur) => {
-        return (
-            visiteur.statut ||
-            visiteur.status ||
-            "EN_ATTENTE"
-        );
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value
+        }));
     };
 
-    const getBadgeClass = (statut) => {
-        const value = String(statut).toUpperCase();
+    const generateQRCode = () => {
+        const code =
+            "BADGE-" +
+            Date.now() +
+            "-" +
+            Math.random()
+                .toString(36)
+                .substring(2, 8)
+                .toUpperCase();
 
-        if (
-            value === "ACTIF" ||
-            value === "VALIDE" ||
-            value === "VALIDEE"
-        ) {
-            return "badge-status active";
+        setFormData((prev) => ({
+            ...prev,
+            qr_code: code
+        }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        setMessage("");
+        setError("");
+
+        try {
+            if (
+                !formData.qr_code ||
+                !formData.date_generation ||
+                !formData.date_expiration ||
+                !formData.rendez_vous_id
+            ) {
+                setError("Veuillez remplir tous les champs obligatoires.");
+                return;
+            }
+
+            const data = {
+                qr_code: formData.qr_code,
+                date_generation: formData.date_generation,
+                date_expiration: formData.date_expiration,
+                statut: formData.statut,
+                rendez_vous_id: Number(formData.rendez_vous_id)
+            };
+
+            if (editingBadge) {
+                await api.put(
+                    `/badges/${editingBadge.id}`,
+                    data
+                );
+
+                setMessage("Badge modifié avec succès.");
+            } else {
+                await api.post("/badges", data);
+
+                setMessage("Badge créé avec succès.");
+            }
+
+            resetForm();
+            await fetchBadges();
+
+        } catch (err) {
+            console.error("Erreur badge :", err);
+
+            setError(
+                err.response?.data?.message ||
+                "Une erreur est survenue."
+            );
+        }
+    };
+
+    const handleEdit = (badge) => {
+        setEditingBadge(badge);
+
+        setFormData({
+            qr_code: badge.qr_code || "",
+            date_generation: formatDateForInput(
+                badge.date_generation
+            ),
+            date_expiration: formatDateForInput(
+                badge.date_expiration
+            ),
+            statut: badge.statut || "ACTIF",
+            rendez_vous_id: badge.rendez_vous_id || ""
+        });
+
+        setShowForm(true);
+        setMessage("");
+        setError("");
+    };
+
+    const handleDelete = async (id) => {
+        const confirmation = window.confirm(
+            "Voulez-vous vraiment supprimer ce badge ?"
+        );
+
+        if (!confirmation) {
+            return;
         }
 
-        if (
-            value === "TERMINE" ||
-            value === "EXPIRE"
-        ) {
-            return "badge-status expired";
+        try {
+            setError("");
+            setMessage("");
+
+            await api.delete(`/badges/${id}`);
+
+            setMessage("Badge supprimé avec succès.");
+
+            await fetchBadges();
+
+        } catch (err) {
+            console.error("Erreur suppression badge :", err);
+
+            setError(
+                err.response?.data?.message ||
+                "Impossible de supprimer le badge."
+            );
+        }
+    };
+
+    const formatDate = (date) => {
+        if (!date) return "-";
+
+        const d = new Date(date);
+
+        if (Number.isNaN(d.getTime())) {
+            return date;
         }
 
-        return "badge-status pending";
+        return d.toLocaleString("fr-FR");
     };
+
+    const formatDateForInput = (date) => {
+        if (!date) return "";
+
+        const d = new Date(date);
+
+        if (Number.isNaN(d.getTime())) {
+            return "";
+        }
+
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        const hours = String(d.getHours()).padStart(2, "0");
+        const minutes = String(d.getMinutes()).padStart(2, "0");
+
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
+    const getStatusClass = (statut) => {
+        switch (String(statut || "").toUpperCase()) {
+            case "ACTIF":
+                return "status-active";
+
+            case "EXPIRE":
+                return "status-expired";
+
+            case "UTILISE":
+                return "status-used";
+
+            default:
+                return "status-default";
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="badges-page">
+                <div className="badges-loading">
+                    <RefreshCw className="loading-icon" />
+                    <p>Chargement des badges...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="badges-page">
@@ -117,203 +259,396 @@ function Badges() {
 
                 <div>
                     <div className="badges-title-row">
-                        <BadgeCheck size={30} />
+                        <QrCode size={28} />
 
-                        <h1>Gestion des badges</h1>
+                        <h1>
+                            Gestion des badges
+                        </h1>
                     </div>
 
                     <p>
-                        Gestion et contrôle des badges visiteurs.
+                        Création et gestion des badges QR Code
+                        pour les visiteurs.
                     </p>
                 </div>
 
-                <button
-                    type="button"
-                    className="badges-refresh"
-                    onClick={fetchVisiteurs}
-                >
-                    <RefreshCw size={16} />
-                    Actualiser
-                </button>
+                {canManage && (
+                    <button
+                        className="add-badge-button"
+                        onClick={() => {
+                            setEditingBadge(null);
+                            setFormData({
+                                qr_code: "",
+                                date_generation: "",
+                                date_expiration: "",
+                                statut: "ACTIF",
+                                rendez_vous_id: ""
+                            });
+
+                            setShowForm(true);
+                            setMessage("");
+                            setError("");
+                        }}
+                    >
+                        <Plus size={18} />
+                        Nouveau badge
+                    </button>
+                )}
 
             </div>
 
 
-            {/* INFORMATIONS UTILISATEUR */}
+            {/* MESSAGES */}
 
-            <div className="badges-user-card">
-
-                <div className="user-avatar">
-                    <UserRound size={22} />
+            {message && (
+                <div className="success-message">
+                    {message}
                 </div>
-
-                <div>
-                    <strong>
-                        {currentUser?.prenom} {currentUser?.nom}
-                    </strong>
-
-                    <span>
-                        Rôle : {currentUser?.role}
-                    </span>
-                </div>
-
-            </div>
-
-
-            {/* RECHERCHE */}
-
-            <div className="badges-toolbar">
-
-                <div className="badges-search">
-
-                    <Search size={17} />
-
-                    <input
-                        type="text"
-                        placeholder="Rechercher un visiteur..."
-                        value={search}
-                        onChange={(e) =>
-                            setSearch(e.target.value)
-                        }
-                    />
-
-                </div>
-
-            </div>
-
-
-            {/* ERREUR */}
+            )}
 
             {error && (
-                <div className="badges-error">
+                <div className="error-message">
                     {error}
                 </div>
             )}
 
 
-            {/* CHARGEMENT */}
+            {/* FORMULAIRE */}
 
-            {loading ? (
-                <div className="badges-empty">
-                    Chargement des visiteurs...
-                </div>
-            ) : filteredVisiteurs.length === 0 ? (
+            {showForm && canManage && (
+                <div className="badge-form-card">
 
-                <div className="badges-empty">
+                    <div className="form-header">
 
-                    <QrCode size={45} />
+                        <h2>
+                            {editingBadge
+                                ? "Modifier le badge"
+                                : "Créer un badge"}
+                        </h2>
 
-                    <h3>
-                        Aucun visiteur trouvé
-                    </h3>
+                        <button
+                            className="close-form-button"
+                            onClick={resetForm}
+                        >
+                            <X size={20} />
+                        </button>
 
-                    <p>
-                        Aucun visiteur ne correspond à votre recherche.
-                    </p>
+                    </div>
 
-                </div>
 
-            ) : (
+                    <form onSubmit={handleSubmit}>
 
-                <div className="badges-grid">
+                        <div className="form-grid">
 
-                    {filteredVisiteurs.map((visiteur) => {
+                            <div className="form-field">
 
-                        const statut = getStatut(visiteur);
+                                <label>
+                                    QR Code *
+                                </label>
 
-                        return (
+                                <div className="qr-input-row">
 
-                            <div
-                                className="badge-card"
-                                key={visiteur.id}
-                            >
+                                    <input
+                                        type="text"
+                                        name="qr_code"
+                                        value={formData.qr_code}
+                                        onChange={handleChange}
+                                        placeholder="Code QR"
+                                        required
+                                    />
 
-                                <div className="badge-card-top">
-
-                                    <div className="badge-icon">
-                                        <QrCode size={28} />
-                                    </div>
-
-                                    <span
-                                        className={getBadgeClass(
-                                            statut
-                                        )}
+                                    <button
+                                        type="button"
+                                        className="generate-button"
+                                        onClick={generateQRCode}
                                     >
-                                        {statut}
-                                    </span>
-
-                                </div>
-
-
-                                <div className="badge-person">
-
-                                    <h2>
-                                        {getNomVisiteur(visiteur)}
-                                    </h2>
-
-                                    {visiteur.email && (
-                                        <p>
-                                            {visiteur.email}
-                                        </p>
-                                    )}
-
-                                </div>
-
-
-                                <div className="badge-info">
-
-                                    <div>
-
-                                        <UserRound size={15} />
-
-                                        <span>
-                                            ID visiteur :{" "}
-                                            {visiteur.id}
-                                        </span>
-
-                                    </div>
-
-                                    <div>
-
-                                        <CalendarDays size={15} />
-
-                                        <span>
-                                            {visiteur.date_visite ||
-                                                visiteur.date_arrivee ||
-                                                "Date non renseignée"}
-                                        </span>
-
-                                    </div>
-
-                                </div>
-
-
-                                <div className="badge-code">
-
-                                    <QrCode size={20} />
-
-                                    <div>
-
-                                        <strong>
-                                            QR Badge
-                                        </strong>
-
-                                        <span>
-                                            Badge associé au visiteur
-                                        </span>
-
-                                    </div>
+                                        Générer
+                                    </button>
 
                                 </div>
 
                             </div>
 
-                        );
-                    })}
+
+                            <div className="form-field">
+
+                                <label>
+                                    Rendez-vous ID *
+                                </label>
+
+                                <input
+                                    type="number"
+                                    name="rendez_vous_id"
+                                    value={
+                                        formData.rendez_vous_id
+                                    }
+                                    onChange={handleChange}
+                                    placeholder="Ex: 1"
+                                    min="1"
+                                    required
+                                />
+
+                            </div>
+
+
+                            <div className="form-field">
+
+                                <label>
+                                    Date de génération *
+                                </label>
+
+                                <input
+                                    type="datetime-local"
+                                    name="date_generation"
+                                    value={
+                                        formData.date_generation
+                                    }
+                                    onChange={handleChange}
+                                    required
+                                />
+
+                            </div>
+
+
+                            <div className="form-field">
+
+                                <label>
+                                    Date d'expiration *
+                                </label>
+
+                                <input
+                                    type="datetime-local"
+                                    name="date_expiration"
+                                    value={
+                                        formData.date_expiration
+                                    }
+                                    onChange={handleChange}
+                                    required
+                                />
+
+                            </div>
+
+
+                            <div className="form-field">
+
+                                <label>
+                                    Statut
+                                </label>
+
+                                <select
+                                    name="statut"
+                                    value={formData.statut}
+                                    onChange={handleChange}
+                                >
+                                    <option value="ACTIF">
+                                        ACTIF
+                                    </option>
+
+                                    <option value="EXPIRE">
+                                        EXPIRE
+                                    </option>
+
+                                    <option value="UTILISE">
+                                        UTILISE
+                                    </option>
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <div className="form-actions">
+
+                            <button
+                                type="button"
+                                className="cancel-button"
+                                onClick={resetForm}
+                            >
+                                Annuler
+                            </button>
+
+                            <button
+                                type="submit"
+                                className="save-button"
+                            >
+                                {editingBadge
+                                    ? "Enregistrer les modifications"
+                                    : "Créer le badge"}
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            )}
+
+
+            {/* LISTE */}
+
+            <div className="badges-card">
+
+                <div className="list-header">
+
+                    <div>
+                        <h2>
+                            Badges
+                        </h2>
+
+                        <span>
+                            {badges.length} badge
+                            {badges.length !== 1 ? "s" : ""}
+                        </span>
+                    </div>
+
+                    <button
+                        className="refresh-button"
+                        onClick={fetchBadges}
+                        title="Actualiser"
+                    >
+                        <RefreshCw size={18} />
+                    </button>
 
                 </div>
 
-            )}
+
+                {badges.length === 0 ? (
+
+                    <div className="empty-state">
+
+                        <QrCode size={45} />
+
+                        <h3>
+                            Aucun badge
+                        </h3>
+
+                        <p>
+                            Aucun badge n'a encore été créé.
+                        </p>
+
+                    </div>
+
+                ) : (
+
+                    <div className="table-container">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>ID</th>
+                                    <th>QR Code</th>
+                                    <th>Génération</th>
+                                    <th>Expiration</th>
+                                    <th>Statut</th>
+                                    <th>Rendez-vous</th>
+
+                                    {canManage && (
+                                        <th>Actions</th>
+                                    )}
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                {badges.map((badge) => (
+
+                                    <tr key={badge.id}>
+
+                                        <td>
+                                            #{badge.id}
+                                        </td>
+
+                                        <td>
+                                            <div className="qr-code-cell">
+
+                                                <QrCode size={20} />
+
+                                                <span>
+                                                    {badge.qr_code}
+                                                </span>
+
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            {formatDate(
+                                                badge.date_generation
+                                            )}
+                                        </td>
+
+                                        <td>
+                                            {formatDate(
+                                                badge.date_expiration
+                                            )}
+                                        </td>
+
+                                        <td>
+
+                                            <span
+                                                className={`status-badge ${getStatusClass(
+                                                    badge.statut
+                                                )}`}
+                                            >
+                                                {badge.statut}
+                                            </span>
+
+                                        </td>
+
+                                        <td>
+                                            #{badge.rendez_vous_id}
+                                        </td>
+
+                                        {canManage && (
+                                            <td>
+
+                                                <div className="actions">
+
+                                                    <button
+                                                        className="edit-button"
+                                                        onClick={() =>
+                                                            handleEdit(
+                                                                badge
+                                                            )
+                                                        }
+                                                        title="Modifier"
+                                                    >
+                                                        <Edit size={16} />
+                                                    </button>
+
+                                                    <button
+                                                        className="delete-button"
+                                                        onClick={() =>
+                                                            handleDelete(
+                                                                badge.id
+                                                            )
+                                                        }
+                                                        title="Supprimer"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+
+                                                </div>
+
+                                            </td>
+                                        )}
+
+                                    </tr>
+
+                                ))}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                )}
+
+            </div>
 
         </div>
     );
