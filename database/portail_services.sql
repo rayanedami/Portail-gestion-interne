@@ -538,3 +538,36 @@ FROM
     LEFT JOIN visite vi ON vi.rendez_vous_id = r.id;
     
     
+
+INSERT INTO role (nom, description)
+VALUES (
+    'VISITEUR',
+    'Visiteur externe qui crée un compte et prend des rendez-vous'
+);
+
+ALTER TABLE visiteur
+ADD COLUMN utilisateur_id INT NULL UNIQUE AFTER id;
+
+ALTER TABLE visiteur
+ADD CONSTRAINT fk_visiteur_utilisateur
+FOREIGN KEY (utilisateur_id)
+REFERENCES utilisateur(id)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+DESCRIBE visiteur;
+SHOW CREATE TABLE visiteur;
+
+SELECT
+    u.id,
+    u.nom,
+    u.prenom,
+    u.email,
+    r.nom AS role,
+    v.utilisateur_id,
+    v.societe
+FROM utilisateur u
+JOIN role r ON r.id = u.role_id
+LEFT JOIN visiteur v ON v.utilisateur_id = u.id
+WHERE u.email = 'jean@exemple.com';
+
