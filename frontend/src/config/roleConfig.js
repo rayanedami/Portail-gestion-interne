@@ -2,7 +2,8 @@ export const ROLES = {
     COLLABORATEUR: "COLLABORATEUR",
     RESPONSABLE: "RESPONSABLE",
     ADMINISTRATEUR: "ADMINISTRATEUR",
-    AGENT_ACCUEIL: "AGENT_ACCUEIL"
+    AGENT_ACCUEIL: "AGENT_ACCUEIL",
+    VISITEUR: "VISITEUR"
 };
 
 export const ROUTE_PERMISSIONS = {
@@ -10,7 +11,8 @@ export const ROUTE_PERMISSIONS = {
         ROLES.COLLABORATEUR,
         ROLES.RESPONSABLE,
         ROLES.ADMINISTRATEUR,
-        ROLES.AGENT_ACCUEIL
+        ROLES.AGENT_ACCUEIL,
+        ROLES.VISITEUR
     ],
     "/demandes": [
         ROLES.COLLABORATEUR,
@@ -25,7 +27,8 @@ export const ROUTE_PERMISSIONS = {
         ROLES.COLLABORATEUR,
         ROLES.RESPONSABLE,
         ROLES.ADMINISTRATEUR,
-        ROLES.AGENT_ACCUEIL
+        ROLES.AGENT_ACCUEIL,
+        ROLES.VISITEUR
     ],
     "/visiteurs": [
         ROLES.AGENT_ACCUEIL,
@@ -35,13 +38,16 @@ export const ROUTE_PERMISSIONS = {
         ROLES.COLLABORATEUR,
         ROLES.RESPONSABLE,
         ROLES.ADMINISTRATEUR,
-        ROLES.AGENT_ACCUEIL
+        ROLES.AGENT_ACCUEIL,
+        ROLES.VISITEUR
     ],
     "/profil": [
         ROLES.COLLABORATEUR,
         ROLES.RESPONSABLE,
         ROLES.ADMINISTRATEUR,
-        ROLES.AGENT_ACCUEIL
+        ROLES.AGENT_ACCUEIL,
+        ROLES.VISITEUR
+        
     ],
     "/pieces-jointes": [
         ROLES.COLLABORATEUR,
@@ -104,6 +110,12 @@ export const MENU_ITEMS_BY_ROLE = {
         { label: "Rendez-vous", path: "/rendez-vous", icon: "📅" },
         { label: "Badges/QR", path: "/badges", icon: "🎫" },
         { label: "Scanner QR", path: "/scanner-qr", icon: "📱" },
+        { label: "Notifications", path: "/notifications", icon: "🔔" },
+        { label: "Profil", path: "/profil", icon: "👤" }
+    ],
+    [ROLES.VISITEUR]: [
+        { label: "Accueil", path: "/accueil", icon: "🏠" },
+        { label: "Mes rendez-vous", path: "/rendez-vous", icon: "📅" },
         { label: "Notifications", path: "/notifications", icon: "🔔" },
         { label: "Profil", path: "/profil", icon: "👤" }
     ]

@@ -1,9 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { ROLES, ROUTE_PERMISSIONS } from "./config/roleConfig";
+import { ROUTE_PERMISSIONS } from "./config/roleConfig";
 
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Accueil from "./pages/Accueil";
 import Demandes from "./pages/Demandes";
 import RendezVous from "./pages/RendezVous";
@@ -24,7 +25,24 @@ function App() {
             <BrowserRouter>
                 <Routes>
 
-                    <Route path="/" element={<Login />} />
+                    {/* =========================
+                        ROUTES PUBLIQUES
+                    ========================= */}
+
+                    <Route
+                        path="/"
+                        element={<Login />}
+                    />
+
+                    <Route
+                        path="/register"
+                        element={<Register />}
+                    />
+
+
+                    {/* =========================
+                        ROUTES PROTÉGÉES
+                    ========================= */}
 
                     <Route
                         path="/accueil"
@@ -155,6 +173,11 @@ function App() {
                             />
                         }
                     />
+
+
+                    {/* =========================
+                        ROUTE PAR DÉFAUT
+                    ========================= */}
 
                     <Route
                         path="*"
