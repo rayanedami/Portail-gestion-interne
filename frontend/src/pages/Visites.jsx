@@ -9,6 +9,13 @@ function Visites() {
     const [visites, setVisites] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [filters, setFilters] = useState({
+        visiteur: "",
+        date: "",
+        statut: "",
+        from: "",
+        to: ""
+    });
 
     const chargerVisites = async () => {
         try {
@@ -35,7 +42,7 @@ function Visites() {
 
     useEffect(() => {
         chargerVisites();
-    }, []);
+    }, [filters]);
 
     const formaterDate = (date) => {
         if (!date) return "-";
