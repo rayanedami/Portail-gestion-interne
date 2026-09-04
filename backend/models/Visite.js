@@ -6,7 +6,7 @@ const Visite = {
         const {
             date_entree,
             date_sortie,
-            statut,
+            statut = "EN_COURS",
             rendez_vous_id,
             agent_accueil_id
         } = data;
@@ -18,7 +18,9 @@ const Visite = {
             [
                 date_entree,
                 date_sortie,
-                statut,
+                ["PREVUE", "EN_COURS", "TERMINEE", "ANNULEE"].includes(statut)
+                    ? statut
+                    : "EN_COURS",
                 rendez_vous_id,
                 agent_accueil_id
             ]

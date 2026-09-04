@@ -1,6 +1,7 @@
 const db = require("../config/db");
 const RendezVous = require("../models/RendezVous");
 const Notification = require("../models/Notification");
+const Badge = require("../models/Badge");
 
 const RendezVousController = {
 
@@ -32,6 +33,10 @@ const RendezVousController = {
             data.statut = data.statut || "PLANIFIE";
 
             const rendezVous = await RendezVous.create(data);
+            let badge = null;
+            if (String(data.statut).toUpperCase() === "CONFIRME") {
+                badge = await Badge.createForRendezVous(rendezVous.id);
+            }
 
             await Notification.notifyUser(
                 data.collaborateur_id,
@@ -48,7 +53,8 @@ const RendezVousController = {
 
             res.status(201).json({
                 message: "Rendez-vous créé avec succès",
-                rendezVous
+                rendezVous,
+                badge
             });
 
         } catch (error) {
@@ -81,6 +87,11 @@ const RendezVousController = {
 
             const rendezVous = await RendezVous.update(req.params.id, data);
 
+            let badge = null;
+            if (String(data.statut).toUpperCase() === "CONFIRME") {
+                badge = await Badge.createForRendezVous(rendezVous.id);
+            }
+
             await Notification.notifyVisitor(
                 rendezVous.id,
                 `Votre rendez-vous #${rendezVous.id} a été modifié.`,
@@ -89,7 +100,8 @@ const RendezVousController = {
 
             res.json({
                 message: "Rendez-vous modifié avec succès",
-                rendezVous
+                rendezVous,
+                badge
             });
 
         } catch (error) {

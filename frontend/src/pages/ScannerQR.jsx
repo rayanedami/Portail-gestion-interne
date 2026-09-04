@@ -82,7 +82,7 @@ function ScannerQR() {
             const response = await api.post("/visites", {
                 date_entree: dateEntree,
                 date_sortie: null,
-                statut: "PRESENT",
+                statut: "EN_COURS",
                 rendez_vous_id: badge.rendez_vous_id,
                 agent_accueil_id: utilisateur.id
             });
@@ -142,7 +142,7 @@ function ScannerQR() {
                 badge.statut || ""
             ).toUpperCase();
 
-            if (statut !== "ACTIF") {
+            if (statut !== "VALIDE") {
                 setResultat({
                     type: "error",
                     message: "Ce badge n'est pas actif.",

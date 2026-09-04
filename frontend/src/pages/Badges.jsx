@@ -22,7 +22,7 @@ function Badges() {
         qr_code: "",
         date_generation: "",
         date_expiration: "",
-        statut: "ACTIF",
+        statut: "VALIDE",
         rendez_vous_id: ""
     });
 
@@ -61,7 +61,7 @@ function Badges() {
             qr_code: "",
             date_generation: "",
             date_expiration: "",
-            statut: "ACTIF",
+            statut: "VALIDE",
             rendez_vous_id: ""
         });
 
@@ -156,7 +156,7 @@ function Badges() {
             date_expiration: formatDateForInput(
                 badge.date_expiration
             ),
-            statut: badge.statut || "ACTIF",
+            statut: badge.statut || "VALIDE",
             rendez_vous_id: badge.rendez_vous_id || ""
         });
 
@@ -226,7 +226,7 @@ function Badges() {
 
     const getStatusClass = (statut) => {
         switch (String(statut || "").toUpperCase()) {
-            case "ACTIF":
+            case "VALIDE":
                 return "status-active";
 
             case "EXPIRE":
@@ -282,7 +282,7 @@ function Badges() {
                                 qr_code: "",
                                 date_generation: "",
                                 date_expiration: "",
-                                statut: "ACTIF",
+                                statut: "VALIDE",
                                 rendez_vous_id: ""
                             });
 

@@ -63,7 +63,7 @@ function MonBadge() {
                     mesRendezVousIds.includes(
                         Number(item.rendez_vous_id)
                     ) &&
-                    ["VALIDE", "ACTIF"].includes(
+                    ["VALIDE"].includes(
                         String(item.statut || "").toUpperCase()
                     )
             );

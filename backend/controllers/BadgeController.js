@@ -79,7 +79,7 @@ const BadgeController = {
 
     async getAll(req, res) {
         try {
-            const badges = await Badge.getAll();
+            const badges = await Badge.getAll(req.auth);
 
             res.json(badges);
 
@@ -94,7 +94,7 @@ const BadgeController = {
 
     async getById(req, res) {
         try {
-            const badge = await Badge.getById(req.params.id);
+            const badge = await Badge.getById(req.params.id, req.auth);
 
             if (!badge) {
                 return res.status(404).json({

@@ -1,11 +1,13 @@
 const Visite = require("../models/Visite");
 const Notification = require("../models/Notification");
+const Badge = require("../models/Badge");
 
 const VisiteController = {
 
     async create(req, res) {
         try {
             const visite = await Visite.create(req.body);
+            const badge = await Badge.createForRendezVous(visite.rendez_vous_id);
 
             await Notification.notifyVisitor(
                 visite.rendez_vous_id,
@@ -15,7 +17,8 @@ const VisiteController = {
 
             res.status(201).json({
                 message: "Visite créée avec succès",
-                visite
+                visite,
+                badge
             });
 
         } catch (error) {
