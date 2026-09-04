@@ -16,13 +16,26 @@ function Utilisateurs() {
     const [message, setMessage] = useState("");
 
     useEffect(() => {
-        Promise.all([api.get("/utilisateurs"), api.get("/roles"), api.get("/departements")])
-            .then(([usersResponse, rolesResponse, departmentsResponse]) => {
-                setUtilisateurs(usersResponse.data || []);
-                setRoles(rolesResponse.data || []);
-                setDepartements(departmentsResponse.data || []);
-            })
-            .catch((error) => setErreur(error.response?.data?.message || "Impossible de récupérer les utilisateurs."));
+        Promise.allSettled([api.get("/utilisateurs"), api.get("/roles"), api.get("/departements")])
+            .then(([usersResult, rolesResult, departmentsResult]) => {
+                if (usersResult.status === "fulfilled") {
+                    setUtilisateurs(usersResult.value.data || []);
+                } else {
+                    setErreur(usersResult.reason.response?.data?.message || "Impossible de récupérer les utilisateurs.");
+                }
+
+                if (rolesResult.status === "fulfilled") {
+                    setRoles(rolesResult.value.data || []);
+                } else {
+                    setErreur((current) => current || "Impossible de récupérer les rôles.");
+                }
+
+                if (departmentsResult.status === "fulfilled") {
+                    setDepartements(departmentsResult.value.data || []);
+                } else {
+                    setErreur((current) => current || "Impossible de récupérer les départements.");
+                }
+            });
     }, []);
 
     const resultats = utilisateurs.filter((utilisateur) =>
