@@ -20,6 +20,16 @@ const VisiteurController = {
         }
     },
 
+    async getHistory(req, res) {
+        try {
+            const historique = await Visiteur.getHistory(req.params.id);
+            return res.json(historique);
+        } catch (error) {
+            console.error("Erreur historique visiteur :", error.message);
+            return res.status(500).json({ message: "Erreur serveur" });
+        }
+    },
+
     async update(req, res) {
         try {
             const visiteur = await Visiteur.update(req.params.id, req.body);

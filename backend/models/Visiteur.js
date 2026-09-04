@@ -87,6 +87,24 @@ const Visiteur = {
         `, [id]);
 
         return rows[0];
+    },
+
+    async getHistory(id) {
+        const [rows] = await db.query(`
+            SELECT 'rendez-vous' AS type, r.id, r.date_rendez_vous,
+                   r.heure_rendez_vous, r.statut, r.motif
+            FROM rendez_vous r
+            WHERE r.visiteur_id = ?
+            UNION ALL
+            SELECT 'visite' AS type, v.id, NULL AS date_rendez_vous,
+                   NULL AS heure_rendez_vous, v.statut, NULL AS motif
+            FROM visite v
+            JOIN rendez_vous r ON r.id = v.rendez_vous_id
+            WHERE r.visiteur_id = ?
+            ORDER BY id DESC
+        `, [id, id]);
+
+        return rows;
     }
 
 };

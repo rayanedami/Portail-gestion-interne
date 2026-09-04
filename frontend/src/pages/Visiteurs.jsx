@@ -15,8 +15,7 @@ import api from "../services/api";
 import "./Visiteurs.css";
 
 function Visiteurs() {
-    const { user } = useAuth();
-
+    const { utilisateur } = useAuth();
     const [visiteurs, setVisiteurs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
@@ -25,20 +24,21 @@ function Visiteurs() {
     const [search, setSearch] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [editingVisiteur, setEditingVisiteur] = useState(null);
+    const [historique, setHistorique] = useState([]);
+    const [visiteurHistorique, setVisiteurHistorique] = useState(null);
 
     const [form, setForm] = useState({
         nom: "",
         prenom: "",
         email: "",
         telephone: "",
-        entreprise: ""
+        societe: ""
     });
 
-    const role = String(user?.role || "").trim().toUpperCase();
+    const role = String(utilisateur?.role || "").trim().toUpperCase();
 
     const canManage =
         role === "AGENT_ACCUEIL" ||
-        role === "RESPONSABLE" ||
         role === "ADMINISTRATEUR";
 
     /* =========================
@@ -98,7 +98,7 @@ function Visiteurs() {
             prenom: "",
             email: "",
             telephone: "",
-            entreprise: ""
+            societe: ""
         });
 
         setEditingVisiteur(null);
@@ -119,7 +119,7 @@ function Visiteurs() {
             prenom: visiteur.prenom || "",
             email: visiteur.email || "",
             telephone: visiteur.telephone || "",
-            entreprise: visiteur.entreprise || ""
+            societe: visiteur.societe || ""
         });
 
         setMessage("");
@@ -200,6 +200,16 @@ function Visiteurs() {
         }
     };
 
+    const consulterHistorique = async (visiteur) => {
+        try {
+            const response = await api.get(`/visiteurs/${visiteur.id}/historique`);
+            setHistorique(response.data || []);
+            setVisiteurHistorique(visiteur);
+        } catch (err) {
+            setError("Impossible de récupérer l'historique du visiteur.");
+        }
+    };
+
     /* =========================
        RECHERCHE
     ========================= */
@@ -220,7 +230,7 @@ function Visiteurs() {
             String(visiteur.telephone || "")
                 .toLowerCase()
                 .includes(text) ||
-            String(visiteur.entreprise || "")
+            String(visiteur.societe || "")
                 .toLowerCase()
                 .includes(text)
         );
@@ -300,7 +310,7 @@ function Visiteurs() {
                             {
                                 new Set(
                                     visiteurs
-                                        .map((v) => v.entreprise)
+                                        .map((v) => v.societe)
                                         .filter(Boolean)
                                 ).size
                             }
@@ -413,7 +423,7 @@ function Visiteurs() {
                                         </td>
 
                                         <td>
-                                            {visiteur.entreprise || "—"}
+                                            {visiteur.societe || "—"}
                                         </td>
 
                                         <td>
@@ -465,6 +475,14 @@ function Visiteurs() {
                                                         }
                                                     >
                                                         <Trash2 size={16} />
+                                                    </button>
+
+                                                    <button
+                                                        className="btn-edit"
+                                                        title="Historique"
+                                                        onClick={() => consulterHistorique(visiteur)}
+                                                    >
+                                                        Historique
                                                     </button>
 
                                                 </div>
@@ -596,8 +614,8 @@ function Visiteurs() {
 
                                     <input
                                         type="text"
-                                        name="entreprise"
-                                        value={form.entreprise}
+                                        name="societe"
+                                        value={form.societe}
                                         onChange={handleChange}
                                         placeholder="Nom de l'entreprise"
                                     />
@@ -633,6 +651,29 @@ function Visiteurs() {
 
                 </div>
 
+            )}
+
+            {visiteurHistorique && (
+                <div className="modal-overlay">
+                    <div className="visiteur-modal">
+                        <div className="modal-header">
+                            <div>
+                                <h2>Historique de {visiteurHistorique.prenom} {visiteurHistorique.nom}</h2>
+                                <p>Rendez-vous et visites enregistrés.</p>
+                            </div>
+                            <button className="modal-close" onClick={() => setVisiteurHistorique(null)}><X size={20} /></button>
+                        </div>
+                        <div className="historique-visiteur">
+                            {historique.length === 0 ? <p>Aucun historique disponible.</p> : historique.map((item) => (
+                                <div className="historique-item" key={`${item.type}-${item.id}`}>
+                                    <strong>{item.type === "visite" ? "Visite" : "Rendez-vous"} #{item.id}</strong>
+                                    <span>{item.statut || "-"}</span>
+                                    <small>{item.date_rendez_vous || item.date_entree || "Date non renseignée"}</small>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
             )}
 
         </div>
