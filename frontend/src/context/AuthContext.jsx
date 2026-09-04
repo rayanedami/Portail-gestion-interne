@@ -4,23 +4,31 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
     const [utilisateur, setUtilisateur] = useState(null);
+    const [token, setToken] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const stored = localStorage.getItem("utilisateur");
-        if (stored) {
+        const storedToken = localStorage.getItem("token");
+        if (stored && storedToken) {
             try {
                 setUtilisateur(JSON.parse(stored));
+                setToken(storedToken);
             } catch (error) {
                 console.error("Erreur parsing utilisateur :", error);
                 localStorage.removeItem("utilisateur");
+                localStorage.removeItem("token");
             }
+        } else {
+            localStorage.removeItem("utilisateur");
+            localStorage.removeItem("token");
         }
         setLoading(false);
     }, []);
 
     const login = (user, token) => {
         setUtilisateur(user);
+        setToken(token || null);
         localStorage.setItem("utilisateur", JSON.stringify(user));
         if (token) {
             localStorage.setItem("token", token);
@@ -29,6 +37,7 @@ export function AuthProvider({ children }) {
 
     const logout = () => {
         setUtilisateur(null);
+        setToken(null);
         localStorage.removeItem("utilisateur");
         localStorage.removeItem("token");
     };
@@ -40,11 +49,12 @@ export function AuthProvider({ children }) {
 
     const value = {
         utilisateur,
+        token,
         loading,
         login,
         updateUtilisateur,
         logout,
-        isLoggedIn: !!utilisateur,
+        isLoggedIn: !!utilisateur && !!token,
         role: utilisateur?.role || null,
         userId: utilisateur?.id || null
     };
