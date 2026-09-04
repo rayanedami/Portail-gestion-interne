@@ -191,6 +191,127 @@
     font-size: 13px;
 }
 
+.rdv-table-wrapper {
+    overflow-x: auto;
+    border: 1px solid #eaecf0;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.rdv-table {
+    width: 100%;
+    min-width: 1050px;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.rdv-table th {
+    padding: 13px 10px;
+    background: #f8f9fb;
+    color: #475467;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.rdv-table td {
+    height: 76px;
+    padding: 12px 10px;
+    border-top: 1px solid #f0f1f3;
+    color: #344054;
+    vertical-align: middle;
+}
+
+.rdv-table td strong,
+.rdv-table td small {
+    display: block;
+}
+
+.rdv-table td small {
+    margin-top: 5px;
+    color: #667085;
+    font-size: 11px;
+}
+
+.rdv-id-cell {
+    color: #475467;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.rdv-table-status {
+    display: inline-flex;
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.rdv-table-status.rdv-success {
+    background: #dcfce7;
+    color: #16803c;
+}
+
+.rdv-table-status.rdv-warning {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.rdv-table-status.rdv-danger {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.rdv-badge-qr {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: #ecfdf3;
+    color: #20a464;
+}
+
+.rdv-badge-qr svg {
+    width: 19px;
+    height: 19px;
+}
+
+.rdv-no-badge {
+    color: #98a2b3;
+}
+
+.rdv-table-actions {
+    display: flex;
+    gap: 7px;
+}
+
+.rdv-table-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid #eaecf0;
+    border-radius: 7px;
+    background: #fff;
+    color: #475467;
+    cursor: pointer;
+}
+
+.rdv-table-actions button:hover {
+    border-color: #ff591b;
+    color: #ff591b;
+}
+
+.rdv-table-actions svg {
+    width: 17px;
+    height: 17px;
+}
+
 .rdv-list {
     display: flex;
     flex-direction: column;

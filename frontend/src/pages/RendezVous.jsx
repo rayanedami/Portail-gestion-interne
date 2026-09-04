@@ -8,6 +8,8 @@ import {
     Plus,
     Pencil,
     Ban,
+    Eye,
+    QrCode,
     CheckCircle2,
     XCircle,
     AlertCircle
@@ -22,6 +24,7 @@ function RendezVous() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
     const [message, setMessage] = useState("");
+    const [badges, setBadges] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [editingRendezVous, setEditingRendezVous] = useState(null);
     const [formData, setFormData] = useState({
@@ -36,13 +39,17 @@ function RendezVous() {
 
     useEffect(() => {
         fetchRendezVous();
-    }, []);
+    }, [utilisateur?.role]);
 
     const fetchRendezVous = async () => {
         try {
             setLoading(true);
 
-            const response = await api.get("/rendez-vous");
+            const requests = [api.get("/rendez-vous")];
+            if (utilisateur?.role === "AGENT_ACCUEIL") {
+                requests.push(api.get("/badges"));
+            }
+            const [response, badgesResponse] = await Promise.all(requests);
 
             const data = Array.isArray(response.data)
                 ? response.data
@@ -51,6 +58,7 @@ function RendezVous() {
                 [];
 
             setRendezVous(data);
+            setBadges(badgesResponse?.data || []);
         } catch (error) {
             console.error(
                 "Erreur récupération rendez-vous :",
@@ -152,6 +160,11 @@ function RendezVous() {
     });
 
     const canManage = ["COLLABORATEUR", "RESPONSABLE", "ADMINISTRATEUR", "AGENT_ACCUEIL"].includes(utilisateur?.role);
+    const isAgentAccueil = utilisateur?.role === "AGENT_ACCUEIL";
+    const badgeFor = (rdvId) => badges.find(
+        (badge) => Number(badge.rendez_vous_id) === Number(rdvId)
+    );
+    const formatTime = (time) => String(time || "").slice(0, 5);
 
     return (
         <div className="rendez-vous-page">
@@ -163,7 +176,7 @@ function RendezVous() {
                         <CalendarDays />
                     </div>
 
-                    <h1>Mes rendez-vous</h1>
+                    <h1>{utilisateur?.role === "AGENT_ACCUEIL" ? "Liste des rendez-vous" : "Mes rendez-vous"}</h1>
 
                     <p>Consultez vos rendez-vous et vos visites prévues.</p>
                 </div>
@@ -220,7 +233,7 @@ function RendezVous() {
 
             </div>
 
-            <div className="rdv-list">
+            <div className={isAgentAccueil ? "rdv-table-wrapper" : "rdv-list"}>
 
                 {loading ? (
                     <div className="rdv-empty">
@@ -240,6 +253,46 @@ function RendezVous() {
                         </p>
 
                     </div>
+                ) : isAgentAccueil ? (
+                    <table className="rdv-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Visiteur</th>
+                                <th>Société</th>
+                                <th>Personne à rencontrer</th>
+                                <th>Date &amp; Heure</th>
+                                <th>Objet</th>
+                                <th>Statut</th>
+                                <th>Badge</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredRendezVous.map((rdv) => {
+                                const status = getStatus(rdv.statut);
+                                const badge = badgeFor(rdv.id);
+                                return (
+                                    <tr key={rdv.id}>
+                                        <td className="rdv-id-cell">#RDV-{String(rdv.id).padStart(5, "0")}</td>
+                                        <td><strong>{rdv.visiteur_nom || "Visiteur non renseigné"}</strong></td>
+                                        <td>{rdv.visiteur_societe || "-"}</td>
+                                        <td><strong>{rdv.collaborateur_nom || "-"}</strong></td>
+                                        <td><strong>{formatDate(rdv.date_rendez_vous, false)}</strong><small>{formatTime(rdv.heure_rendez_vous)}</small></td>
+                                        <td><strong>{rdv.motif || "-"}</strong></td>
+                                        <td><span className={`rdv-table-status ${status.className}`}>{rdv.statut || "EN ATTENTE"}</span></td>
+                                        <td>{badge ? <span className="rdv-badge-qr" title={`Badge ${badge.statut}`}><QrCode /></span> : <span className="rdv-no-badge">-</span>}</td>
+                                        <td>
+                                            <div className="rdv-table-actions">
+                                                <button type="button" title="Voir" onClick={() => setMessage(`Rendez-vous #${rdv.id}`)}><Eye /></button>
+                                                {rdv.statut !== "ANNULE" && <button type="button" title="Modifier" onClick={() => ouvrirFormulaire(rdv)}><Pencil /></button>}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
                 ) : (
                     filteredRendezVous.map((rdv) => {
 
