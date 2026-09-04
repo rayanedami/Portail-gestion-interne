@@ -78,7 +78,7 @@ const NotificationController = {
 
     async getAll(req, res) {
         try {
-            const notifications = await Notification.getAll();
+            const notifications = await Notification.getAll(req.auth);
             res.json(notifications);
         } catch (error) {
             console.error("Erreur notifications :", error.message);

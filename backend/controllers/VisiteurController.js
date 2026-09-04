@@ -63,7 +63,7 @@ const VisiteurController = {
 
     async getAll(req, res) {
         try {
-            const visiteurs = await Visiteur.getAll();
+            const visiteurs = await Visiteur.getAll(req.auth);
             res.json(visiteurs);
         } catch (error) {
             console.error("Erreur visiteurs :", error.message);

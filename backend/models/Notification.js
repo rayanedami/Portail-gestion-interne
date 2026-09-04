@@ -60,7 +60,11 @@ const Notification = {
         return result.affectedRows > 0;
     },
 
-    async getAll() {
+    async getAll(auth) {
+        const where = auth?.role === "ADMINISTRATEUR"
+            ? ""
+            : "WHERE utilisateur_id = ?";
+        const params = auth?.role === "ADMINISTRATEUR" ? [] : [auth.id];
         const [rows] = await db.query(`
             SELECT
                 id,
@@ -72,8 +76,9 @@ const Notification = {
                 demande_id,
                 rendez_vous_id
             FROM notification
+            ${where}
             ORDER BY id DESC
-        `);
+        `, params);
 
         return rows;
     },

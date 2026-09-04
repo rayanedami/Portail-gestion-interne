@@ -45,7 +45,11 @@ const Demande = {
         return result.affectedRows > 0;
     },
 
-    async getAll() {
+    async getAll(auth) {
+        const where = auth?.role === "COLLABORATEUR"
+            ? "WHERE d.collaborateur_id = ?"
+            : "";
+        const params = auth?.role === "COLLABORATEUR" ? [auth.id] : [];
         const [rows] = await db.query(`
             SELECT
                 d.id,
@@ -55,8 +59,9 @@ const Demande = {
                 d.collaborateur_id,
                 d.type_demande_id
             FROM demande d
+            ${where}
             ORDER BY d.id DESC
-        `);
+        `, params);
 
         return rows;
     },

@@ -2,12 +2,13 @@ const express = require("express");
 const router = express.Router();
 
 const VisiteurController = require("../controllers/VisiteurController");
+const { requireRoles } = require("../middleware/auth");
 
-router.post("/", VisiteurController.create);
-router.put("/:id", VisiteurController.update);
-router.delete("/:id", VisiteurController.delete);
+router.post("/", requireRoles("AGENT_ACCUEIL", "ADMINISTRATEUR"), VisiteurController.create);
+router.put("/:id", requireRoles("AGENT_ACCUEIL", "ADMINISTRATEUR"), VisiteurController.update);
+router.delete("/:id", requireRoles("AGENT_ACCUEIL", "ADMINISTRATEUR"), VisiteurController.delete);
 
-router.get("/", VisiteurController.getAll);
-router.get("/:id", VisiteurController.getById);
+router.get("/", requireRoles("AGENT_ACCUEIL", "ADMINISTRATEUR", "VISITEUR"), VisiteurController.getAll);
+router.get("/:id", requireRoles("AGENT_ACCUEIL", "ADMINISTRATEUR", "VISITEUR"), VisiteurController.getById);
 
 module.exports = router;

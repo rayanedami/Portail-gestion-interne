@@ -78,7 +78,7 @@ const RendezVousController = {
 
     async getAll(req, res) {
         try {
-            const rendezVous = await RendezVous.getAll();
+            const rendezVous = await RendezVous.getAll(req.auth);
             res.json(rendezVous);
         } catch (error) {
             console.error("Erreur rendez-vous :", error.message);

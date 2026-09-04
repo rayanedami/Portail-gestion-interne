@@ -49,7 +49,11 @@ const Visiteur = {
         return result.affectedRows > 0;
     },
 
-    async getAll() {
+    async getAll(auth) {
+        const where = auth?.role === "VISITEUR"
+            ? "WHERE utilisateur_id = ?"
+            : "";
+        const params = auth?.role === "VISITEUR" ? [auth.id] : [];
         const [rows] = await db.query(`
             SELECT
                 id,
@@ -60,8 +64,9 @@ const Visiteur = {
                 telephone,
                 societe
             FROM visiteur
+            ${where}
             ORDER BY id DESC
-        `);
+        `, params);
 
         return rows;
 

@@ -71,7 +71,16 @@ const RendezVous = {
         return result.affectedRows > 0;
     },
 
-    async getAll() {
+    async getAll(auth) {
+        let where = "";
+        let params = [];
+        if (auth?.role === "VISITEUR") {
+            where = "WHERE v.utilisateur_id = ?";
+            params = [auth.id];
+        } else if (auth?.role === "COLLABORATEUR") {
+            where = "WHERE r.collaborateur_id = ?";
+            params = [auth.id];
+        }
         const [rows] = await db.query(`
             SELECT
                 r.id,
@@ -82,8 +91,10 @@ const RendezVous = {
                 r.visiteur_id,
                 r.collaborateur_id
             FROM rendez_vous r
+            LEFT JOIN visiteur v ON v.id = r.visiteur_id
+            ${where}
             ORDER BY r.id DESC
-        `);
+        `, params);
 
         return rows;
     },
