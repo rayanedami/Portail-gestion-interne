@@ -48,7 +48,6 @@ export function ProtectedRoute({ element, allowedRoles }) {
     };
 
     const menuItems = MENU_ITEMS_BY_ROLE[role] || [];
-    const homePath = role === "VISITEUR" ? "/accueil-visiteur" : "/accueil";
     const isHome = ["/accueil", "/accueil-visiteur"].includes(location.pathname);
 
     if (isHome) {

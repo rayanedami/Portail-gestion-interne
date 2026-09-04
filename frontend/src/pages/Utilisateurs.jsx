@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Search, Users } from "lucide-react";
 import api from "../services/api";
-import "../components/ReturnHomeButton.css";
 
 function Utilisateurs() {
     const [utilisateurs, setUtilisateurs] = useState([]);
@@ -39,7 +38,6 @@ function Utilisateurs() {
 
     return (
         <main className="admin-page">
-            <button className="return-home-button" type="button" onClick={() => window.location.assign("/accueil")}>Retour a l'accueil</button>
             <h1><Users size={24} /> Gestion des utilisateurs</h1>
             <div className="admin-search"><Search size={18} /><input value={recherche} onChange={(event) => setRecherche(event.target.value)} placeholder="Rechercher..." /><button onClick={exporter}>Exporter Excel</button></div>
             {erreur && <p>{erreur}</p>}

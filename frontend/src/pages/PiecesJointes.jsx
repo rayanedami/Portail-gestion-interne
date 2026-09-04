@@ -3,7 +3,6 @@ import { useAuth } from "../context/AuthContext";
 import { Paperclip, Download, Trash2, Upload, FileText } from "lucide-react";
 import api from "../services/api";
 import "./PiecesJointes.css";
-import "../components/ReturnHomeButton.css";
 
 function PiecesJointes() {
     const { utilisateur } = useAuth();
@@ -73,8 +72,6 @@ function PiecesJointes() {
 
     return (
         <div className="pieces-page">
-            <button className="return-home-button" type="button" onClick={() => window.location.assign("/accueil")}>Retour a l'accueil</button>
-
             <div className="pieces-header">
                 <div>
                     <div className="pieces-title-row">

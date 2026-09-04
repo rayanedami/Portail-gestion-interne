@@ -18,7 +18,6 @@ import {
 import api from "../services/api";
 import { formatDate } from "../utils/formatDate";
 import "./RendezVous.css";
-import "../components/ReturnHomeButton.css";
 
 function RendezVous() {
     const { utilisateur } = useAuth();
@@ -197,8 +196,6 @@ function RendezVous() {
 
     return (
         <div className="rendez-vous-page">
-            <button className="return-home-button" type="button" onClick={() => window.location.assign("/accueil")}>Retour a l'accueil</button>
-
             <div className="rdv-header">
 
                 <div>

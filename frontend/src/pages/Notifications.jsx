@@ -10,7 +10,6 @@ import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import { formatDate } from "../utils/formatDate";
 import "./Notifications.css";
-import "../components/ReturnHomeButton.css";
 
 function Notifications() {
     const { utilisateur } = useAuth();
@@ -138,8 +137,6 @@ function Notifications() {
 
     return (
         <div className="notifications-page">
-            <button className="return-home-button" type="button" onClick={() => window.location.assign("/accueil")}>Retour a l'accueil</button>
-
             <div className="notifications-header">
 
                 <div>

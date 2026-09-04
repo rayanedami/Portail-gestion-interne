@@ -4,7 +4,6 @@ import { QRCodeSVG } from "qrcode.react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import "./Badges.css";
-import "../components/ReturnHomeButton.css";
 
 function Badges() {
     const { user, utilisateur } = useAuth();
@@ -246,8 +245,6 @@ function Badges() {
 
     return (
         <div className="badges-page">
-            <button className="return-home-button" type="button" onClick={() => window.location.assign("/accueil")}>Retour a l'accueil</button>
-
             {/* HEADER */}
 
             <div className="badges-header">
