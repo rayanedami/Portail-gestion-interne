@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./Visites.css";
 import api from "../services/api";
-import { DoorOpen, RefreshCw, UsersRound } from "lucide-react";
+import { DoorOpen, RefreshCw, UsersRound, Download, Printer } from "lucide-react";
 
 const API_URL = "http://localhost:3000/api";
 
@@ -114,6 +114,16 @@ function Visites() {
         return statut === "SORTI" || statut === "TERMINEE" || statut === "TERMINÉE";
     }).length;
 
+    const exporterExcel = () => {
+        const rows = [["Visiteur", "Rendez-vous", "Date entree", "Date sortie", "Statut"], ...visites.map((visite) => [getNomVisiteur(visite), visite.rendez_vous_id, visite.date_entree, visite.date_sortie, getStatut(visite)])];
+        const csv = rows.map((row) => row.map((value) => `"${String(value || "").replaceAll('"', '""')}"`).join(",")).join("\n");
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(new Blob([`\ufeff${csv}`], { type: "text/csv;charset=utf-8" }));
+        link.download = "visites.csv";
+        link.click();
+        URL.revokeObjectURL(link.href);
+    };
+
     const enregistrerSortie = async (visite) => {
         try {
             await api.put(`/visites/${visite.id}`, {
@@ -190,6 +200,7 @@ function Visites() {
                         <h2>Historique des visites</h2>
                         <p>Liste des entrées et sorties enregistrées.</p>
                     </div>
+                    <div className="export-actions"><button type="button" title="Exporter Excel" onClick={exporterExcel}><Download size={16} /></button><button type="button" title="Exporter PDF" onClick={() => window.print()}><Printer size={16} /></button></div>
                 </div>
 
                 {loading ? (

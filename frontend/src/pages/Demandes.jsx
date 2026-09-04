@@ -8,7 +8,9 @@ import {
     CheckCircle2,
     XCircle,
     AlertCircle,
-    RefreshCw
+    RefreshCw,
+    Download,
+    Printer
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
@@ -179,6 +181,19 @@ function Demandes() {
         setFilters({ type: "", statut: "", departement: "", from: "", to: "", search: "" });
     };
 
+    const exporterExcel = () => {
+        const rows = [
+            ["Motif", "Type", "Statut", "Date"],
+            ...filteredDemandes.map((demande) => [demande.motif, demande.nom_type, demande.statut, demande.date_soumission])
+        ];
+        const csv = rows.map((row) => row.map((value) => `"${String(value || "").replaceAll('"', '""')}"`).join(",")).join("\n");
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(new Blob([`\ufeff${csv}`], { type: "text/csv;charset=utf-8" }));
+        link.download = "demandes.csv";
+        link.click();
+        URL.revokeObjectURL(link.href);
+    };
+
     return (
         <div className="demandes-page">
             <div className="demandes-header">
@@ -302,6 +317,10 @@ function Demandes() {
                 <label className="date-filter"><span>De</span><input aria-label="Date de début" type="date" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} /></label>
                 <label className="date-filter"><span>À</span><input aria-label="Date de fin" type="date" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} /></label>
                 <button className="refresh-filter-button" type="button" title="Réinitialiser les filtres" aria-label="Réinitialiser les filtres" onClick={reinitialiserFiltres}><RefreshCw size={17} /></button>
+                <div className="export-actions">
+                    <button type="button" title="Exporter Excel" onClick={exporterExcel}><Download size={16} /></button>
+                    <button type="button" title="Exporter PDF" onClick={() => window.print()}><Printer size={16} /></button>
+                </div>
 
                 <div className="demandes-count">
                     {filteredDemandes.length} demande

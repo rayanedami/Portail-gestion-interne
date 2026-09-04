@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Search, Users, Eye, Pencil, X, Check } from "lucide-react";
+import { Search, Users, Eye, Pencil, X, Check, Download, Printer } from "lucide-react";
 import api from "../services/api";
 import "./Utilisateurs.css";
 
@@ -88,9 +88,11 @@ function Utilisateurs() {
         URL.revokeObjectURL(lien.href);
     };
 
+    const exporterPdf = () => window.print();
+
     return (
         <main className="admin-page">
-            <div className="users-header"><h1><Users size={24} /> Gestion des utilisateurs</h1><button onClick={exporter}>Exporter Excel</button></div>
+            <div className="users-header"><h1><Users size={24} /> Gestion des utilisateurs</h1><div className="export-actions"><button title="Exporter Excel" onClick={exporter}><Download size={16} /></button><button title="Exporter PDF" onClick={exporterPdf}><Printer size={16} /></button></div></div>
             <div className="users-filters">
                 <label className="admin-search"><Search size={18} /><input value={recherche} onChange={(event) => { setRecherche(event.target.value); setFilters({ ...filters, nom: event.target.value }); }} placeholder="Nom..." /></label>
                 <input placeholder="Email" onChange={(event) => setFilters({ ...filters, email: event.target.value })} />

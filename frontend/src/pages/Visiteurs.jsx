@@ -8,7 +8,9 @@ import {
     UserRound,
     Phone,
     Mail,
-    Building2
+    Building2,
+    Download,
+    Printer
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
@@ -237,6 +239,16 @@ function Visiteurs() {
         );
     });
 
+    const exporterExcel = () => {
+        const rows = [["Nom", "Prenom", "Email", "Telephone", "Societe"], ...filteredVisiteurs.map((visiteur) => [visiteur.nom, visiteur.prenom, visiteur.email, visiteur.telephone, visiteur.societe])];
+        const csv = rows.map((row) => row.map((value) => `"${String(value || "").replaceAll('"', '""')}"`).join(",")).join("\n");
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(new Blob([`\ufeff${csv}`], { type: "text/csv;charset=utf-8" }));
+        link.download = "visiteurs.csv";
+        link.click();
+        URL.revokeObjectURL(link.href);
+    };
+
     return (
         <div className="visiteurs-page">
 
@@ -349,6 +361,8 @@ function Visiteurs() {
                     {filteredVisiteurs.length} visiteur
                     {filteredVisiteurs.length !== 1 ? "s" : ""}
                 </div>
+
+                <div className="export-actions"><button type="button" title="Exporter Excel" onClick={exporterExcel}><Download size={16} /></button><button type="button" title="Exporter PDF" onClick={() => window.print()}><Printer size={16} /></button></div>
 
             </div>
 

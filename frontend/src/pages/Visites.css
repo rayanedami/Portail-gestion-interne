@@ -271,3 +271,49 @@
         font-size: 24px;
     }
 }
+
+.visites-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.export-actions {
+    display: inline-flex;
+    gap: 7px;
+}
+
+.export-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #d0d5dd;
+    border-radius: 7px;
+    background: #fff;
+    color: #475467;
+    cursor: pointer;
+}
+
+.export-actions button:hover {
+    border-color: #f58220;
+    color: #f58220;
+}
+
+@media print {
+
+    .protected-sidebar,
+    .visites-header,
+    .visites-filters,
+    .export-actions,
+    .btn-retry-visites {
+        display: none !important;
+    }
+
+    .visites-page {
+        padding: 0;
+        background: #fff;
+    }
+}

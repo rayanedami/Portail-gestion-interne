@@ -268,3 +268,41 @@
         grid-template-columns: 1fr;
     }
 }
+
+.users-header .export-actions {
+    display: inline-flex;
+    gap: 7px;
+}
+
+.users-header .export-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #d0d5dd;
+    border-radius: 7px;
+    background: #fff;
+    color: #475467;
+    cursor: pointer;
+}
+
+.users-header .export-actions button:hover {
+    border-color: #ff591b;
+    color: #ff591b;
+}
+
+@media print {
+
+    .protected-sidebar,
+    .users-filters,
+    .users-header .export-actions,
+    .user-actions {
+        display: none !important;
+    }
+
+    .admin-page {
+        padding: 0;
+        background: #fff;
+    }
+}

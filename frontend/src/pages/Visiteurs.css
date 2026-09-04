@@ -598,3 +598,41 @@
         width: 100%;
     }
 }
+
+.export-actions {
+    display: inline-flex;
+    gap: 7px;
+}
+
+.export-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #d0d5dd;
+    border-radius: 7px;
+    background: #fff;
+    color: #475467;
+    cursor: pointer;
+}
+
+.export-actions button:hover {
+    border-color: #ff591b;
+    color: #ff591b;
+}
+
+@media print {
+
+    .protected-sidebar,
+    .visiteurs-header button,
+    .visiteurs-toolbar,
+    .action-buttons {
+        display: none !important;
+    }
+
+    .visiteurs-page {
+        padding: 0;
+        background: #fff;
+    }
+}
