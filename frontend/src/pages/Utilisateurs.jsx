@@ -71,12 +71,13 @@ function Utilisateurs() {
 
     const exporter = () => {
         const lignes = [
-            ["Nom", "Email", "Téléphone", "Rôle", "Actif"],
+            ["Nom", "Email", "Téléphone", "Rôle", "Département", "Actif"],
             ...resultats.map((utilisateur) => [
                 `${utilisateur.prenom} ${utilisateur.nom}`,
                 utilisateur.email,
                 utilisateur.telephone || "",
-                utilisateur.role_id || "",
+                utilisateur.role_nom || "Rôle non renseigné",
+                utilisateur.departement_nom || "Département non renseigné",
                 utilisateur.actif ? "Oui" : "Non"
             ])
         ];
