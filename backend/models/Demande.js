@@ -19,6 +19,47 @@ const Demande = {
         return this.getById(result.insertId);
     },
 
+    async createWorkflow(data) {
+        const connection = await db.getConnection();
+        try {
+            await connection.beginTransaction();
+            const { motif, collaborateur_id, type_demande_id } = data;
+            const [result] = await connection.query(
+                `INSERT INTO demande (motif, collaborateur_id, type_demande_id)
+                 VALUES (?, ?, ?)`,
+                [motif, collaborateur_id, type_demande_id]
+            );
+            const demandeId = result.insertId;
+            const [responsables] = await connection.query(
+                `SELECT u.id FROM utilisateur u
+                 JOIN role r ON r.id = u.role_id
+                 WHERE r.nom = 'RESPONSABLE' AND u.actif = 1
+                 ORDER BY u.id LIMIT 1`
+            );
+            if (responsables.length > 0) {
+                await connection.query(
+                    `INSERT INTO validation
+                     (demande_id, responsable_id, niveau, decision)
+                     VALUES (?, ?, 1, 'EN_ATTENTE')`,
+                    [demandeId, responsables[0].id]
+                );
+            }
+            await connection.query(
+                `INSERT INTO notification
+                 (message, type, date_envoi, est_lue, utilisateur_id, demande_id)
+                 VALUES (?, 'DEMANDE', NOW(), 0, ?, ?)`,
+                [`Votre demande #${demandeId} a été soumise.`, collaborateur_id, demandeId]
+            );
+            await connection.commit();
+            return this.getById(demandeId);
+        } catch (error) {
+            await connection.rollback();
+            throw error;
+        } finally {
+            connection.release();
+        }
+    },
+
     async update(id, data) {
         const {
             motif,
@@ -57,8 +98,10 @@ const Demande = {
                 d.motif,
                 d.statut,
                 d.collaborateur_id,
-                d.type_demande_id
+                d.type_demande_id,
+                t.nom AS nom_type
             FROM demande d
+            JOIN type_demande t ON t.id = d.type_demande_id
             ${where}
             ORDER BY d.id DESC
         `, params);
@@ -66,7 +109,11 @@ const Demande = {
         return rows;
     },
 
-    async getById(id) {
+    async getById(id, auth) {
+        const ownerClause = auth?.role === "COLLABORATEUR"
+            ? "AND d.collaborateur_id = ?"
+            : "";
+        const params = auth?.role === "COLLABORATEUR" ? [id, auth.id] : [id];
         const [rows] = await db.query(`
             SELECT
                 d.id,
@@ -74,10 +121,12 @@ const Demande = {
                 d.motif,
                 d.statut,
                 d.collaborateur_id,
-                d.type_demande_id
+                d.type_demande_id,
+                t.nom AS nom_type
             FROM demande d
-            WHERE d.id = ?
-        `, [id]);
+            JOIN type_demande t ON t.id = d.type_demande_id
+            WHERE d.id = ? ${ownerClause}
+        `, params);
 
         return rows[0];
     }

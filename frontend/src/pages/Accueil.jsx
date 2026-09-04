@@ -151,7 +151,7 @@ function Accueil() {
     const menuItems = MENU_ITEMS_BY_ROLE[role] || [];
 
     const demandesApprouvees = demandes.filter((demande) =>
-        ["VALIDEE", "VALIDÉE", "APPROUVEE", "APPROUVÉE"].includes(
+        ["ACCEPTEE", "ACCEPTÉE", "APPROUVEE", "APPROUVÉE", "VALIDEE", "VALIDÉE"].includes(
             String(demande.statut || "").toUpperCase()
         )
     ).length;

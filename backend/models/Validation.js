@@ -8,7 +8,14 @@ const Validation = {
         try {
             const { demande_id, responsable_id, niveau, decision, commentaire } = data;
             const niveauActuel = Number(niveau);
-            const decisionFinale = String(decision).toUpperCase();
+            const decisionDemandee = String(decision).toUpperCase();
+            const decisionFinale = decisionDemandee === "VALIDEE"
+                ? "APPROUVEE"
+                : decisionDemandee;
+            if (!["APPROUVEE", "REFUSEE"].includes(decisionFinale)) {
+                throw new Error("Décision de validation invalide");
+            }
+            await connection.beginTransaction();
             const [demandes] = await connection.query(
                 "SELECT id, statut, collaborateur_id FROM demande WHERE id = ? FOR UPDATE",
                 [demande_id]
@@ -18,7 +25,6 @@ const Validation = {
                 throw new Error("Demande introuvable");
             }
 
-            await connection.beginTransaction();
             await connection.query(
                 `INSERT INTO validation
                 (demande_id, responsable_id, niveau, decision, commentaire, date_validation)
@@ -28,7 +34,7 @@ const Validation = {
 
             const statut = decisionFinale === "REFUSEE"
                 ? "REFUSEE"
-                : niveauActuel >= 2 ? "VALIDEE" : "EN_ATTENTE";
+                : niveauActuel >= 2 ? "ACCEPTEE" : "EN_ATTENTE";
             await connection.query(
                 "UPDATE demande SET statut = ? WHERE id = ?",
                 [statut, demande_id]
@@ -37,7 +43,7 @@ const Validation = {
             const message = decisionFinale === "REFUSEE"
                 ? `Votre demande #${demande_id} a été refusée.`
                 : statut === "VALIDEE"
-                    ? `Votre demande #${demande_id} a été validée.`
+                    ? `Votre demande #${demande_id} a été acceptée.`
                     : `Votre demande #${demande_id} a été validée au niveau ${niveauActuel}.`;
 
             await connection.query(

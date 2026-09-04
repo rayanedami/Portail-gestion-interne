@@ -57,7 +57,7 @@ function Validations() {
             const response = await api.post("/validations/decision", {
                 demande_id: demande.id,
                 niveau: 1,
-                decision: "VALIDEE",
+                decision: "APPROUVEE",
                 commentaire: "Demande validée par le responsable."
             });
 

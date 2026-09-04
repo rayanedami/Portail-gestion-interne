@@ -4,7 +4,8 @@ const DemandeController = {
 
     async create(req, res) {
         try {
-            const { motif, collaborateur_id, type_demande_id } = req.body;
+            const { motif, type_demande_id } = req.body;
+            const collaborateur_id = req.auth.id;
 
             if (!motif || !collaborateur_id || !type_demande_id) {
                 return res.status(400).json({
@@ -12,7 +13,11 @@ const DemandeController = {
                 });
             }
 
-            const demande = await Demande.create(req.body);
+            const demande = await Demande.createWorkflow({
+                motif,
+                type_demande_id,
+                collaborateur_id
+            });
 
             res.status(201).json({
                 message: "Demande créée avec succès",
@@ -88,7 +93,7 @@ const DemandeController = {
         try {
             const { id } = req.params;
 
-            const demande = await Demande.getById(id);
+            const demande = await Demande.getById(id, req.auth);
 
             if (!demande) {
                 return res.status(404).json({
