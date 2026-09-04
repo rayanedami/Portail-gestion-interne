@@ -334,268 +334,341 @@ function Accueil() {
                     </div>
 
 
-                    {/* STATISTIQUES */}
-
-                    <div className="stats-grid">
-
-                        <div className="stat-card">
-
-                            <div className="stat-icon orange">
-                                <ClipboardList size={22} />
+                    {role === ROLES.COLLABORATEUR ? (
+                        <>
+                            <div className="stats-grid">
+                                {[
+                                    ["Mes demandes", demandes.length, "orange"],
+                                    ["Demandes en attente", demandesEnAttente, "yellow"],
+                                    ["Demandes approuvées", demandesApprouvees, "green"],
+                                    ["Demandes refusées", demandesRefusees, "red"],
+                                    ["Mes rendez-vous", rendezVous.length, "blue"]
+                                ].map(([label, value, couleur]) => (
+                                    <div className="stat-card" key={label}>
+                                        <div className={`stat-icon ${couleur}`}>
+                                            <ClipboardList size={22} />
+                                        </div>
+                                        <div>
+                                            <span className="stat-label">{label}</span>
+                                            <strong className="stat-number">
+                                                {chargement ? "..." : value}
+                                            </strong>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
 
-                            <div>
-                                <span className="stat-label">
-                                    Mes demandes
-                                </span>
-
-                                <strong className="stat-number">
-                                    {chargement ? "..." : demandes.length}
-                                </strong>
+                            <div className="section-title">
+                                <h2>Actions rapides</h2>
+                                <p>Accédez rapidement à vos fonctionnalités principales.</p>
                             </div>
 
-                        </div>
-
-
-                        <div className="stat-card">
-
-                            <div className="stat-icon blue">
-                                <CalendarDays size={22} />
+                            <div className="quick-actions">
+                                {[
+                                    ["Nouvelle demande", "/nouvelle-demande", ClipboardList],
+                                    ["Mes demandes", "/demandes", ClipboardList],
+                                    ["Nouveau rendez-vous", "/rendez-vous", CalendarDays],
+                                    ["Mes rendez-vous", "/rendez-vous", CalendarDays]
+                                ].map(([label, route, Icon]) => (
+                                    <button className="quick-card" key={`${label}-${route}`} onClick={() => allerVers(route)}>
+                                        <div className="quick-icon blue"><Icon size={24} /></div>
+                                        <div><h3>{label}</h3><p>Ouvrir cette fonctionnalité.</p></div>
+                                    </button>
+                                ))}
                             </div>
 
-                            <div>
-                                <span className="stat-label">
-                                    Rendez-vous
-                                </span>
-
-                                <strong className="stat-number">
-                                    {chargement
-                                        ? "..."
-                                        : rendezVous.length}
-                                </strong>
-                            </div>
-
-                        </div>
-
-
-                        <div className="stat-card">
-
-                            <div className="stat-icon yellow">
-                                <Bell size={22} />
-                            </div>
-
-                            <div>
-                                <span className="stat-label">
-                                    Notifications
-                                </span>
-
-                                <strong className="stat-number">
-                                    {chargement
-                                        ? "..."
-                                        : notificationsNonLues}
-                                </strong>
-                            </div>
-
-                        </div>
-
-
-                        <div className="stat-card">
-
-                            <div className="stat-icon green">
-                                <ClipboardList size={22} />
-                            </div>
-
-                            <div>
-                                <span className="stat-label">
-                                    En attente
-                                </span>
-
-                                <strong className="stat-number">
-                                    {chargement
-                                        ? "..."
-                                        : demandesEnAttente}
-                                </strong>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    {/* ACTIONS RAPIDES */}
-
-                    <div className="section-title">
-                        <h2>Actions rapides</h2>
-                        <p>
-                            Accédez rapidement aux fonctionnalités principales.
-                        </p>
-                    </div>
-
-
-                    <div className="quick-actions">
-
-                        <button
-                            className="quick-card"
-                            onClick={() => allerVers("/demandes")}
-                        >
-                            <div className="quick-icon orange">
-                                <ClipboardList size={24} />
-                            </div>
-
-                            <div>
-                                <h3>Mes demandes</h3>
-                                <p>
-                                    Consulter et suivre vos demandes
-                                    administratives.
-                                </p>
-                            </div>
-                        </button>
-
-
-                        <button
-                            className="quick-card"
-                            onClick={() => allerVers("/rendez-vous")}
-                        >
-                            <div className="quick-icon blue">
-                                <CalendarDays size={24} />
-                            </div>
-
-                            <div>
-                                <h3>Mes rendez-vous</h3>
-                                <p>
-                                    Consulter vos rendez-vous et leurs
-                                    informations.
-                                </p>
-                            </div>
-                        </button>
-
-
-                        <button
-                            className="quick-card"
-                            onClick={() => allerVers("/notifications")}
-                        >
-                            <div className="quick-icon yellow">
-                                <Bell size={24} />
-                            </div>
-
-                            <div>
-                                <h3>Notifications</h3>
-                                <p>
-                                    Consultez vos dernières notifications.
-                                </p>
-                            </div>
-                        </button>
-
-                    </div>
-
-
-                    {/* DERNIÈRES DEMANDES */}
-
-                    <div className="recent-section">
-
-                        <div className="section-title recent-title">
-                            <div>
-                                <h2>Dernières demandes</h2>
-                                <p>
-                                    Aperçu de vos demandes administratives.
-                                </p>
-                            </div>
-
-                            <button
-                                className="view-all-button"
-                                onClick={() => allerVers("/demandes")}
-                            >
-                                Voir tout
-                            </button>
-                        </div>
-
-
-                        <div className="recent-card">
-
-                            {chargement ? (
-
-                                <div className="empty-state">
-                                    Chargement...
+                            <div className="recent-section">
+                                <div className="section-title recent-title">
+                                    <div><h2>Dernières demandes</h2><p>Suivez vos demandes récentes.</p></div>
+                                    <button className="view-all-button" onClick={() => allerVers("/demandes")}>Voir tout</button>
                                 </div>
-
-                            ) : demandes.length === 0 ? (
-
-                                <div className="empty-state">
-                                    <ClipboardList size={30} />
-
-                                    <strong>
-                                        Aucune demande
-                                    </strong>
-
-                                    <span>
-                                        Vous n'avez pas encore soumis de demande.
-                                    </span>
-                                </div>
-
-                            ) : (
-
-                                <div className="demandes-list">
-
-                                    {demandes
-                                        .slice(0, 5)
-                                        .map((demande) => (
-
-                                            <div
-                                                className="demande-row"
-                                                key={demande.id}
-                                            >
-
-                                                <div className="demande-info">
-
-                                                    <div className="demande-icon">
-                                                        <ClipboardList
-                                                            size={18}
-                                                        />
+                                <div className="recent-card">
+                                    {demandes.length === 0 ? (
+                                        <div className="empty-state"><ClipboardList size={30} /><strong>Aucune demande</strong><span>Vous n'avez pas encore soumis de demande.</span></div>
+                                    ) : (
+                                        <div className="demandes-list">
+                                            {demandes.slice(0, 5).map((demande) => (
+                                                <div className="demande-row" key={demande.id}>
+                                                    <div className="demande-info">
+                                                        <div className="demande-icon"><ClipboardList size={18} /></div>
+                                                        <div>
+                                                            <strong>{demande.nom_type || demande.type_demande || `Demande #${demande.id}`}</strong>
+                                                            <span>{formatDate(demande.date_soumission)}</span>
+                                                        </div>
                                                     </div>
-
-                                                    <div>
-                                                        <strong>
-                                                            {demande.motif ||
-                                                                "Demande administrative"}
-                                                        </strong>
-
-                                                        <span>
-                                                            {formatDate(
-                                                                demande.dateSoumission ||
-                                                                demande.date_soumission
-                                                            )}
-                                                        </span>
-                                                    </div>
-
+                                                    <span className="status">{demande.statut || "Non défini"}</span>
                                                 </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="stats-grid">
 
+                                <div className="stat-card">
 
-                                                <span
-                                                    className={`status ${String(
-                                                        demande.statut || ""
-                                                    )
-                                                        .toLowerCase()
-                                                        .replace(
-                                                            /\s+/g,
-                                                            "-"
-                                                        )
-                                                        }`}
-                                                >
-                                                    {demande.statut ||
-                                                        "Non défini"}
-                                                </span>
+                                    <div className="stat-icon orange">
+                                        <ClipboardList size={22} />
+                                    </div>
 
-                                            </div>
+                                    <div>
+                                        <span className="stat-label">
+                                            Mes demandes
+                                        </span>
 
-                                        ))}
+                                        <strong className="stat-number">
+                                            {chargement ? "..." : demandes.length}
+                                        </strong>
+                                    </div>
 
                                 </div>
 
-                            )}
 
-                        </div>
+                                <div className="stat-card">
 
-                    </div>
+                                    <div className="stat-icon blue">
+                                        <CalendarDays size={22} />
+                                    </div>
+
+                                    <div>
+                                        <span className="stat-label">
+                                            Rendez-vous
+                                        </span>
+
+                                        <strong className="stat-number">
+                                            {chargement
+                                                ? "..."
+                                                : rendezVous.length}
+                                        </strong>
+                                    </div>
+
+                                </div>
+
+
+                                <div className="stat-card">
+
+                                    <div className="stat-icon yellow">
+                                        <Bell size={22} />
+                                    </div>
+
+                                    <div>
+                                        <span className="stat-label">
+                                            Notifications
+                                        </span>
+
+                                        <strong className="stat-number">
+                                            {chargement
+                                                ? "..."
+                                                : notificationsNonLues}
+                                        </strong>
+                                    </div>
+
+                                </div>
+
+
+                                <div className="stat-card">
+
+                                    <div className="stat-icon green">
+                                        <ClipboardList size={22} />
+                                    </div>
+
+                                    <div>
+                                        <span className="stat-label">
+                                            En attente
+                                        </span>
+
+                                        <strong className="stat-number">
+                                            {chargement
+                                                ? "..."
+                                                : demandesEnAttente}
+                                        </strong>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {/* ACTIONS RAPIDES */}
+
+                            <div className="section-title">
+                                <h2>Actions rapides</h2>
+                                <p>
+                                    Accédez rapidement aux fonctionnalités principales.
+                                </p>
+                            </div>
+
+
+                            <div className="quick-actions">
+
+                                <button
+                                    className="quick-card"
+                                    onClick={() => allerVers("/demandes")}
+                                >
+                                    <div className="quick-icon orange">
+                                        <ClipboardList size={24} />
+                                    </div>
+
+                                    <div>
+                                        <h3>Mes demandes</h3>
+                                        <p>
+                                            Consulter et suivre vos demandes
+                                            administratives.
+                                        </p>
+                                    </div>
+                                </button>
+
+
+                                <button
+                                    className="quick-card"
+                                    onClick={() => allerVers("/rendez-vous")}
+                                >
+                                    <div className="quick-icon blue">
+                                        <CalendarDays size={24} />
+                                    </div>
+
+                                    <div>
+                                        <h3>Mes rendez-vous</h3>
+                                        <p>
+                                            Consulter vos rendez-vous et leurs
+                                            informations.
+                                        </p>
+                                    </div>
+                                </button>
+
+
+                                <button
+                                    className="quick-card"
+                                    onClick={() => allerVers("/notifications")}
+                                >
+                                    <div className="quick-icon yellow">
+                                        <Bell size={24} />
+                                    </div>
+
+                                    <div>
+                                        <h3>Notifications</h3>
+                                        <p>
+                                            Consultez vos dernières notifications.
+                                        </p>
+                                    </div>
+                                </button>
+
+                            </div>
+
+
+                            {/* DERNIÈRES DEMANDES */}
+
+                            <div className="recent-section">
+
+                                <div className="section-title recent-title">
+                                    <div>
+                                        <h2>Dernières demandes</h2>
+                                        <p>
+                                            Aperçu de vos demandes administratives.
+                                        </p>
+                                    </div>
+
+                                    <button
+                                        className="view-all-button"
+                                        onClick={() => allerVers("/demandes")}
+                                    >
+                                        Voir tout
+                                    </button>
+                                </div>
+
+
+                                <div className="recent-card">
+
+                                    {chargement ? (
+
+                                        <div className="empty-state">
+                                            Chargement...
+                                        </div>
+
+                                    ) : demandes.length === 0 ? (
+
+                                        <div className="empty-state">
+                                            <ClipboardList size={30} />
+
+                                            <strong>
+                                                Aucune demande
+                                            </strong>
+
+                                            <span>
+                                                Vous n'avez pas encore soumis de demande.
+                                            </span>
+                                        </div>
+
+                                    ) : (
+
+                                        <div className="demandes-list">
+
+                                            {demandes
+                                                .slice(0, 5)
+                                                .map((demande) => (
+
+                                                    <div
+                                                        className="demande-row"
+                                                        key={demande.id}
+                                                    >
+
+                                                        <div className="demande-info">
+
+                                                            <div className="demande-icon">
+                                                                <ClipboardList
+                                                                    size={18}
+                                                                />
+                                                            </div>
+
+                                                            <div>
+                                                                <strong>
+                                                                    {demande.motif ||
+                                                                        "Demande administrative"}
+                                                                </strong>
+
+                                                                <span>
+                                                                    {formatDate(
+                                                                        demande.dateSoumission ||
+                                                                        demande.date_soumission
+                                                                    )}
+                                                                </span>
+                                                            </div>
+
+                                                        </div>
+
+
+                                                        <span
+                                                            className={`status ${String(
+                                                                demande.statut || ""
+                                                            )
+                                                                .toLowerCase()
+                                                                .replace(
+                                                                    /\s+/g,
+                                                                    "-"
+                                                                )
+                                                                }`}
+                                                        >
+                                                            {demande.statut ||
+                                                                "Non défini"}
+                                                        </span>
+
+                                                    </div>
+
+                                                ))}
+
+                                        </div>
+
+                                    )}
+
+                                </div>
+
+                            </div>
+
+                        </>
+                    )}
 
                 </section>
 
@@ -606,7 +679,7 @@ function Accueil() {
                     © 2026 Attijariwafa bank. Tous droits réservés.
                 </footer>
 
-            </main>
+            </main >
 
         </div >
     );
