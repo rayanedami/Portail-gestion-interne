@@ -2,6 +2,34 @@ const db = require("../config/db");
 
 const Notification = {
 
+    async notifyUser(utilisateur_id, message, type, demande_id = null, rendez_vous_id = null) {
+        return this.create({
+            utilisateur_id,
+            message,
+            type,
+            demande_id,
+            rendez_vous_id
+        });
+    },
+
+    async notifyVisitor(rendez_vous_id, message, type) {
+        const [rows] = await db.query(
+            `SELECT v.utilisateur_id
+             FROM rendez_vous r
+             JOIN visiteur v ON v.id = r.visiteur_id
+             WHERE r.id = ?`,
+            [rendez_vous_id]
+        );
+        if (rows.length === 0 || !rows[0].utilisateur_id) return null;
+        return this.notifyUser(
+            rows[0].utilisateur_id,
+            message,
+            type,
+            null,
+            rendez_vous_id
+        );
+    },
+
     async create(data) {
         const {
             message,
@@ -35,7 +63,7 @@ const Notification = {
         const {
             message,
             type,
-            est_lue
+            est_lue = 0
         } = data;
 
         await db.query(
@@ -83,7 +111,11 @@ const Notification = {
         return rows;
     },
 
-    async getById(id) {
+    async getById(id, auth) {
+        const where = auth?.role === "ADMINISTRATEUR"
+            ? "WHERE id = ?"
+            : "WHERE id = ? AND utilisateur_id = ?";
+        const params = auth?.role === "ADMINISTRATEUR" ? [id] : [id, auth.id];
         const [rows] = await db.query(`
             SELECT
                 id,
@@ -95,8 +127,8 @@ const Notification = {
                 demande_id,
                 rendez_vous_id
             FROM notification
-            WHERE id = ?
-        `, [id]);
+            ${where}
+        `, params);
 
         return rows[0];
     }

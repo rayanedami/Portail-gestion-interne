@@ -22,6 +22,10 @@ const NotificationController = {
 
     async update(req, res) {
         try {
+            const existing = await Notification.getById(req.params.id, req.auth);
+            if (!existing) {
+                return res.status(404).json({ message: "Notification introuvable" });
+            }
             const notification = await Notification.update(
                 req.params.id,
                 req.body
@@ -52,6 +56,10 @@ const NotificationController = {
 
     async delete(req, res) {
         try {
+            const existing = await Notification.getById(req.params.id, req.auth);
+            if (!existing) {
+                return res.status(404).json({ message: "Notification introuvable" });
+            }
             const deleted = await Notification.delete(req.params.id);
 
             if (!deleted) {
@@ -88,7 +96,7 @@ const NotificationController = {
 
     async getById(req, res) {
         try {
-            const notification = await Notification.getById(req.params.id);
+            const notification = await Notification.getById(req.params.id, req.auth);
 
             if (!notification) {
                 return res.status(404).json({

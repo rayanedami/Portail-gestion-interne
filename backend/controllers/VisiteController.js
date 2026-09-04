@@ -1,10 +1,17 @@
 const Visite = require("../models/Visite");
+const Notification = require("../models/Notification");
 
 const VisiteController = {
 
     async create(req, res) {
         try {
             const visite = await Visite.create(req.body);
+
+            await Notification.notifyVisitor(
+                visite.rendez_vous_id,
+                "Votre arrivée a été validée à l'accueil.",
+                "VISITE"
+            );
 
             res.status(201).json({
                 message: "Visite créée avec succès",
@@ -26,6 +33,14 @@ const VisiteController = {
                 req.params.id,
                 req.body
             );
+
+            if (visite && String(req.body.statut || "").toUpperCase() === "TERMINEE") {
+                await Notification.notifyVisitor(
+                    visite.rendez_vous_id,
+                    "Votre visite est terminée.",
+                    "VISITE"
+                );
+            }
 
             if (!visite) {
                 return res.status(404).json({

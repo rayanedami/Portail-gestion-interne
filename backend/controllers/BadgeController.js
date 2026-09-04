@@ -1,10 +1,17 @@
 const Badge = require("../models/Badge");
+const Notification = require("../models/Notification");
 
 const BadgeController = {
 
     async create(req, res) {
         try {
             const badge = await Badge.create(req.body);
+
+            await Notification.notifyVisitor(
+                badge.rendez_vous_id,
+                "Votre badge numérique a été généré.",
+                "BADGE"
+            );
 
             res.status(201).json({
                 message: "Badge créé avec succès",

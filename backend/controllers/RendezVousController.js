@@ -1,10 +1,24 @@
 const RendezVous = require("../models/RendezVous");
+const Notification = require("../models/Notification");
 
 const RendezVousController = {
 
     async create(req, res) {
         try {
             const rendezVous = await RendezVous.create(req.body);
+
+            await Notification.notifyUser(
+                req.auth.id,
+                `Le rendez-vous #${rendezVous.id} a été créé.`,
+                "RENDEZ_VOUS",
+                null,
+                rendezVous.id
+            );
+            await Notification.notifyVisitor(
+                rendezVous.id,
+                `Un nouveau rendez-vous #${rendezVous.id} a été créé.`,
+                "RENDEZ_VOUS"
+            );
 
             res.status(201).json({
                 message: "Rendez-vous créé avec succès",
@@ -26,6 +40,14 @@ const RendezVousController = {
                 req.params.id,
                 req.body
             );
+
+            if (rendezVous) {
+                await Notification.notifyVisitor(
+                    rendezVous.id,
+                    `Le rendez-vous #${rendezVous.id} a été modifié.`,
+                    "RENDEZ_VOUS"
+                );
+            }
 
             if (!rendezVous) {
                 return res.status(404).json({
