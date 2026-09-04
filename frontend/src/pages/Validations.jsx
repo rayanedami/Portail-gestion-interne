@@ -3,6 +3,7 @@ import { CheckCircle, XCircle, RefreshCw } from "lucide-react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import "./Validations.css";
+import "../components/ReturnHomeButton.css";
 
 function Validations() {
     const { utilisateur } = useAuth();
@@ -142,6 +143,7 @@ function Validations() {
 
     return (
         <div className="validations-page">
+            <button className="return-home-button" type="button" onClick={() => window.location.assign("/accueil")}>Retour a l'accueil</button>
 
             <div className="validations-header">
                 <div>

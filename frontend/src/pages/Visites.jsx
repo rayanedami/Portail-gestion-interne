@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./Visites.css";
 import api from "../services/api";
 import { DoorOpen, RefreshCw, UsersRound } from "lucide-react";
+import "../components/ReturnHomeButton.css";
 
 const API_URL = "http://localhost:3000/api";
 
@@ -124,6 +125,7 @@ function Visites() {
 
     return (
         <div className="visites-page">
+            <button className="return-home-button" type="button" onClick={() => window.location.assign("/accueil")}>Retour a l'accueil</button>
 
             <div className="visites-header">
                 <div>

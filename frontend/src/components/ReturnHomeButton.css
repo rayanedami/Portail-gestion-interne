@@ -1,0 +1,35 @@
+.return-home-button {
+    position: fixed;
+    top: 16px;
+    right: 24px;
+    z-index: 30;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid #eaecf0;
+    border-radius: 7px;
+    padding: 9px 12px;
+    background: #fff;
+    color: #344054;
+    box-shadow: 0 2px 8px rgba(16, 24, 40, .08);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.return-home-button:hover {
+    border-color: #ff591b;
+    color: #ff591b;
+}
+
+@media (max-width: 600px) {
+    .return-home-button {
+        top: 10px;
+        right: 12px;
+        padding: 8px;
+    }
+
+    .return-home-button span {
+        display: none;
+    }
+}

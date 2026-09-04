@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ClipboardList } from "lucide-react";
 import api from "../services/api";
+import "../components/ReturnHomeButton.css";
 
 function Logs() {
     const [logs, setLogs] = useState([]);
@@ -26,6 +27,7 @@ function Logs() {
 
     return (
         <main className="admin-page">
+            <button className="return-home-button" type="button" onClick={() => window.location.assign("/accueil")}>Retour a l'accueil</button>
             <h1><ClipboardList size={24} /> Journaux d'activité <button onClick={exporter}>Exporter Excel</button></h1>
             {erreur && <p>{erreur}</p>}
             <table><thead><tr><th>Action</th><th>Utilisateur</th><th>Date</th><th>Adresse IP</th></tr></thead><tbody>

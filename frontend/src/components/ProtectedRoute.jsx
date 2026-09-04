@@ -3,7 +3,6 @@ import { useAuth } from "../context/AuthContext";
 
 export function ProtectedRoute({ element, allowedRoles }) {
     const { isLoggedIn, loading, role } = useAuth();
-
     if (loading) {
         return <div style={{ padding: "32px", textAlign: "center" }}>Chargement...</div>;
     }

@@ -4,6 +4,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { CalendarDays, MapPin, Printer, Ticket } from "lucide-react";
 import api from "../services/api";
 import "./MonBadge.css";
+import "../components/ReturnHomeButton.css";
 
 function MonBadge() {
     const { utilisateur } = useAuth();
@@ -110,6 +111,7 @@ function MonBadge() {
 
     return (
         <div className="badge-page">
+            <button className="return-home-button" type="button" onClick={() => window.location.assign("/accueil-visiteur")}>Retour a l'accueil</button>
 
             <div className="badge-container">
 

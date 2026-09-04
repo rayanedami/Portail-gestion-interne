@@ -12,6 +12,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import { formatDate } from "../utils/formatDate";
+import "../components/ReturnHomeButton.css";
 import "./Demandes.css";
 
 function Demandes() {
@@ -166,6 +167,7 @@ function Demandes() {
 
     return (
         <div className="demandes-page">
+            <button className="return-home-button" type="button" onClick={() => window.location.assign("/accueil")}>Retour a l'accueil</button>
 
             <div className="demandes-header">
                 <div>

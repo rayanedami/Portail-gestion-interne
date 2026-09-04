@@ -3,6 +3,7 @@ import { Html5Qrcode } from "html5-qrcode";
 import api from "../services/api";
 import { Camera, Square } from "lucide-react";
 import "./ScannerQR.css";
+import "../components/ReturnHomeButton.css";
 
 const API_URL = "http://localhost:3000/api";
 
@@ -169,6 +170,7 @@ function ScannerQR() {
 
     return (
         <div className="scanner-page">
+            <button className="return-home-button" type="button" onClick={() => window.location.assign("/accueil")}>Retour a l'accueil</button>
 
             <div className="scanner-header">
 
