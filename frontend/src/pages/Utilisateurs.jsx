@@ -14,6 +14,13 @@ function Utilisateurs() {
     const [utilisateurSelectionne, setUtilisateurSelectionne] = useState(null);
     const [edition, setEdition] = useState(null);
     const [message, setMessage] = useState("");
+    const [filters, setFilters] = useState({
+        nom: "",
+        email: "",
+        role: "",
+        departement: "",
+        statut: ""
+    });
 
     useEffect(() => {
         Promise.allSettled([api.get("/utilisateurs", { params: filters }), api.get("/roles"), api.get("/departements")])
@@ -36,7 +43,7 @@ function Utilisateurs() {
                     setErreur((current) => current || "Impossible de récupérer les départements.");
                 }
             });
-    }, []);
+    }, [filters]);
 
     const resultats = utilisateurs.filter((utilisateur) =>
         `${utilisateur.prenom} ${utilisateur.nom} ${utilisateur.email} ${utilisateur.telephone || ""}`.toLowerCase().includes(recherche.toLowerCase()) &&
