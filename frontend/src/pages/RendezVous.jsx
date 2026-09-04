@@ -10,6 +10,7 @@ import {
     Ban,
     Eye,
     QrCode,
+    X,
     CheckCircle2,
     XCircle,
     AlertCircle
@@ -25,6 +26,9 @@ function RendezVous() {
     const [search, setSearch] = useState("");
     const [message, setMessage] = useState("");
     const [badges, setBadges] = useState([]);
+    const [detailRendezVous, setDetailRendezVous] = useState(null);
+    const [historiqueVisites, setHistoriqueVisites] = useState([]);
+    const [detailLoading, setDetailLoading] = useState(false);
     const [showForm, setShowForm] = useState(false);
     const [editingRendezVous, setEditingRendezVous] = useState(null);
     const [formData, setFormData] = useState({
@@ -80,13 +84,15 @@ function RendezVous() {
             heure_rendez_vous: String(rdv.heure_rendez_vous || "").slice(0, 5),
             motif: rdv.motif || "",
             visiteur_id: rdv.visiteur_id || "",
-            collaborateur_id: rdv.collaborateur_id || utilisateurId || ""
+            collaborateur_id: rdv.collaborateur_id || utilisateurId || "",
+            statut: rdv.statut || "PLANIFIE"
         } : {
             date_rendez_vous: "",
             heure_rendez_vous: "",
             motif: "",
             visiteur_id: "",
-            collaborateur_id: utilisateur?.role === "COLLABORATEUR" || utilisateur?.role === "RESPONSABLE" ? utilisateurId : ""
+            collaborateur_id: utilisateur?.role === "COLLABORATEUR" || utilisateur?.role === "RESPONSABLE" ? utilisateurId : "",
+            statut: "PLANIFIE"
         });
         setShowForm(true);
     };
@@ -116,6 +122,28 @@ function RendezVous() {
             await fetchRendezVous();
         } catch (error) {
             setMessage(error.response?.data?.message || "Impossible d'annuler le rendez-vous.");
+        }
+    };
+
+    const ouvrirDetails = async (rdv) => {
+        try {
+            setDetailLoading(true);
+            const detailResponse = await api.get(`/rendez-vous/${rdv.id}`);
+            let visites = [];
+            if (isAgentAccueil || utilisateur?.role === "ADMINISTRATEUR") {
+                const visitesResponse = await api.get("/visites");
+                visites = Array.isArray(visitesResponse.data)
+                    ? visitesResponse.data
+                    : visitesResponse.data.visites || [];
+            }
+            setDetailRendezVous(detailResponse.data);
+            setHistoriqueVisites(
+                visites.filter((visite) => Number(visite.rendez_vous_id) === Number(rdv.id))
+            );
+        } catch (error) {
+            setMessage(error.response?.data?.message || "Impossible de charger le détail du rendez-vous.");
+        } finally {
+            setDetailLoading(false);
         }
     };
 
@@ -203,6 +231,12 @@ function RendezVous() {
                         <label>Heure<input required type="time" value={formData.heure_rendez_vous} onChange={(e) => setFormData({ ...formData, heure_rendez_vous: e.target.value })} /></label>
                         <label>Visiteur ID<input required type="number" min="1" value={formData.visiteur_id} onChange={(e) => setFormData({ ...formData, visiteur_id: e.target.value })} /></label>
                         <label>Collaborateur ID<input required type="number" min="1" value={formData.collaborateur_id} onChange={(e) => setFormData({ ...formData, collaborateur_id: e.target.value })} /></label>
+                        <label>Statut<select value={formData.statut || "PLANIFIE"} onChange={(e) => setFormData({ ...formData, statut: e.target.value })}>
+                            <option value="PLANIFIE">EN ATTENTE</option>
+                            <option value="CONFIRME">CONFIRME</option>
+                            <option value="ANNULE">ANNULE</option>
+                            <option value="TERMINE">TERMINE</option>
+                        </select></label>
                         <label className="rdv-form-wide">Motif<textarea value={formData.motif} onChange={(e) => setFormData({ ...formData, motif: e.target.value })} /></label>
                     </div>
                     <div className="rdv-form-actions">
@@ -210,6 +244,42 @@ function RendezVous() {
                         <button className="rdv-add-button" type="submit">Enregistrer</button>
                     </div>
                 </form>
+            )}
+
+            {detailRendezVous && (
+                <div className="rdv-modal-backdrop" role="presentation" onClick={() => setDetailRendezVous(null)}>
+                    <section className="rdv-detail-modal" role="dialog" aria-modal="true" onClick={(event) => event.stopPropagation()}>
+                        <div className="rdv-detail-header">
+                            <div>
+                                <span className="rdv-detail-kicker">FICHE RENDEZ-VOUS</span>
+                                <h2>Rendez-vous #{detailRendezVous.id}</h2>
+                            </div>
+                            <button type="button" title="Fermer" onClick={() => setDetailRendezVous(null)}><X /></button>
+                        </div>
+                        {detailLoading ? <p>Chargement...</p> : (
+                            <>
+                                <div className="rdv-detail-grid">
+                                    <div><span>Visiteur</span><strong>{detailRendezVous.visiteur_nom || "-"}</strong></div>
+                                    <div><span>Société</span><strong>{detailRendezVous.visiteur_societe || "-"}</strong></div>
+                                    <div><span>Email</span><strong>{detailRendezVous.visiteur_email || "-"}</strong></div>
+                                    <div><span>Téléphone</span><strong>{detailRendezVous.visiteur_telephone || "-"}</strong></div>
+                                    <div><span>Date et heure</span><strong>{formatDate(detailRendezVous.date_rendez_vous, false)} à {formatTime(detailRendezVous.heure_rendez_vous)}</strong></div>
+                                    <div><span>Personne à rencontrer</span><strong>{detailRendezVous.collaborateur_nom || "-"}</strong></div>
+                                    <div><span>Objet</span><strong>{detailRendezVous.motif || "-"}</strong></div>
+                                    <div><span>Statut</span><strong>{detailRendezVous.statut || "-"}</strong></div>
+                                </div>
+                                <div className="rdv-detail-section">
+                                    <h3>Badge / QR associé</h3>
+                                    {badgeFor(detailRendezVous.id) ? <p className="rdv-detail-code"><QrCode /> {badgeFor(detailRendezVous.id).qr_code}</p> : <p>Aucun badge généré.</p>}
+                                </div>
+                                <div className="rdv-detail-section">
+                                    <h3>Historique de la visite</h3>
+                                    {historiqueVisites.length === 0 ? <p>Aucune visite enregistrée.</p> : historiqueVisites.map((visite) => <div className="rdv-history-row" key={visite.id}><span>{visite.statut}</span><span>Entrée : {visite.date_entree ? new Date(visite.date_entree).toLocaleString("fr-FR") : "-"}</span><span>Sortie : {visite.date_sortie ? new Date(visite.date_sortie).toLocaleString("fr-FR") : "-"}</span></div>)}
+                                </div>
+                            </>
+                        )}
+                    </section>
+                </div>
             )}
 
             <div className="rdv-toolbar">
@@ -284,8 +354,8 @@ function RendezVous() {
                                         <td>{badge ? <span className="rdv-badge-qr" title={`Badge ${badge.statut}`}><QrCode /></span> : <span className="rdv-no-badge">-</span>}</td>
                                         <td>
                                             <div className="rdv-table-actions">
-                                                <button type="button" title="Voir" onClick={() => setMessage(`Rendez-vous #${rdv.id}`)}><Eye /></button>
-                                                {rdv.statut !== "ANNULE" && <button type="button" title="Modifier" onClick={() => ouvrirFormulaire(rdv)}><Pencil /></button>}
+                                                <button type="button" title="Voir" onClick={() => ouvrirDetails(rdv)}><Eye /></button>
+                                                {isAgentAccueil && rdv.statut !== "ANNULE" && <button type="button" title="Modifier" onClick={() => ouvrirFormulaire(rdv)}><Pencil /></button>}
                                             </div>
                                         </td>
                                     </tr>

@@ -85,6 +85,11 @@ const RendezVousController = {
                 collaborateur_id: existing.collaborateur_id
             };
 
+            if (req.auth.role === "AGENT_ACCUEIL" || req.auth.role === "ADMINISTRATEUR") {
+                data.visiteur_id = req.body.visiteur_id ?? existing.visiteur_id;
+                data.collaborateur_id = req.body.collaborateur_id ?? existing.collaborateur_id;
+            }
+
             const rendezVous = await RendezVous.update(req.params.id, data);
 
             let badge = null;

@@ -106,6 +106,7 @@ const RendezVous = {
                 r.collaborateur_id,
                 CONCAT(v.prenom, ' ', v.nom) AS visiteur_nom,
                 v.telephone AS visiteur_telephone,
+                v.email AS visiteur_email,
                 v.societe AS visiteur_societe,
                 CONCAT(u.prenom, ' ', u.nom) AS collaborateur_nom
             FROM rendez_vous r
@@ -134,6 +135,7 @@ const RendezVous = {
                 r.collaborateur_id,
                 CONCAT(v.prenom, ' ', v.nom) AS visiteur_nom,
                 v.telephone AS visiteur_telephone,
+                v.email AS visiteur_email,
                 v.societe AS visiteur_societe,
                 CONCAT(u.prenom, ' ', u.nom) AS collaborateur_nom
             FROM rendez_vous r

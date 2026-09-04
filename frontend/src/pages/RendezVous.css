@@ -94,6 +94,138 @@
     font-size: 13px;
 }
 
+.rdv-modal-backdrop {
+    position: fixed;
+    z-index: 20;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(16, 24, 40, .42);
+}
+
+.rdv-detail-modal {
+    width: min(720px, 100%);
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 10px;
+    padding: 24px;
+    background: #fff;
+    box-shadow: 0 18px 50px rgba(16, 24, 40, .2);
+}
+
+.rdv-detail-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.rdv-detail-header h2 {
+    margin: 5px 0 0;
+    color: #101828;
+    font-size: 20px;
+}
+
+.rdv-detail-header button {
+    display: inline-flex;
+    border: 1px solid #eaecf0;
+    border-radius: 6px;
+    padding: 7px;
+    background: #fff;
+    color: #667085;
+    cursor: pointer;
+}
+
+.rdv-detail-header svg {
+    width: 18px;
+    height: 18px;
+}
+
+.rdv-detail-kicker {
+    color: #ff591b;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .08em;
+}
+
+.rdv-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.rdv-detail-grid>div {
+    border: 1px solid #f0f1f3;
+    border-radius: 7px;
+    padding: 12px;
+}
+
+.rdv-detail-grid span,
+.rdv-detail-grid strong {
+    display: block;
+}
+
+.rdv-detail-grid span {
+    margin-bottom: 5px;
+    color: #667085;
+    font-size: 11px;
+}
+
+.rdv-detail-grid strong {
+    color: #344054;
+    font-size: 13px;
+}
+
+.rdv-detail-section {
+    margin-top: 22px;
+    border-top: 1px solid #eaecf0;
+    padding-top: 16px;
+}
+
+.rdv-detail-section h3 {
+    margin: 0 0 10px;
+    color: #344054;
+    font-size: 14px;
+}
+
+.rdv-detail-section p {
+    margin: 0;
+    color: #667085;
+    font-size: 13px;
+}
+
+.rdv-detail-code {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #168044 !important;
+    overflow-wrap: anywhere;
+}
+
+.rdv-detail-code svg {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 auto;
+}
+
+.rdv-history-row {
+    display: grid;
+    grid-template-columns: 110px 1fr 1fr;
+    gap: 10px;
+    border-bottom: 1px solid #f0f1f3;
+    padding: 10px 0;
+    color: #667085;
+    font-size: 12px;
+}
+
+.rdv-history-row span:first-child {
+    color: #344054;
+    font-weight: 700;
+}
+
 .rdv-item-actions {
     display: flex;
     align-items: center;
@@ -470,6 +602,11 @@
     }
 
     .rdv-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rdv-detail-grid,
+    .rdv-history-row {
         grid-template-columns: 1fr;
     }
 
