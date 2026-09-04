@@ -12,6 +12,8 @@ const visiteRoutes = require("./routes/visiteRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const logRoutes = require("./routes/logRoutes");
 const pieceJointeRoutes = require("./routes/pieceJointeRoutes");
+const departementRoutes = require("./routes/departementRoutes");
+const { requireAuth } = require("./middleware/auth");
 
 
 require("dotenv").config();
@@ -21,6 +23,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
+app.use("/api", requireAuth);
 app.use("/api/utilisateurs", utilisateurRoutes);
 app.use("/api/demandes", demandeRoutes);
 app.use("/api/validations", validationRoutes);
@@ -31,6 +34,7 @@ app.use("/api/visites", visiteRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/logs", logRoutes);
 app.use("/api/pieces-jointes", pieceJointeRoutes);
+app.use("/api/departements", departementRoutes);
 
 app.get("/", (req, res) => {
     res.json({

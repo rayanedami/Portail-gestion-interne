@@ -98,6 +98,137 @@
     box-shadow: 0 4px 15px rgba(16, 24, 40, .05);
 }
 
+.profil-card .profil-title {
+    margin-bottom: 28px;
+}
+
+.profil-layout {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 32px;
+    align-items: start;
+}
+
+.profil-summary {
+    display: flex;
+    min-height: 390px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 20px;
+    border: 1px solid #eaecf0;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.profil-summary .profil-avatar {
+    margin: 0 0 18px;
+}
+
+.profil-summary h2 {
+    margin: 24px 0 8px;
+    font-size: 20px;
+}
+
+.profil-summary .profil-role {
+    margin-bottom: 20px;
+}
+
+.profil-summary strong {
+    max-width: 100%;
+    margin-top: 8px;
+    overflow: hidden;
+    color: #344054;
+    font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.change-photo-button {
+    padding: 9px 18px;
+    border: 1px solid #b2ccff;
+    border-radius: 7px;
+    background: #fff;
+    color: #175cd3;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.change-photo-button:disabled {
+    cursor: not-allowed;
+    opacity: .55;
+}
+
+.profil-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 18px 28px;
+    border: 1px solid #eaecf0;
+    border-radius: 10px;
+}
+
+.profil-form label {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    align-items: center;
+    gap: 16px;
+    color: #344054;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.profil-form input,
+.profil-form select {
+    width: 100%;
+    height: 42px;
+    padding: 0 14px;
+    border: 1px solid #d0d5dd;
+    border-radius: 7px;
+    color: #344054;
+    font-size: 14px;
+}
+
+.profil-form input:read-only,
+.profil-form select:disabled {
+    background: #f9fafb;
+}
+
+.profil-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    margin-top: 90px;
+}
+
+.profil-actions button {
+    min-width: 150px;
+    height: 44px;
+    border: 0;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.profil-cancel {
+    background: #f2f4f7;
+    color: #344054;
+}
+
+.profil-save {
+    background: #e85d04;
+    color: #fff;
+}
+
+.profil-message {
+    margin: 10px 0 0;
+    color: #e85d04;
+    font-size: 13px;
+    text-align: right;
+}
+
 .profil-avatar {
     display: flex;
     width: 90px;
@@ -212,6 +343,23 @@
 
     .profil-card {
         padding: 25px 18px;
+    }
+
+    .profil-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .profil-form {
+        padding: 18px;
+    }
+
+    .profil-form label {
+        grid-template-columns: 1fr;
+        gap: 7px;
+    }
+
+    .profil-actions {
+        margin-top: 25px;
     }
 
     .profil-information {

@@ -2,11 +2,11 @@
 
 Plateforme web de gestion des demandes administratives (congés, attestations, matériel, accès) et du pré-enregistrement des visiteurs avec génération de badges QR Code. Projet de stage.
 
-##  Technologies utilisées
-- Backend : [Java Spring Boot / Python Django]
-- Frontend : [React / Angular]
-- Base de données : [MySQL / PostgreSQL]
-- Sécurité : JWT
+## Technologies utilisées
+- Backend : Node.js, Express.js
+- Frontend : React, Vite, React Router
+- Base de données : MySQL
+- Sécurité : bcrypt et JWT
 
 ##  Fonctionnalités
 -  Gestion des demandes administratives
@@ -15,5 +15,8 @@ Plateforme web de gestion des demandes administratives (congés, attestations, m
 -  Génération de badges QR Code
 -  Tableaux de bord personnalisés
 -  Export PDF/Excel
+-  Scanner QR et enregistrement des entrées/sorties
+-  Gestion des rôles et permissions
+-  Historique des visites, notifications et logs
 
 ##  Structure du projet

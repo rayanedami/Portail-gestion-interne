@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import "./Validations.css";
 
 function Validations() {
-    const { user } = useAuth();
+    const { utilisateur } = useAuth();
 
     const [demandes, setDemandes] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -59,7 +59,7 @@ function Validations() {
              */
             await api.post("/validations", {
                 demande_id: demande.id,
-                responsable_id: user.id,
+                responsable_id: utilisateur.id,
                 niveau: 1,
                 decision: "VALIDEE",
                 commentaire: "Demande validée par le responsable."
@@ -126,7 +126,7 @@ function Validations() {
              */
             await api.post("/validations", {
                 demande_id: selectedDemande.id,
-                responsable_id: user.id,
+                responsable_id: utilisateur.id,
                 niveau: 1,
                 decision: "REFUSEE",
                 commentaire: commentaire.trim()

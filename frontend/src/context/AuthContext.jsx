@@ -19,20 +19,30 @@ export function AuthProvider({ children }) {
         setLoading(false);
     }, []);
 
-    const login = (user) => {
+    const login = (user, token) => {
         setUtilisateur(user);
         localStorage.setItem("utilisateur", JSON.stringify(user));
+        if (token) {
+            localStorage.setItem("token", token);
+        }
     };
 
     const logout = () => {
         setUtilisateur(null);
         localStorage.removeItem("utilisateur");
+        localStorage.removeItem("token");
+    };
+
+    const updateUtilisateur = (user) => {
+        setUtilisateur(user);
+        localStorage.setItem("utilisateur", JSON.stringify(user));
     };
 
     const value = {
         utilisateur,
         loading,
         login,
+        updateUtilisateur,
         logout,
         isLoggedIn: !!utilisateur,
         role: utilisateur?.role || null,

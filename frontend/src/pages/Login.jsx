@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
     BarChart3,
@@ -8,7 +8,6 @@ import {
     ClipboardList,
     Globe2,
     LockKeyhole,
-    ShieldCheck,
     UserRound,
     UsersRound
 } from "lucide-react";
@@ -35,8 +34,12 @@ function Login() {
 
             const utilisateur = response.data.utilisateur;
 
-            login(utilisateur);
-            navigate("/accueil");
+            login(utilisateur, response.data.token);
+            navigate(
+                utilisateur.role === "VISITEUR"
+                    ? "/accueil-visiteur"
+                    : "/accueil"
+            );
 
         } catch (error) {
             setMessage(
@@ -165,15 +168,13 @@ function Login() {
                             <span></span>
                         </div>
 
-
-                        {/* SSO */}
-                        <button className="sso-button">
-                            <ShieldCheck aria-hidden="true" />
-                            <span>
-                                Se connecter avec SSO
-                            </span>
-                        </button>
-
+                        <Link
+                            to="/register"
+                            className="create-account-button"
+                        >
+                            <UserRound aria-hidden="true" />
+                            <span>Créer un compte visiteur</span>
+                        </Link>
 
                         {message && (
                             <div className="login-message">

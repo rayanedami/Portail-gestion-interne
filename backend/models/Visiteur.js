@@ -53,6 +53,7 @@ const Visiteur = {
         const [rows] = await db.query(`
             SELECT
                 id,
+                utilisateur_id,
                 nom,
                 prenom,
                 email,
@@ -70,6 +71,7 @@ const Visiteur = {
         const [rows] = await db.query(`
             SELECT
                 id,
+                utilisateur_id,
                 nom,
                 prenom,
                 email,

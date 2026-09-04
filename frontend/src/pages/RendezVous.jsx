@@ -38,13 +38,26 @@ function RendezVous() {
                 response.data.rendez_vous ||
                 [];
 
-            const mesRendezVous = data.filter(
-                (rdv) =>
-                    Number(
-                        rdv.utilisateur_id ??
-                        rdv.collaborateur_id
-                    ) === Number(utilisateurId)
-            );
+            let identifiantRendezVous = utilisateurId;
+
+            if (utilisateur?.role === "VISITEUR") {
+                const visiteursResponse = await api.get("/visiteurs");
+                const visiteurs = Array.isArray(visiteursResponse.data)
+                    ? visiteursResponse.data
+                    : [];
+                const profilVisiteur = visiteurs.find(
+                    (visiteur) =>
+                        Number(visiteur.utilisateur_id) === Number(utilisateurId)
+                );
+                identifiantRendezVous = profilVisiteur?.id;
+            }
+
+            const mesRendezVous = data.filter((rdv) => {
+                const identifiant = utilisateur?.role === "VISITEUR"
+                    ? rdv.visiteur_id
+                    : rdv.utilisateur_id ?? rdv.collaborateur_id;
+                return Number(identifiant) === Number(identifiantRendezVous);
+            });
 
             setRendezVous(mesRendezVous);
         } catch (error) {

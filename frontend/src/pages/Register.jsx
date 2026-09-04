@@ -137,11 +137,6 @@ function Register() {
 
             <div className="register-card">
 
-                {/* Logo */}
-                <div className="register-logo">
-                    PGI
-                </div>
-
                 <div className="register-header">
                     <h1>
                         Créer un compte

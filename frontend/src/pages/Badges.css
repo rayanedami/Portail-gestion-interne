@@ -309,6 +309,12 @@ tbody tr:last-child td {
     color: #ff591b;
 }
 
+.qr-code-cell svg {
+    flex-shrink: 0;
+    border: 3px solid #ffffff;
+    background: #ffffff;
+}
+
 .qr-code-cell span {
     color: #344054;
 }

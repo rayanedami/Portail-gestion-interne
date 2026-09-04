@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import {
     ClipboardList,
     Plus,
@@ -15,6 +16,7 @@ import "./Demandes.css";
 
 function Demandes() {
     const { utilisateur } = useAuth();
+    const location = useLocation();
     const [demandes, setDemandes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
@@ -31,6 +33,12 @@ function Demandes() {
     useEffect(() => {
         fetchDemandes();
     }, []);
+
+    useEffect(() => {
+        if (location.pathname === "/nouvelle-demande") {
+            setShowForm(true);
+        }
+    }, [location.pathname]);
 
     const fetchDemandes = async () => {
         try {
@@ -74,9 +82,9 @@ function Demandes() {
 
         try {
             await api.post("/demandes", {
-                motif,
-                type_demande_id: typeDemandeId,
-                collaborateur_id: user.id,
+                motif: formData.motif,
+                type_demande_id: Number(formData.type_demande_id),
+                collaborateur_id: utilisateurId,
                 statut: "EN_ATTENTE"
             });
 

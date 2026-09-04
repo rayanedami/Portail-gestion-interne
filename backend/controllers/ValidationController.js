@@ -2,6 +2,19 @@ const Validation = require("../models/Validation");
 
 const ValidationController = {
 
+    async decide(req, res) {
+        try {
+            const validation = await Validation.decide({
+                ...req.body,
+                responsable_id: req.auth.id
+            });
+            return res.status(201).json({ message: "Décision enregistrée", validation });
+        } catch (error) {
+            console.error("Erreur décision validation :", error.message);
+            return res.status(400).json({ message: error.message });
+        }
+    },
+
     async create(req, res) {
         try {
             const {

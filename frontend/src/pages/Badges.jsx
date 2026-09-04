@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { QrCode, Plus, Trash2, Edit, X, RefreshCw } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import "./Badges.css";
@@ -564,8 +565,11 @@ function Badges() {
 
                                         <td>
                                             <div className="qr-code-cell">
-
-                                                <QrCode size={20} />
+                                                <QRCodeSVG
+                                                    value={badge.qr_code || "badge"}
+                                                    size={54}
+                                                    level="M"
+                                                />
 
                                                 <span>
                                                     {badge.qr_code}

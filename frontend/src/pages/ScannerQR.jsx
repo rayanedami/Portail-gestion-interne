@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
+import api from "../services/api";
+import { Camera, Square } from "lucide-react";
 import "./ScannerQR.css";
 
 const API_URL = "http://localhost:3000/api";
@@ -77,27 +79,15 @@ function ScannerQR() {
 
             const dateEntree = obtenirDateLocale();
 
-            const response = await fetch(`${API_URL}/visites`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    date_entree: dateEntree,
-                    date_sortie: null,
-                    statut: "PRESENT",
-                    rendez_vous_id: badge.rendez_vous_id,
-                    agent_accueil_id: utilisateur.id
-                })
+            const response = await api.post("/visites", {
+                date_entree: dateEntree,
+                date_sortie: null,
+                statut: "PRESENT",
+                rendez_vous_id: badge.rendez_vous_id,
+                agent_accueil_id: utilisateur.id
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(
-                    data.message || "Impossible d'enregistrer la visite."
-                );
-            }
+            const data = response.data;
 
             setResultat({
                 type: "success",
@@ -126,15 +116,8 @@ function ScannerQR() {
 
             await arreterScanner();
 
-            const response = await fetch(`${API_URL}/badges`);
-
-            if (!response.ok) {
-                throw new Error(
-                    "Impossible de récupérer les badges."
-                );
-            }
-
-            const data = await response.json();
+            const response = await api.get("/badges");
+            const data = response.data;
 
             const badges = Array.isArray(data)
                 ? data
@@ -272,7 +255,7 @@ function ScannerQR() {
                     <div className="scanner-title">
 
                         <div className="scanner-icon">
-                            📷
+                            <Camera size={24} />
                         </div>
 
                         <div>
@@ -300,7 +283,7 @@ function ScannerQR() {
                                 onClick={demarrerScanner}
                                 disabled={loading}
                             >
-                                📷 Démarrer la caméra
+                                <Camera size={17} /> Démarrer la caméra
                             </button>
 
                         ) : (
@@ -309,7 +292,7 @@ function ScannerQR() {
                                 className="btn-stop-scanner"
                                 onClick={arreterScanner}
                             >
-                                ⏹ Arrêter le scanner
+                                <Square size={17} /> Arrêter le scanner
                             </button>
 
                         )}

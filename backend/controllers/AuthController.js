@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const db = require("../config/db");
+const { createToken } = require("../middleware/auth");
 
 const AuthController = {
 
@@ -26,9 +27,12 @@ const AuthController = {
                     u.telephone,
                     u.actif,
                     u.role_id,
-                    r.nom AS role
+                    u.departement_id,
+                          r.nom AS role,
+                          d.nom AS departement
                  FROM utilisateur u
                  LEFT JOIN role r ON u.role_id = r.id
+                      LEFT JOIN departement d ON d.id = u.departement_id
                  WHERE u.email = ?`,
                 [email]
             );
@@ -62,7 +66,8 @@ const AuthController = {
 
             res.json({
                 message: "Connexion réussie",
-                utilisateur
+                utilisateur,
+                token: createToken(utilisateur)
             });
 
         } catch (error) {
@@ -200,6 +205,10 @@ const AuthController = {
 
             res.status(201).json({
                 message: "Compte visiteur créé avec succès",
+                token: createToken({
+                    id: utilisateurId,
+                    role: "VISITEUR"
+                }),
                 utilisateur: {
                     id: utilisateurId,
                     nom,
@@ -226,6 +235,65 @@ const AuthController = {
 
         } finally {
             connection.release();
+        }
+    }
+
+    ,
+
+    async updateProfile(req, res) {
+        try {
+            const { nom, prenom, email, telephone, departement_id } = req.body;
+
+            if (!nom || !prenom || !email) {
+                return res.status(400).json({
+                    message: "Nom, prénom et email sont obligatoires"
+                });
+            }
+
+            const [existing] = await db.query(
+                "SELECT id FROM utilisateur WHERE email = ? AND id <> ?",
+                [email, req.auth.id]
+            );
+
+            if (existing.length > 0) {
+                return res.status(409).json({
+                    message: "Cette adresse email est déjà utilisée"
+                });
+            }
+
+            if (req.auth.role === "ADMINISTRATEUR") {
+                await db.query(
+                    `UPDATE utilisateur
+                     SET nom = ?, prenom = ?, email = ?, telephone = ?, departement_id = ?
+                     WHERE id = ?`,
+                    [nom, prenom, email, telephone || null, departement_id || null, req.auth.id]
+                );
+            } else {
+                await db.query(
+                    `UPDATE utilisateur
+                     SET nom = ?, prenom = ?, email = ?, telephone = ?
+                     WHERE id = ?`,
+                    [nom, prenom, email, telephone || null, req.auth.id]
+                );
+            }
+
+            const [rows] = await db.query(
+                `SELECT u.id, u.nom, u.prenom, u.email, u.telephone,
+                    u.actif, u.role_id, r.nom AS role, d.nom AS departement
+                 FROM utilisateur u
+                 LEFT JOIN role r ON r.id = u.role_id
+                 LEFT JOIN departement d ON d.id = u.departement_id
+                 WHERE u.id = ?`,
+                [req.auth.id]
+            );
+
+            return res.json({
+                message: "Profil mis à jour avec succès",
+                utilisateur: rows[0]
+            });
+        } catch (error) {
+            console.error("Erreur mise à jour profil :", error.message);
+            return res.status(500).json({ message: "Erreur serveur" });
         }
     }
 

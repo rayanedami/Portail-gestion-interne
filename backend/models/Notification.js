@@ -6,7 +6,7 @@ const Notification = {
         const {
             message,
             type,
-            date_envoi,
+            date_envoi = new Date(),
             est_lue,
             utilisateur_id,
             demande_id,

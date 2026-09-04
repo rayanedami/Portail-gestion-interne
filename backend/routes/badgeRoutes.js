@@ -3,13 +3,14 @@ const express = require("express");
 const router = express.Router();
 
 const BadgeController = require("../controllers/BadgeController");
+const { requireRoles } = require("../middleware/auth");
 
-router.post("/", BadgeController.create);
-router.put("/:id", BadgeController.update);
-router.delete("/:id", BadgeController.delete);
+router.post("/", requireRoles("AGENT_ACCUEIL", "ADMINISTRATEUR"), BadgeController.create);
+router.put("/:id", requireRoles("AGENT_ACCUEIL", "ADMINISTRATEUR"), BadgeController.update);
+router.delete("/:id", requireRoles("AGENT_ACCUEIL", "ADMINISTRATEUR"), BadgeController.delete);
 
-router.get("/", BadgeController.getAll);
+router.get("/", requireRoles("AGENT_ACCUEIL", "ADMINISTRATEUR", "VISITEUR"), BadgeController.getAll);
 
-router.get("/:id", BadgeController.getById);
+router.get("/:id", requireRoles("AGENT_ACCUEIL", "ADMINISTRATEUR", "VISITEUR"), BadgeController.getById);
 
 module.exports = router;

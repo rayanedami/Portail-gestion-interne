@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import "./Visites.css";
+import api from "../services/api";
+import { DoorOpen, RefreshCw, UsersRound } from "lucide-react";
 
 const API_URL = "http://localhost:3000/api";
 
@@ -13,13 +15,8 @@ function Visites() {
             setLoading(true);
             setError("");
 
-            const response = await fetch(`${API_URL}/visites`);
-
-            if (!response.ok) {
-                throw new Error("Impossible de récupérer les visites.");
-            }
-
-            const data = await response.json();
+            const response = await api.get("/visites");
+            const data = response.data;
 
             // Le backend peut retourner directement un tableau
             // ou un objet contenant les visites.
@@ -110,6 +107,21 @@ function Visites() {
         return statut === "SORTI" || statut === "TERMINEE" || statut === "TERMINÉE";
     }).length;
 
+    const enregistrerSortie = async (visite) => {
+        try {
+            await api.put(`/visites/${visite.id}`, {
+                date_entree: visite.date_entree,
+                date_sortie: new Date().toISOString().slice(0, 19).replace("T", " "),
+                statut: "TERMINEE",
+                rendez_vous_id: visite.rendez_vous_id,
+                agent_accueil_id: visite.agent_accueil_id
+            });
+            await chargerVisites();
+        } catch (err) {
+            setError("Impossible d'enregistrer la sortie.");
+        }
+    };
+
     return (
         <div className="visites-page">
 
@@ -125,14 +137,14 @@ function Visites() {
                     className="btn-refresh-visites"
                     onClick={chargerVisites}
                 >
-                    ↻ Actualiser
+                    <RefreshCw size={16} /> Actualiser
                 </button>
             </div>
 
             <div className="visites-stats">
 
                 <div className="visite-stat-card">
-                    <div className="stat-icon">👥</div>
+                    <div className="stat-icon"><UsersRound size={20} /></div>
                     <div>
                         <span>Total des visites</span>
                         <strong>{visites.length}</strong>
@@ -140,7 +152,7 @@ function Visites() {
                 </div>
 
                 <div className="visite-stat-card">
-                    <div className="stat-icon">🟢</div>
+                    <div className="stat-icon"><span className="status-dot"></span></div>
                     <div>
                         <span>Visiteurs présents</span>
                         <strong>{visiteursPresents}</strong>
@@ -148,7 +160,7 @@ function Visites() {
                 </div>
 
                 <div className="visite-stat-card">
-                    <div className="stat-icon">🚪</div>
+                    <div className="stat-icon"><DoorOpen size={20} /></div>
                     <div>
                         <span>Visites terminées</span>
                         <strong>{visitesTerminees}</strong>
@@ -265,6 +277,14 @@ function Visites() {
                                                 >
                                                     {statut}
                                                 </span>
+                                                {(statut === "PRESENT" || statut === "PRÉSENT") && (
+                                                    <button
+                                                        className="btn-retry-visites"
+                                                        onClick={() => enregistrerSortie(visite)}
+                                                    >
+                                                        Sortie
+                                                    </button>
+                                                )}
                                             </td>
 
                                         </tr>

@@ -14,6 +14,7 @@ import {
     CheckCircle2,
     Users,
     BarChart3,
+    BadgeCheck,
     Settings
 } from "lucide-react";
 
@@ -22,16 +23,18 @@ import { formatDate } from "../utils/formatDate";
 import "./Accueil.css";
 
 const ICON_MAP = {
-    "🏠": <Home size={19} />,
-    "📄": <ClipboardList size={19} />,
-    "✅": <CheckCircle2 size={19} />,
-    "👥": <Users size={19} />,
-    "📅": <CalendarDays size={19} />,
-    "🔔": <Bell size={19} />,
-    "👤": <UserRound size={19} />,
-    "🏢": <Users size={19} />,
-    "📋": <BarChart3 size={19} />,
-    "🎫": <Settings size={19} />
+    home: <Home size={19} />,
+    clipboard: <ClipboardList size={19} />,
+    plus: <ClipboardList size={19} />,
+    check: <CheckCircle2 size={19} />,
+    users: <Users size={19} />,
+    calendar: <CalendarDays size={19} />,
+    bell: <Bell size={19} />,
+    user: <UserRound size={19} />,
+    building: <Users size={19} />,
+    list: <BarChart3 size={19} />,
+    badge: <BadgeCheck size={19} />,
+    scan: <Settings size={19} />
 };
 
 function Accueil() {
@@ -42,6 +45,8 @@ function Accueil() {
 
     const [demandes, setDemandes] = useState([]);
     const [rendezVous, setRendezVous] = useState([]);
+    const [visites, setVisites] = useState([]);
+    const [visiteurs, setVisiteurs] = useState([]);
     const [notifications, setNotifications] = useState([]);
 
     const [chargement, setChargement] = useState(true);
@@ -59,12 +64,21 @@ function Accueil() {
         try {
             setChargement(true);
 
-            const [demandesResponse, rendezVousResponse, notificationsResponse] =
-                await Promise.all([
-                    api.get("/demandes"),
-                    api.get("/rendez-vous"),
-                    api.get("/notifications")
-                ]);
+            const responses = await Promise.all([
+                role === ROLES.COLLABORATEUR || role === ROLES.RESPONSABLE || role === ROLES.ADMINISTRATEUR
+                    ? api.get("/demandes")
+                    : Promise.resolve({ data: [] }),
+                api.get("/rendez-vous"),
+                api.get("/notifications"),
+                role === ROLES.AGENT_ACCUEIL || role === ROLES.ADMINISTRATEUR
+                    ? api.get("/visites")
+                    : Promise.resolve({ data: [] }),
+                role === ROLES.AGENT_ACCUEIL || role === ROLES.ADMINISTRATEUR
+                    ? api.get("/visiteurs")
+                    : Promise.resolve({ data: [] })
+            ]);
+
+            const [demandesResponse, rendezVousResponse, notificationsResponse, visitesResponse, visiteursResponse] = responses;
 
             setDemandes(
                 Array.isArray(demandesResponse.data)
@@ -84,6 +98,18 @@ function Accueil() {
                 Array.isArray(notificationsResponse.data)
                     ? notificationsResponse.data
                     : notificationsResponse.data?.notifications || []
+            );
+
+            setVisites(
+                Array.isArray(visitesResponse.data)
+                    ? visitesResponse.data
+                    : visitesResponse.data?.visites || []
+            );
+
+            setVisiteurs(
+                Array.isArray(visiteursResponse.data)
+                    ? visiteursResponse.data
+                    : visiteursResponse.data?.visiteurs || []
             );
 
         } catch (error) {
@@ -123,6 +149,50 @@ function Accueil() {
         : "Utilisateur";
 
     const menuItems = MENU_ITEMS_BY_ROLE[role] || [];
+
+    const demandesApprouvees = demandes.filter((demande) =>
+        ["VALIDEE", "VALIDÉE", "APPROUVEE", "APPROUVÉE"].includes(
+            String(demande.statut || "").toUpperCase()
+        )
+    ).length;
+
+    const demandesRefusees = demandes.filter((demande) =>
+        ["REFUSEE", "REFUSÉE", "REJETEE", "REJETÉE"].includes(
+            String(demande.statut || "").toUpperCase()
+        )
+    ).length;
+
+    const visitesEnCours = visites.filter((visite) =>
+        ["PRESENT", "PRÉSENT", "EN_COURS", "EN COURS"].includes(
+            String(visite.statut || "").toUpperCase()
+        )
+    ).length;
+
+    const dateAujourdHui = new Date().toISOString().slice(0, 10);
+    const rendezVousAujourdHui = rendezVous.filter((rdv) =>
+        String(rdv.date_rendez_vous || "").slice(0, 10) === dateAujourdHui
+    ).length;
+
+    const dashboardCards = role === ROLES.RESPONSABLE
+        ? [
+            ["Demandes à traiter", demandesEnAttente],
+            ["En attente de validation", demandesEnAttente],
+            ["Demandes approuvées", demandesApprouvees],
+            ["Demandes refusées", demandesRefusees]
+        ]
+        : role === ROLES.AGENT_ACCUEIL
+            ? [
+                ["Visiteurs attendus", rendezVousAujourdHui],
+                ["Visiteurs présents", visitesEnCours],
+                ["Visites en cours", visitesEnCours],
+                ["Rendez-vous aujourd'hui", rendezVousAujourdHui]
+            ]
+            : [
+                ["Utilisateurs", visiteurs.length + demandes.length],
+                ["Demandes totales", demandes.length],
+                ["Visiteurs", visiteurs.length],
+                ["Visites aujourd'hui", rendezVousAujourdHui]
+            ];
 
 
     return (
@@ -538,7 +608,7 @@ function Accueil() {
 
             </main>
 
-        </div>
+        </div >
     );
 }
 

@@ -2,6 +2,47 @@ const db = require("../config/db");
 
 const Validation = {
 
+    async decide(data) {
+        const connection = await db.getConnection();
+
+        try {
+            const { demande_id, responsable_id, niveau, decision, commentaire } = data;
+            const niveauActuel = Number(niveau);
+            const decisionFinale = String(decision).toUpperCase();
+            const [demandes] = await connection.query(
+                "SELECT id, statut FROM demande WHERE id = ? FOR UPDATE",
+                [demande_id]
+            );
+
+            if (demandes.length === 0) {
+                throw new Error("Demande introuvable");
+            }
+
+            await connection.beginTransaction();
+            await connection.query(
+                `INSERT INTO validation
+                (demande_id, responsable_id, niveau, decision, commentaire, date_validation)
+                VALUES (?, ?, ?, ?, ?, NOW())`,
+                [demande_id, responsable_id, niveauActuel, decisionFinale, commentaire || null]
+            );
+
+            const statut = decisionFinale === "REFUSEE"
+                ? "REFUSEE"
+                : niveauActuel >= 2 ? "VALIDEE" : "EN_ATTENTE";
+            await connection.query(
+                "UPDATE demande SET statut = ? WHERE id = ?",
+                [statut, demande_id]
+            );
+            await connection.commit();
+            return { demande_id, niveau: niveauActuel, decision: decisionFinale, statut };
+        } catch (error) {
+            await connection.rollback();
+            throw error;
+        } finally {
+            connection.release();
+        }
+    },
+
     async create(data) {
         const {
             demande_id,
