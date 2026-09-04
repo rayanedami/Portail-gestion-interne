@@ -5,6 +5,9 @@ import {
     Clock,
     MapPin,
     Search,
+    Plus,
+    Pencil,
+    Ban,
     CheckCircle2,
     XCircle,
     AlertCircle
@@ -19,6 +22,15 @@ function RendezVous() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
     const [message, setMessage] = useState("");
+    const [showForm, setShowForm] = useState(false);
+    const [editingRendezVous, setEditingRendezVous] = useState(null);
+    const [formData, setFormData] = useState({
+        date_rendez_vous: "",
+        heure_rendez_vous: "",
+        motif: "",
+        visiteur_id: "",
+        collaborateur_id: ""
+    });
 
     const utilisateurId = utilisateur?.id;
 
@@ -38,28 +50,7 @@ function RendezVous() {
                 response.data.rendez_vous ||
                 [];
 
-            let identifiantRendezVous = utilisateurId;
-
-            if (utilisateur?.role === "VISITEUR") {
-                const visiteursResponse = await api.get("/visiteurs");
-                const visiteurs = Array.isArray(visiteursResponse.data)
-                    ? visiteursResponse.data
-                    : [];
-                const profilVisiteur = visiteurs.find(
-                    (visiteur) =>
-                        Number(visiteur.utilisateur_id) === Number(utilisateurId)
-                );
-                identifiantRendezVous = profilVisiteur?.id;
-            }
-
-            const mesRendezVous = data.filter((rdv) => {
-                const identifiant = utilisateur?.role === "VISITEUR"
-                    ? rdv.visiteur_id
-                    : rdv.utilisateur_id ?? rdv.collaborateur_id;
-                return Number(identifiant) === Number(identifiantRendezVous);
-            });
-
-            setRendezVous(mesRendezVous);
+            setRendezVous(data);
         } catch (error) {
             console.error(
                 "Erreur récupération rendez-vous :",
@@ -71,6 +62,52 @@ function RendezVous() {
             );
         } finally {
             setLoading(false);
+        }
+    };
+
+    const ouvrirFormulaire = (rdv = null) => {
+        setEditingRendezVous(rdv);
+        setFormData(rdv ? {
+            date_rendez_vous: String(rdv.date_rendez_vous || "").slice(0, 10),
+            heure_rendez_vous: String(rdv.heure_rendez_vous || "").slice(0, 5),
+            motif: rdv.motif || "",
+            visiteur_id: rdv.visiteur_id || "",
+            collaborateur_id: rdv.collaborateur_id || utilisateurId || ""
+        } : {
+            date_rendez_vous: "",
+            heure_rendez_vous: "",
+            motif: "",
+            visiteur_id: "",
+            collaborateur_id: utilisateur?.role === "COLLABORATEUR" || utilisateur?.role === "RESPONSABLE" ? utilisateurId : ""
+        });
+        setShowForm(true);
+    };
+
+    const enregistrerRendezVous = async (event) => {
+        event.preventDefault();
+        try {
+            const payload = { ...formData };
+            if (!payload.visiteur_id) delete payload.visiteur_id;
+            const response = editingRendezVous
+                ? await api.put(`/rendez-vous/${editingRendezVous.id}`, payload)
+                : await api.post("/rendez-vous", payload);
+            setMessage(response.data.message || "Rendez-vous enregistré.");
+            setShowForm(false);
+            setEditingRendezVous(null);
+            await fetchRendezVous();
+        } catch (error) {
+            setMessage(error.response?.data?.message || "Impossible d'enregistrer le rendez-vous.");
+        }
+    };
+
+    const annulerRendezVous = async (id) => {
+        if (!window.confirm("Annuler ce rendez-vous ?")) return;
+        try {
+            const response = await api.delete(`/rendez-vous/${id}`);
+            setMessage(response.data.message || "Rendez-vous annulé.");
+            await fetchRendezVous();
+        } catch (error) {
+            setMessage(error.response?.data?.message || "Impossible d'annuler le rendez-vous.");
         }
     };
 
@@ -114,6 +151,8 @@ function RendezVous() {
         return text.includes(search.toLowerCase());
     });
 
+    const canManage = ["COLLABORATEUR", "RESPONSABLE", "ADMINISTRATEUR", "AGENT_ACCUEIL"].includes(utilisateur?.role);
+
     return (
         <div className="rendez-vous-page">
 
@@ -126,10 +165,14 @@ function RendezVous() {
 
                     <h1>Mes rendez-vous</h1>
 
-                    <p>
-                        Consultez vos rendez-vous et vos visites prévues.
-                    </p>
+                    <p>Consultez vos rendez-vous et vos visites prévues.</p>
                 </div>
+
+                {canManage && (
+                    <button className="rdv-add-button" type="button" onClick={() => ouvrirFormulaire()}>
+                        <Plus /> Nouveau rendez-vous
+                    </button>
+                )}
 
             </div>
 
@@ -137,6 +180,23 @@ function RendezVous() {
                 <div className="rdv-message">
                     {message}
                 </div>
+            )}
+
+            {showForm && (
+                <form className="rdv-form" onSubmit={enregistrerRendezVous}>
+                    <h2>{editingRendezVous ? "Modifier le rendez-vous" : "Nouveau rendez-vous"}</h2>
+                    <div className="rdv-form-grid">
+                        <label>Date<input required type="date" value={formData.date_rendez_vous} onChange={(e) => setFormData({ ...formData, date_rendez_vous: e.target.value })} /></label>
+                        <label>Heure<input required type="time" value={formData.heure_rendez_vous} onChange={(e) => setFormData({ ...formData, heure_rendez_vous: e.target.value })} /></label>
+                        <label>Visiteur ID<input required type="number" min="1" value={formData.visiteur_id} onChange={(e) => setFormData({ ...formData, visiteur_id: e.target.value })} /></label>
+                        <label>Collaborateur ID<input required type="number" min="1" value={formData.collaborateur_id} onChange={(e) => setFormData({ ...formData, collaborateur_id: e.target.value })} /></label>
+                        <label className="rdv-form-wide">Motif<textarea value={formData.motif} onChange={(e) => setFormData({ ...formData, motif: e.target.value })} /></label>
+                    </div>
+                    <div className="rdv-form-actions">
+                        <button type="button" onClick={() => setShowForm(false)}>Fermer</button>
+                        <button className="rdv-add-button" type="submit">Enregistrer</button>
+                    </div>
+                </form>
             )}
 
             <div className="rdv-toolbar">
@@ -232,13 +292,21 @@ function RendezVous() {
 
                                         <span>
                                             <MapPin />
-                                            {rdv.lieu ||
-                                                "Lieu non défini"}
+                                            {rdv.visiteur_nom || "Visiteur non renseigné"}
                                         </span>
+
+                                        {rdv.collaborateur_nom && <span>{rdv.collaborateur_nom}</span>}
 
                                     </div>
 
                                 </div>
+
+                                {canManage && rdv.statut !== "ANNULE" && (
+                                    <div className="rdv-item-actions">
+                                        <button title="Modifier" type="button" onClick={() => ouvrirFormulaire(rdv)}><Pencil /></button>
+                                        <button title="Annuler" type="button" onClick={() => annulerRendezVous(rdv.id)}><Ban /></button>
+                                    </div>
+                                )}
 
                             </div>
                         );

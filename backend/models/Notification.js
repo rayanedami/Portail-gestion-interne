@@ -112,10 +112,10 @@ const Notification = {
     },
 
     async getById(id, auth) {
-        const where = auth?.role === "ADMINISTRATEUR"
+        const where = (!auth || auth.role === "ADMINISTRATEUR")
             ? "WHERE id = ?"
             : "WHERE id = ? AND utilisateur_id = ?";
-        const params = auth?.role === "ADMINISTRATEUR" ? [id] : [id, auth.id];
+        const params = (!auth || auth.role === "ADMINISTRATEUR") ? [id] : [id, auth.id];
         const [rows] = await db.query(`
             SELECT
                 id,

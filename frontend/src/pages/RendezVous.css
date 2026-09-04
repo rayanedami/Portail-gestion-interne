@@ -5,7 +5,113 @@
 }
 
 .rdv-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
     margin-bottom: 28px;
+}
+
+.rdv-add-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: 0;
+    border-radius: 7px;
+    padding: 10px 14px;
+    background: #ff591b;
+    color: #fff;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.rdv-add-button svg,
+.rdv-item-actions svg {
+    width: 16px;
+    height: 16px;
+}
+
+.rdv-form {
+    margin-bottom: 22px;
+    border: 1px solid #eaecf0;
+    border-radius: 9px;
+    padding: 20px;
+    background: #fff;
+}
+
+.rdv-form h2 {
+    margin: 0 0 16px;
+    font-size: 17px;
+}
+
+.rdv-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.rdv-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: #344054;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.rdv-form input,
+.rdv-form textarea {
+    border: 1px solid #d0d5dd;
+    border-radius: 6px;
+    padding: 9px 10px;
+    font: inherit;
+    font-size: 13px;
+}
+
+.rdv-form textarea {
+    min-height: 70px;
+    resize: vertical;
+}
+
+.rdv-form-wide {
+    grid-column: 1 / -1;
+}
+
+.rdv-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.rdv-form-actions button {
+    border: 1px solid #d0d5dd;
+    border-radius: 7px;
+    padding: 9px 13px;
+    background: #fff;
+    color: #344054;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.rdv-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 20px 14px 20px 0;
+}
+
+.rdv-item-actions button {
+    display: inline-flex;
+    border: 0;
+    padding: 7px;
+    background: transparent;
+    color: #667085;
+    cursor: pointer;
+}
+
+.rdv-item-actions button:hover {
+    color: #ff591b;
 }
 
 .rdv-title-icon {
@@ -237,8 +343,26 @@
         flex-direction: column;
     }
 
+    .rdv-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .rdv-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rdv-form-wide {
+        grid-column: auto;
+    }
+
     .rdv-details {
         flex-direction: column;
         gap: 8px;
+    }
+
+    .rdv-item-actions {
+        justify-content: flex-end;
+        padding: 0 20px 14px;
     }
 }
