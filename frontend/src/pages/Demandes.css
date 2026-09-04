@@ -191,6 +191,56 @@
     box-shadow: 0 0 0 3px rgba(255, 89, 27, .1);
 }
 
+.date-filter {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 40px;
+    border: 1px solid #d0d5dd;
+    border-radius: 7px;
+    padding: 0 8px 0 10px;
+    background: #fff;
+    color: #667085;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.date-filter input {
+    height: 36px;
+    min-width: 132px;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: #344054;
+    font: inherit;
+    font-size: 12px;
+}
+
+.refresh-filter-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border: 1px solid #d0d5dd;
+    border-radius: 7px;
+    background: #fff;
+    color: #475467;
+    cursor: pointer;
+}
+
+.refresh-filter-button:hover {
+    border-color: #ff591b;
+    color: #ff591b;
+    background: #fff7f3;
+}
+
+.refresh-filter-button:active svg {
+    transform: rotate(-180deg);
+    transition: transform .25s ease;
+}
+
 .search-box svg {
     position: absolute;
     top: 50%;

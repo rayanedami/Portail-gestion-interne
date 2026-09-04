@@ -7,7 +7,8 @@ import {
     Clock,
     CheckCircle2,
     XCircle,
-    AlertCircle
+    AlertCircle,
+    RefreshCw
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
@@ -22,7 +23,7 @@ function Demandes() {
     const [message, setMessage] = useState("");
     const [showForm, setShowForm] = useState(false);
     const [search, setSearch] = useState("");
-    const [filters, setFilters] = useState({ type: "", statut: "", collaborateur: "", departement: "", date: "", from: "", to: "", search: "" });
+    const [filters, setFilters] = useState({ type: "", statut: "", collaborateur: "", departement: "", from: "", to: "", search: "" });
 
     const [formData, setFormData] = useState({
         motif: "",
@@ -165,6 +166,11 @@ function Demandes() {
         return text.includes(search.toLowerCase());
     });
 
+    const reinitialiserFiltres = () => {
+        setSearch("");
+        setFilters({ type: "", statut: "", collaborateur: "", departement: "", from: "", to: "", search: "" });
+    };
+
     return (
         <div className="demandes-page">
             <div className="demandes-header">
@@ -286,9 +292,9 @@ function Demandes() {
                 <input placeholder="Type ID" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })} />
                 <input placeholder="Collaborateur ID" value={filters.collaborateur} onChange={(e) => setFilters({ ...filters, collaborateur: e.target.value })} />
                 <input placeholder="Département ID" value={filters.departement} onChange={(e) => setFilters({ ...filters, departement: e.target.value })} />
-                <input type="date" value={filters.date} onChange={(e) => setFilters({ ...filters, date: e.target.value })} />
-                <input type="date" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} />
-                <input type="date" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} />
+                <label className="date-filter"><span>De</span><input aria-label="Date de début" type="date" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} /></label>
+                <label className="date-filter"><span>À</span><input aria-label="Date de fin" type="date" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} /></label>
+                <button className="refresh-filter-button" type="button" title="Réinitialiser les filtres" aria-label="Réinitialiser les filtres" onClick={reinitialiserFiltres}><RefreshCw size={17} /></button>
 
                 <div className="demandes-count">
                     {filteredDemandes.length} demande
