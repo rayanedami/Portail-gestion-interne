@@ -51,6 +51,8 @@ function Accueil() {
     const [visites, setVisites] = useState([]);
     const [visiteurs, setVisiteurs] = useState([]);
     const [notifications, setNotifications] = useState([]);
+    const [utilisateurs, setUtilisateurs] = useState([]);
+    const [logs, setLogs] = useState([]);
 
     const [chargement, setChargement] = useState(true);
 
@@ -78,10 +80,16 @@ function Accueil() {
                     : Promise.resolve({ data: [] }),
                 role === ROLES.AGENT_ACCUEIL || role === ROLES.ADMINISTRATEUR
                     ? api.get("/visiteurs")
+                    : Promise.resolve({ data: [] }),
+                role === ROLES.ADMINISTRATEUR
+                    ? api.get("/utilisateurs")
+                    : Promise.resolve({ data: [] }),
+                role === ROLES.ADMINISTRATEUR
+                    ? api.get("/logs")
                     : Promise.resolve({ data: [] })
             ]);
 
-            const [demandesResponse, rendezVousResponse, notificationsResponse, visitesResponse, visiteursResponse] = responses;
+            const [demandesResponse, rendezVousResponse, notificationsResponse, visitesResponse, visiteursResponse, utilisateursResponse, logsResponse] = responses;
 
             setDemandes(
                 Array.isArray(demandesResponse.data)
@@ -113,6 +121,18 @@ function Accueil() {
                 Array.isArray(visiteursResponse.data)
                     ? visiteursResponse.data
                     : visiteursResponse.data?.visiteurs || []
+            );
+
+            setUtilisateurs(
+                Array.isArray(utilisateursResponse.data)
+                    ? utilisateursResponse.data
+                    : utilisateursResponse.data?.utilisateurs || []
+            );
+
+            setLogs(
+                Array.isArray(logsResponse.data)
+                    ? logsResponse.data
+                    : logsResponse.data?.logs || []
             );
 
         } catch (error) {
@@ -184,6 +204,8 @@ function Accueil() {
         String(rdv.date_rendez_vous || "").slice(0, 10) === dateAujourdHui &&
         !["ANNULE", "TERMINE"].includes(String(rdv.statut || "").toUpperCase())
     );
+
+    const activitesRecentes = logs.slice(0, 6);
 
     const dashboardCards = role === ROLES.RESPONSABLE
         ? [
@@ -409,6 +431,54 @@ function Accueil() {
                                                         </div>
                                                     </div>
                                                     <span className="status">{demande.statut || "Non défini"}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </>
+                    ) : role === ROLES.ADMINISTRATEUR ? (
+                        <>
+                            <div className="stats-grid admin-stats-grid">
+                                {[
+                                    ["Utilisateurs", utilisateurs.length, "blue", Users],
+                                    ["Demandes totales", demandes.length, "orange", ClipboardList],
+                                    ["Demandes en attente", demandesEnAttente, "yellow", BarChart3],
+                                    ["Visiteurs", visiteurs.length, "green", Users],
+                                    ["Visites aujourd'hui", visites.filter((visite) => String(visite.date_entree || "").slice(0, 10) === dateAujourdHui).length, "orange", DoorOpen],
+                                    ["Rendez-vous aujourd'hui", rendezVousAujourdHui, "blue", CalendarDays]
+                                ].map(([label, value, couleur, Icon]) => (
+                                    <div className="stat-card" key={label}>
+                                        <div className={`stat-icon ${couleur}`}><Icon size={22} /></div>
+                                        <div>
+                                            <span className="stat-label">{label}</span>
+                                            <strong className="stat-number">{chargement ? "..." : value}</strong>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="recent-section admin-activity-section">
+                                <div className="section-title recent-title">
+                                    <div>
+                                        <h2>Activités récentes</h2>
+                                        <p>Dernières actions enregistrées dans les journaux.</p>
+                                    </div>
+                                    <button className="view-all-button" onClick={() => allerVers("/logs")}>Voir les logs</button>
+                                </div>
+                                <div className="recent-card">
+                                    {activitesRecentes.length === 0 ? (
+                                        <div className="empty-state"><BarChart3 size={30} /><strong>Aucune activité récente</strong><span>Les actions enregistrées apparaîtront ici.</span></div>
+                                    ) : (
+                                        <div className="demandes-list">
+                                            {activitesRecentes.map((log) => (
+                                                <div className="demande-row" key={log.id}>
+                                                    <div className="demande-info">
+                                                        <div className="demande-icon"><BarChart3 size={18} /></div>
+                                                        <div><strong>{log.action || "Action enregistrée"}</strong><span>{log.date_action ? new Date(log.date_action).toLocaleString("fr-FR") : "Date non renseignée"}</span></div>
+                                                    </div>
+                                                    <span className="status">Utilisateur #{log.utilisateur_id || "-"}</span>
                                                 </div>
                                             ))}
                                         </div>

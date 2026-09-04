@@ -354,6 +354,10 @@
     grid-template-columns: repeat(5, 1fr);
 }
 
+.admin-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+}
+
 .stat-card {
     min-height: 105px;
 
@@ -808,6 +812,10 @@
     .agent-accueil-stats {
         grid-template-columns: repeat(2, 1fr);
     }
+
+    .admin-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 800px) {
@@ -885,6 +893,10 @@
     }
 
     .agent-accueil-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-stats-grid {
         grid-template-columns: 1fr;
     }
 
