@@ -69,13 +69,16 @@ const Log = {
     async getAll() {
         const [rows] = await db.query(`
             SELECT
-                id,
-                action,
-                date_action,
-                adresse_ip,
-                utilisateur_id
-            FROM log
-            ORDER BY id DESC
+                l.id,
+                l.action,
+                l.date_action,
+                l.adresse_ip,
+                l.utilisateur_id,
+                CONCAT(u.prenom, ' ', u.nom) AS utilisateur_nom,
+                u.email AS utilisateur_email
+            FROM log l
+            LEFT JOIN utilisateur u ON u.id = l.utilisateur_id
+            ORDER BY l.id DESC
         `);
 
         return rows;
@@ -88,9 +91,12 @@ const Log = {
                 action,
                 date_action,
                 adresse_ip,
-                utilisateur_id
-            FROM log
-            WHERE id = ?
+                utilisateur_id,
+                CONCAT(u.prenom, ' ', u.nom) AS utilisateur_nom,
+                u.email AS utilisateur_email
+            FROM log l
+            LEFT JOIN utilisateur u ON u.id = l.utilisateur_id
+            WHERE l.id = ?
         `, [id]);
 
         return rows[0];
