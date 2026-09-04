@@ -23,8 +23,8 @@ function Demandes() {
     const [message, setMessage] = useState("");
     const [showForm, setShowForm] = useState(false);
     const [search, setSearch] = useState("");
-    const [filters, setFilters] = useState({ type: "", statut: "", collaborateur: "", departement: "", from: "", to: "", search: "" });
-    const [options, setOptions] = useState({ types: [], collaborateurs: [], departements: [] });
+    const [filters, setFilters] = useState({ type: "", statut: "", departement: "", from: "", to: "", search: "" });
+    const [options, setOptions] = useState({ types: [], departements: [] });
 
     const [formData, setFormData] = useState({
         motif: "",
@@ -39,7 +39,7 @@ function Demandes() {
 
     useEffect(() => {
         api.get("/demandes/options")
-            .then((response) => setOptions(response.data || { types: [], collaborateurs: [], departements: [] }))
+            .then((response) => setOptions(response.data || { types: [], departements: [] }))
             .catch((error) => console.error("Erreur options demandes :", error));
     }, []);
 
@@ -168,6 +168,7 @@ function Demandes() {
             ${demande.statut || ""}
             ${demande.type_demande || ""}
             ${demande.nom_type || ""}
+            ${demande.collaborateur_nom || ""}
         `.toLowerCase();
 
         return text.includes(search.toLowerCase());
@@ -175,7 +176,7 @@ function Demandes() {
 
     const reinitialiserFiltres = () => {
         setSearch("");
-        setFilters({ type: "", statut: "", collaborateur: "", departement: "", from: "", to: "", search: "" });
+        setFilters({ type: "", statut: "", departement: "", from: "", to: "", search: "" });
     };
 
     return (
@@ -297,7 +298,6 @@ function Demandes() {
 
                 <select value={filters.statut} onChange={(e) => setFilters({ ...filters, statut: e.target.value })}><option value="">Tous les statuts</option><option value="EN_ATTENTE">En attente</option><option value="ACCEPTEE">Acceptée</option><option value="REFUSEE">Refusée</option></select>
                 <select value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}><option value="">Tous les types</option>{options.types.map((type) => <option key={type.id} value={type.id}>{type.nom}</option>)}</select>
-                <select value={filters.collaborateur} onChange={(e) => setFilters({ ...filters, collaborateur: e.target.value })}><option value="">Toutes les personnes</option>{options.collaborateurs.map((personne) => <option key={personne.id} value={personne.id}>{personne.nom}</option>)}</select>
                 <select value={filters.departement} onChange={(e) => setFilters({ ...filters, departement: e.target.value })}><option value="">Tous les départements</option>{options.departements.map((departement) => <option key={departement.id} value={departement.id}>{departement.nom}</option>)}</select>
                 <label className="date-filter"><span>De</span><input aria-label="Date de début" type="date" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} /></label>
                 <label className="date-filter"><span>À</span><input aria-label="Date de fin" type="date" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} /></label>

@@ -97,7 +97,10 @@ const Demande = {
         if (filters.date) { clauses.push("DATE(d.date_soumission) = ?"); params.push(filters.date); }
         if (filters.from) { clauses.push("DATE(d.date_soumission) >= ?"); params.push(filters.from); }
         if (filters.to) { clauses.push("DATE(d.date_soumission) <= ?"); params.push(filters.to); }
-        if (filters.search) { clauses.push("(d.motif LIKE ? OR t.nom LIKE ?)"); params.push(`%${filters.search}%`, `%${filters.search}%`); }
+        if (filters.search) {
+            clauses.push("(d.motif LIKE ? OR t.nom LIKE ? OR u.nom LIKE ? OR u.prenom LIKE ?)");
+            params.push(`%${filters.search}%`, `%${filters.search}%`, `%${filters.search}%`, `%${filters.search}%`);
+        }
         const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
         const [rows] = await db.query(`
             SELECT
@@ -107,7 +110,8 @@ const Demande = {
                 d.statut,
                 d.collaborateur_id,
                 d.type_demande_id,
-                t.nom AS nom_type
+                t.nom AS nom_type,
+                CONCAT(u.prenom, ' ', u.nom) AS collaborateur_nom
             FROM demande d
             JOIN type_demande t ON t.id = d.type_demande_id
             JOIN utilisateur u ON u.id = d.collaborateur_id
