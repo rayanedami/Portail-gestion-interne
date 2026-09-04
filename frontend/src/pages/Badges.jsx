@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { QrCode, Plus, Trash2, Edit, X, RefreshCw } from "lucide-react";
+import { QrCode, Trash2, Edit, RefreshCw } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -15,7 +15,6 @@ function Badges() {
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
 
-    const [showForm, setShowForm] = useState(false);
     const [editingBadge, setEditingBadge] = useState(null);
 
     const [formData, setFormData] = useState({
@@ -66,7 +65,6 @@ function Badges() {
         });
 
         setEditingBadge(null);
-        setShowForm(false);
     };
 
     const handleChange = (e) => {
@@ -155,7 +153,6 @@ function Badges() {
             rendez_vous_id: badge.rendez_vous_id || ""
         });
 
-        setShowForm(true);
         setMessage("");
         setError("");
     };
@@ -268,29 +265,6 @@ function Badges() {
                     </p>
                 </div>
 
-                {canManage && (
-                    <button
-                        className="add-badge-button"
-                        onClick={() => {
-                            setEditingBadge(null);
-                            setFormData({
-                                qr_code: `PORTAIL-BADGE-${crypto.randomUUID()}`,
-                                date_generation: "",
-                                date_expiration: "",
-                                statut: "VALIDE",
-                                rendez_vous_id: ""
-                            });
-
-                            setShowForm(true);
-                            setMessage("");
-                            setError("");
-                        }}
-                    >
-                        <Plus size={18} />
-                        Nouveau badge
-                    </button>
-                )}
-
             </div>
 
 
@@ -311,7 +285,7 @@ function Badges() {
 
             {/* FORMULAIRE */}
 
-            {showForm && canManage && (
+            {editingBadge && canManage && (
                 <div className="badge-form-card">
 
                     <div className="form-header">
