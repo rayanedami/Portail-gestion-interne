@@ -2,7 +2,15 @@ const db = require("../config/db");
 
 const Utilisateur = {
 
-    async getAll() {
+    async getAll(filters = {}) {
+        const clauses = [];
+        const params = [];
+        if (filters.nom) { clauses.push("(u.nom LIKE ? OR u.prenom LIKE ?)"); params.push(`%${filters.nom}%`, `%${filters.nom}%`); }
+        if (filters.email) { clauses.push("u.email LIKE ?"); params.push(`%${filters.email}%`); }
+        if (filters.role) { clauses.push("u.role_id = ?"); params.push(filters.role); }
+        if (filters.departement) { clauses.push("u.departement_id = ?"); params.push(filters.departement); }
+        if (filters.statut) { clauses.push("u.actif = ?"); params.push(filters.statut === "ACTIF" ? 1 : 0); }
+        const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
         const [rows] = await db.query(`
             SELECT
                 u.id, u.nom, u.prenom, u.email, u.telephone, u.actif,
@@ -12,8 +20,9 @@ const Utilisateur = {
             FROM utilisateur u
             JOIN role r ON r.id = u.role_id
             LEFT JOIN departement d ON d.id = u.departement_id
+            ${where}
             ORDER BY u.id DESC
-        `);
+        `, params);
 
         return rows;
     },

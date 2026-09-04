@@ -22,6 +22,7 @@ function Demandes() {
     const [message, setMessage] = useState("");
     const [showForm, setShowForm] = useState(false);
     const [search, setSearch] = useState("");
+    const [filters, setFilters] = useState({ type: "", statut: "", collaborateur: "", departement: "", date: "", from: "", to: "", search: "" });
 
     const [formData, setFormData] = useState({
         motif: "",
@@ -32,7 +33,7 @@ function Demandes() {
 
     useEffect(() => {
         fetchDemandes();
-    }, []);
+    }, [filters]);
 
     useEffect(() => {
         if (location.pathname === "/nouvelle-demande") {
@@ -44,7 +45,7 @@ function Demandes() {
         try {
             setLoading(true);
 
-            const response = await api.get("/demandes");
+            const response = await api.get("/demandes", { params: { ...filters } });
 
             const data = Array.isArray(response.data)
                 ? response.data
@@ -277,9 +278,17 @@ function Demandes() {
                         type="text"
                         placeholder="Rechercher une demande..."
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        onChange={(e) => { setSearch(e.target.value); setFilters((current) => ({ ...current, search: e.target.value })); }}
                     />
                 </div>
+
+                <select value={filters.statut} onChange={(e) => setFilters({ ...filters, statut: e.target.value })}><option value="">Tous les statuts</option><option value="EN_ATTENTE">En attente</option><option value="ACCEPTEE">Acceptée</option><option value="REFUSEE">Refusée</option></select>
+                <input placeholder="Type ID" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })} />
+                <input placeholder="Collaborateur ID" value={filters.collaborateur} onChange={(e) => setFilters({ ...filters, collaborateur: e.target.value })} />
+                <input placeholder="Département ID" value={filters.departement} onChange={(e) => setFilters({ ...filters, departement: e.target.value })} />
+                <input type="date" value={filters.date} onChange={(e) => setFilters({ ...filters, date: e.target.value })} />
+                <input type="date" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} />
+                <input type="date" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} />
 
                 <div className="demandes-count">
                     {filteredDemandes.length} demande

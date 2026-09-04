@@ -22,6 +22,7 @@ function Visiteurs() {
     const [error, setError] = useState("");
 
     const [search, setSearch] = useState("");
+    const [filters, setFilters] = useState({ nom: "", prenom: "", societe: "", date: "", statut: "", search: "" });
     const [showModal, setShowModal] = useState(false);
     const [editingVisiteur, setEditingVisiteur] = useState(null);
     const [historique, setHistorique] = useState([]);
@@ -50,7 +51,7 @@ function Visiteurs() {
             setLoading(true);
             setError("");
 
-            const response = await api.get("/visiteurs");
+            const response = await api.get("/visiteurs", { params: { ...filters } });
 
             const data = response.data;
 
@@ -333,10 +334,16 @@ function Visiteurs() {
                         type="text"
                         placeholder="Rechercher un visiteur..."
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        onChange={(e) => { setSearch(e.target.value); setFilters((current) => ({ ...current, search: e.target.value })); }}
                     />
 
                 </div>
+
+                <input placeholder="Nom" value={filters.nom} onChange={(e) => setFilters({ ...filters, nom: e.target.value })} />
+                <input placeholder="Prénom" value={filters.prenom} onChange={(e) => setFilters({ ...filters, prenom: e.target.value })} />
+                <input placeholder="Société" value={filters.societe} onChange={(e) => setFilters({ ...filters, societe: e.target.value })} />
+                <input type="date" value={filters.date} onChange={(e) => setFilters({ ...filters, date: e.target.value })} />
+                <select value={filters.statut} onChange={(e) => setFilters({ ...filters, statut: e.target.value })}><option value="">Tous statuts</option><option value="CONFIRME">Confirmé</option><option value="ANNULE">Annulé</option></select>
 
                 <div className="results-count">
                     {filteredVisiteurs.length} visiteur
@@ -478,7 +485,7 @@ function Visiteurs() {
                                                     </button>
 
                                                     <button
-                                                        className="btn-edit"
+                                                        className="btn-history"
                                                         title="Historique"
                                                         onClick={() => consulterHistorique(visiteur)}
                                                     >

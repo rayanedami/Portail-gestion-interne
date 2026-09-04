@@ -49,21 +49,21 @@ const Visiteur = {
         return result.affectedRows > 0;
     },
 
-    async getAll(auth) {
-        const where = auth?.role === "VISITEUR"
-            ? "WHERE utilisateur_id = ?"
-            : "";
-        const params = auth?.role === "VISITEUR" ? [auth.id] : [];
+    async getAll(auth, filters = {}) {
+        const clauses = [];
+        const params = [];
+        if (auth?.role === "VISITEUR") { clauses.push("v.utilisateur_id = ?"); params.push(auth.id); }
+        if (filters.nom) { clauses.push("v.nom LIKE ?"); params.push(`%${filters.nom}%`); }
+        if (filters.prenom) { clauses.push("v.prenom LIKE ?"); params.push(`%${filters.prenom}%`); }
+        if (filters.societe) { clauses.push("v.societe LIKE ?"); params.push(`%${filters.societe}%`); }
+        if (filters.statut) { clauses.push("EXISTS (SELECT 1 FROM rendez_vous r WHERE r.visiteur_id = v.id AND r.statut = ?)"); params.push(filters.statut); }
+        if (filters.date) { clauses.push("EXISTS (SELECT 1 FROM rendez_vous r WHERE r.visiteur_id = v.id AND DATE(r.date_rendez_vous) = ?)"); params.push(filters.date); }
+        if (filters.search) { clauses.push("(v.nom LIKE ? OR v.prenom LIKE ? OR v.societe LIKE ?)"); params.push(`%${filters.search}%`, `%${filters.search}%`, `%${filters.search}%`); }
+        const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
         const [rows] = await db.query(`
             SELECT
-                id,
-                utilisateur_id,
-                nom,
-                prenom,
-                email,
-                telephone,
-                societe
-            FROM visiteur
+                v.id, v.utilisateur_id, v.nom, v.prenom, v.email, v.telephone, v.societe
+            FROM visiteur v
             ${where}
             ORDER BY id DESC
         `, params);

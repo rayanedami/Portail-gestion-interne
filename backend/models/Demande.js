@@ -86,11 +86,19 @@ const Demande = {
         return result.affectedRows > 0;
     },
 
-    async getAll(auth) {
-        const where = auth?.role === "COLLABORATEUR"
-            ? "WHERE d.collaborateur_id = ?"
-            : "";
-        const params = auth?.role === "COLLABORATEUR" ? [auth.id] : [];
+    async getAll(auth, filters = {}) {
+        const clauses = [];
+        const params = [];
+        if (auth?.role === "COLLABORATEUR") { clauses.push("d.collaborateur_id = ?"); params.push(auth.id); }
+        if (filters.type) { clauses.push("d.type_demande_id = ?"); params.push(filters.type); }
+        if (filters.statut) { clauses.push("d.statut = ?"); params.push(filters.statut); }
+        if (filters.collaborateur) { clauses.push("d.collaborateur_id = ?"); params.push(filters.collaborateur); }
+        if (filters.departement) { clauses.push("u.departement_id = ?"); params.push(filters.departement); }
+        if (filters.date) { clauses.push("DATE(d.date_soumission) = ?"); params.push(filters.date); }
+        if (filters.from) { clauses.push("DATE(d.date_soumission) >= ?"); params.push(filters.from); }
+        if (filters.to) { clauses.push("DATE(d.date_soumission) <= ?"); params.push(filters.to); }
+        if (filters.search) { clauses.push("(d.motif LIKE ? OR t.nom LIKE ?)"); params.push(`%${filters.search}%`, `%${filters.search}%`); }
+        const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
         const [rows] = await db.query(`
             SELECT
                 d.id,
@@ -102,6 +110,7 @@ const Demande = {
                 t.nom AS nom_type
             FROM demande d
             JOIN type_demande t ON t.id = d.type_demande_id
+            JOIN utilisateur u ON u.id = d.collaborateur_id
             ${where}
             ORDER BY d.id DESC
         `, params);

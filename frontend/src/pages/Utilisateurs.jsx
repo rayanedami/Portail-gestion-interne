@@ -16,7 +16,7 @@ function Utilisateurs() {
     const [message, setMessage] = useState("");
 
     useEffect(() => {
-        Promise.allSettled([api.get("/utilisateurs"), api.get("/roles"), api.get("/departements")])
+        Promise.allSettled([api.get("/utilisateurs", { params: filters }), api.get("/roles"), api.get("/departements")])
             .then(([usersResult, rolesResult, departmentsResult]) => {
                 if (usersResult.status === "fulfilled") {
                     setUtilisateurs(usersResult.value.data || []);
@@ -85,9 +85,11 @@ function Utilisateurs() {
         <main className="admin-page">
             <div className="users-header"><h1><Users size={24} /> Gestion des utilisateurs</h1><button onClick={exporter}>Exporter Excel</button></div>
             <div className="users-filters">
-                <label className="admin-search"><Search size={18} /><input value={recherche} onChange={(event) => setRecherche(event.target.value)} placeholder="Rechercher un utilisateur..." /></label>
-                <select value={roleFilter} onChange={(event) => setRoleFilter(event.target.value)}><option value="">Tous les rôles</option>{roles.map((role) => <option key={role.id} value={role.id}>{role.nom}</option>)}</select>
-                <select value={departementFilter} onChange={(event) => setDepartementFilter(event.target.value)}><option value="">Tous les départements</option>{departements.map((departement) => <option key={departement.id} value={departement.id}>{departement.nom}</option>)}</select>
+                <label className="admin-search"><Search size={18} /><input value={recherche} onChange={(event) => { setRecherche(event.target.value); setFilters({ ...filters, nom: event.target.value }); }} placeholder="Nom..." /></label>
+                <input placeholder="Email" onChange={(event) => setFilters({ ...filters, email: event.target.value })} />
+                <select value={roleFilter} onChange={(event) => { setRoleFilter(event.target.value); setFilters({ ...filters, role: event.target.value }); }}><option value="">Tous les rôles</option>{roles.map((role) => <option key={role.id} value={role.id}>{role.nom}</option>)}</select>
+                <select value={departementFilter} onChange={(event) => { setDepartementFilter(event.target.value); setFilters({ ...filters, departement: event.target.value }); }}><option value="">Tous les départements</option>{departements.map((departement) => <option key={departement.id} value={departement.id}>{departement.nom}</option>)}</select>
+                <select value={filters.statut} onChange={(event) => setFilters({ ...filters, statut: event.target.value })}><option value="">Tous statuts</option><option value="ACTIF">Actifs</option><option value="INACTIF">Inactifs</option></select>
             </div>
             {message && <p className="users-success">{message}</p>}
             {erreur && <p>{erreur}</p>}

@@ -76,7 +76,7 @@ const DemandeController = {
 
     async getAll(req, res) {
         try {
-            const demandes = await Demande.getAll(req.auth);
+            const demandes = await Demande.getAll(req.auth, req.query);
 
             res.json(demandes);
 

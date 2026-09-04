@@ -4,7 +4,7 @@ const UtilisateurController = {
 
     async getAll(req, res) {
         try {
-            const utilisateurs = await Utilisateur.getAll();
+            const utilisateurs = await Utilisateur.getAll(req.query);
 
             res.json(utilisateurs);
 

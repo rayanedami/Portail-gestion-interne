@@ -78,7 +78,15 @@ const Visite = {
         return rows[0];
     },
 
-    async getAll() {
+    async getAll(filters = {}) {
+        const clauses = [];
+        const params = [];
+        if (filters.visiteur) { clauses.push("(vis.nom LIKE ? OR vis.prenom LIKE ?)"); params.push(`%${filters.visiteur}%`, `%${filters.visiteur}%`); }
+        if (filters.date) { clauses.push("DATE(v.date_entree) = ?"); params.push(filters.date); }
+        if (filters.from) { clauses.push("DATE(v.date_entree) >= ?"); params.push(filters.from); }
+        if (filters.to) { clauses.push("DATE(v.date_entree) <= ?"); params.push(filters.to); }
+        if (filters.statut) { clauses.push("(v.statut = ? OR (v.statut = 'PREVUE' AND ? = 'EN_ATTENTE'))"); params.push(filters.statut, filters.statut); }
+        const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
         const [rows] = await db.query(`
             SELECT
                 v.id,
@@ -115,8 +123,10 @@ const Visite = {
             LEFT JOIN utilisateur u
                 ON v.agent_accueil_id = u.id
 
+            ${where}
+
             ORDER BY v.id DESC
-        `);
+        `, params);
 
         return rows;
     },

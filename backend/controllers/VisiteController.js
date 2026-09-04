@@ -132,7 +132,7 @@ const VisiteController = {
 
     async getAll(req, res) {
         try {
-            const visites = await Visite.getAll();
+            const visites = await Visite.getAll(req.query);
             return res.json(visites);
         } catch (error) {
             console.error("Erreur visites :", error.message);

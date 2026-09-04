@@ -15,7 +15,7 @@ function Visites() {
             setLoading(true);
             setError("");
 
-            const response = await api.get("/visites");
+            const response = await api.get("/visites", { params: filters });
             const data = response.data;
 
             // Le backend peut retourner directement un tableau
@@ -166,6 +166,14 @@ function Visites() {
                     </div>
                 </div>
 
+            </div>
+
+            <div className="visites-filters">
+                <input placeholder="Visiteur" value={filters.visiteur} onChange={(e) => setFilters({ ...filters, visiteur: e.target.value })} />
+                <input type="date" value={filters.date} onChange={(e) => setFilters({ ...filters, date: e.target.value })} />
+                <select value={filters.statut} onChange={(e) => setFilters({ ...filters, statut: e.target.value })}><option value="">Tous statuts</option><option value="EN_ATTENTE">En attente</option><option value="EN_COURS">En cours</option><option value="TERMINEE">Terminée</option><option value="ANNULEE">Annulée</option></select>
+                <input type="date" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} />
+                <input type="date" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} />
             </div>
 
             <div className="visites-card">
