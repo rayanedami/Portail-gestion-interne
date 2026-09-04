@@ -15,7 +15,10 @@ import {
     Users,
     BarChart3,
     BadgeCheck,
-    Settings
+    Settings,
+    UserPlus,
+    DoorOpen,
+    ScanLine
 } from "lucide-react";
 
 import api from "../services/api";
@@ -172,6 +175,15 @@ function Accueil() {
     const rendezVousAujourdHui = rendezVous.filter((rdv) =>
         String(rdv.date_rendez_vous || "").slice(0, 10) === dateAujourdHui
     ).length;
+
+    const visitesTerminees = visites.filter((visite) =>
+        ["TERMINEE", "TERMINE", "SORTI"].includes(String(visite.statut || "").toUpperCase())
+    ).length;
+
+    const visiteursAttendusAujourdHui = rendezVous.filter((rdv) =>
+        String(rdv.date_rendez_vous || "").slice(0, 10) === dateAujourdHui &&
+        !["ANNULE", "TERMINE"].includes(String(rdv.statut || "").toUpperCase())
+    );
 
     const dashboardCards = role === ROLES.RESPONSABLE
         ? [
@@ -397,6 +409,72 @@ function Accueil() {
                                                         </div>
                                                     </div>
                                                     <span className="status">{demande.statut || "Non défini"}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </>
+                    ) : role === ROLES.AGENT_ACCUEIL ? (
+                        <>
+                            <div className="stats-grid agent-accueil-stats">
+                                {[
+                                    ["Visiteurs attendus aujourd'hui", visiteursAttendusAujourdHui.length, "blue", CalendarDays],
+                                    ["Visiteurs présents", visitesEnCours, "green", Users],
+                                    ["Visites en cours", visitesEnCours, "orange", DoorOpen],
+                                    ["Visites terminées", visitesTerminees, "yellow", CheckCircle2],
+                                    ["Rendez-vous aujourd'hui", rendezVousAujourdHui, "blue", CalendarDays]
+                                ].map(([label, value, couleur, Icon]) => (
+                                    <div className="stat-card" key={label}>
+                                        <div className={`stat-icon ${couleur}`}><Icon size={22} /></div>
+                                        <div>
+                                            <span className="stat-label">{label}</span>
+                                            <strong className="stat-number">{chargement ? "..." : value}</strong>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="section-title">
+                                <h2>Actions rapides</h2>
+                                <p>Accédez rapidement aux opérations d'accueil.</p>
+                            </div>
+
+                            <div className="quick-actions agent-accueil-actions">
+                                {[
+                                    ["Scanner QR", "/scanner-qr", ScanLine, "Valider l'arrivée d'un visiteur."],
+                                    ["Préenregistrer un visiteur", "/visiteurs", UserPlus, "Créer une fiche visiteur."],
+                                    ["Voir les visiteurs", "/visiteurs", Users, "Consulter les visiteurs enregistrés."],
+                                    ["Voir les visites", "/visites", DoorOpen, "Suivre les entrées et sorties."],
+                                    ["Voir les rendez-vous", "/rendez-vous", CalendarDays, "Consulter les visiteurs attendus."]
+                                ].map(([label, route, Icon, description]) => (
+                                    <button className="quick-card" key={route + label} onClick={() => allerVers(route)}>
+                                        <div className="quick-icon blue"><Icon size={24} /></div>
+                                        <div><h3>{label}</h3><p>{description}</p></div>
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="recent-section">
+                                <div className="section-title recent-title">
+                                    <div>
+                                        <h2>Visiteurs attendus aujourd'hui</h2>
+                                        <p>Rendez-vous planifiés pour la journée.</p>
+                                    </div>
+                                    <button className="view-all-button" onClick={() => allerVers("/rendez-vous")}>Voir tout</button>
+                                </div>
+                                <div className="recent-card expected-visitors-card">
+                                    {visiteursAttendusAujourdHui.length === 0 ? (
+                                        <div className="empty-state"><CalendarDays size={30} /><strong>Aucun visiteur attendu</strong><span>Aucun rendez-vous n'est prévu aujourd'hui.</span></div>
+                                    ) : (
+                                        <div className="expected-visitors-list">
+                                            {visiteursAttendusAujourdHui.map((rdv) => (
+                                                <div className="expected-visitor-row" key={rdv.id}>
+                                                    <div><strong>{rdv.visiteur_nom || "Visiteur non renseigné"}</strong><span>{rdv.visiteur_societe || "Société non renseignée"}</span></div>
+                                                    <span>{String(rdv.heure_rendez_vous || "").slice(0, 5) || "-"}</span>
+                                                    <span>{rdv.collaborateur_nom || "-"}</span>
+                                                    <span className={`status ${String(rdv.statut || "").toLowerCase()}`}>{rdv.statut || "PLANIFIE"}</span>
                                                 </div>
                                             ))}
                                         </div>
