@@ -101,12 +101,7 @@ function Badges() {
         setError("");
 
         try {
-            if (
-                !formData.qr_code ||
-                !formData.date_generation ||
-                !formData.date_expiration ||
-                !formData.rendez_vous_id
-            ) {
+            if (!formData.rendez_vous_id) {
                 setError("Veuillez remplir tous les champs obligatoires.");
                 return;
             }
@@ -279,7 +274,7 @@ function Badges() {
                         onClick={() => {
                             setEditingBadge(null);
                             setFormData({
-                                qr_code: "",
+                                qr_code: `PORTAIL-BADGE-${crypto.randomUUID()}`,
                                 date_generation: "",
                                 date_expiration: "",
                                 statut: "VALIDE",
@@ -355,7 +350,6 @@ function Badges() {
                                         value={formData.qr_code}
                                         onChange={handleChange}
                                         placeholder="Code QR"
-                                        required
                                     />
 
                                     <button
@@ -386,7 +380,6 @@ function Badges() {
                                     onChange={handleChange}
                                     placeholder="Ex: 1"
                                     min="1"
-                                    required
                                 />
 
                             </div>
@@ -405,7 +398,6 @@ function Badges() {
                                         formData.date_generation
                                     }
                                     onChange={handleChange}
-                                    required
                                 />
 
                             </div>
@@ -424,7 +416,6 @@ function Badges() {
                                         formData.date_expiration
                                     }
                                     onChange={handleChange}
-                                    required
                                 />
 
                             </div>
@@ -441,8 +432,8 @@ function Badges() {
                                     value={formData.statut}
                                     onChange={handleChange}
                                 >
-                                    <option value="ACTIF">
-                                        ACTIF
+                                    <option value="VALIDE">
+                                        VALIDE
                                     </option>
 
                                     <option value="EXPIRE">

@@ -21,8 +21,11 @@ const BadgeController = {
         } catch (error) {
             console.error("Erreur création badge :", error.message);
 
-            res.status(500).json({
-                message: "Erreur serveur"
+            const status = error.code === "ER_DUP_ENTRY" ? 409 : 400;
+            res.status(status).json({
+                message: error.code === "ER_DUP_ENTRY"
+                    ? "Ce QR Code existe déjà. Générez un nouveau code."
+                    : error.message
             });
         }
     },
