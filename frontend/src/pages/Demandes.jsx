@@ -224,7 +224,13 @@ function Demandes() {
                                     Document administratif
                                 </option>
                                 <option value="4">
-                                    Autre
+                                    Autorisation
+                                </option>
+                                <option value="5">
+                                    Matériel informatique
+                                </option>
+                                <option value="6">
+                                    Accès
                                 </option>
                             </select>
                         </div>

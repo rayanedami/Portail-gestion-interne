@@ -10,7 +10,7 @@ const Validation = {
             const niveauActuel = Number(niveau);
             const decisionFinale = String(decision).toUpperCase();
             const [demandes] = await connection.query(
-                "SELECT id, statut FROM demande WHERE id = ? FOR UPDATE",
+                "SELECT id, statut, collaborateur_id FROM demande WHERE id = ? FOR UPDATE",
                 [demande_id]
             );
 
@@ -32,6 +32,19 @@ const Validation = {
             await connection.query(
                 "UPDATE demande SET statut = ? WHERE id = ?",
                 [statut, demande_id]
+            );
+
+            const message = decisionFinale === "REFUSEE"
+                ? `Votre demande #${demande_id} a été refusée.`
+                : statut === "VALIDEE"
+                    ? `Votre demande #${demande_id} a été validée.`
+                    : `Votre demande #${demande_id} a été validée au niveau ${niveauActuel}.`;
+
+            await connection.query(
+                `INSERT INTO notification
+                (message, type, date_envoi, est_lue, utilisateur_id, demande_id)
+                VALUES (?, ?, NOW(), 0, ?, ?)`,
+                [message, "VALIDATION", demandes[0].collaborateur_id, demande_id]
             );
             await connection.commit();
             return { demande_id, niveau: niveauActuel, decision: decisionFinale, statut };

@@ -54,39 +54,15 @@ function Validations() {
             setMessage("");
             setError("");
 
-            /*
-             * 1. Créer la validation
-             */
-            await api.post("/validations", {
+            const response = await api.post("/validations/decision", {
                 demande_id: demande.id,
-                responsable_id: utilisateur.id,
                 niveau: 1,
                 decision: "VALIDEE",
                 commentaire: "Demande validée par le responsable."
             });
 
-            /*
-             * 2. Modifier le statut de la demande
-             */
-            await api.put(`/demandes/${demande.id}`, {
-                motif: demande.motif,
-                statut: "VALIDEE",
-                type_demande_id: demande.type_demande_id,
-                collaborateur_id: demande.collaborateur_id
-            });
-
-            /*
-             * 3. Créer la notification
-             */
-            await api.post("/notifications", {
-                utilisateur_id: demande.collaborateur_id,
-                titre: "Demande validée",
-                message: `Votre demande #${demande.id} a été validée par le responsable.`,
-                type: "VALIDATION"
-            });
-
             setMessage(
-                `La demande #${demande.id} a été validée avec succès.`
+                response.data?.message || `La demande #${demande.id} a été validée avec succès.`
             );
 
             await fetchDemandes();
@@ -121,35 +97,11 @@ function Validations() {
             setMessage("");
             setError("");
 
-            /*
-             * 1. Créer la validation
-             */
-            await api.post("/validations", {
+            const response = await api.post("/validations/decision", {
                 demande_id: selectedDemande.id,
-                responsable_id: utilisateur.id,
                 niveau: 1,
                 decision: "REFUSEE",
                 commentaire: commentaire.trim()
-            });
-
-            /*
-             * 2. Modifier le statut de la demande
-             */
-            await api.put(`/demandes/${selectedDemande.id}`, {
-                motif: selectedDemande.motif,
-                statut: "REFUSEE",
-                type_demande_id: selectedDemande.type_demande_id,
-                collaborateur_id: selectedDemande.collaborateur_id
-            });
-
-            /*
-             * 3. Notification
-             */
-            await api.post("/notifications", {
-                utilisateur_id: selectedDemande.collaborateur_id,
-                titre: "Demande refusée",
-                message: `Votre demande #${selectedDemande.id} a été refusée. Motif : ${commentaire.trim()}`,
-                type: "REFUS"
             });
 
             setShowRefusModal(false);
@@ -157,7 +109,7 @@ function Validations() {
             setCommentaire("");
 
             setMessage(
-                `La demande #${selectedDemande.id} a été refusée.`
+                response.data?.message || `La demande #${selectedDemande.id} a été refusée.`
             );
 
             await fetchDemandes();
