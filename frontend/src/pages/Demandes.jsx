@@ -24,6 +24,7 @@ function Demandes() {
     const [showForm, setShowForm] = useState(false);
     const [search, setSearch] = useState("");
     const [filters, setFilters] = useState({ type: "", statut: "", collaborateur: "", departement: "", from: "", to: "", search: "" });
+    const [options, setOptions] = useState({ types: [], collaborateurs: [], departements: [] });
 
     const [formData, setFormData] = useState({
         motif: "",
@@ -35,6 +36,12 @@ function Demandes() {
     useEffect(() => {
         fetchDemandes();
     }, [filters]);
+
+    useEffect(() => {
+        api.get("/demandes/options")
+            .then((response) => setOptions(response.data || { types: [], collaborateurs: [], departements: [] }))
+            .catch((error) => console.error("Erreur options demandes :", error));
+    }, []);
 
     useEffect(() => {
         if (location.pathname === "/nouvelle-demande") {
@@ -289,9 +296,9 @@ function Demandes() {
                 </div>
 
                 <select value={filters.statut} onChange={(e) => setFilters({ ...filters, statut: e.target.value })}><option value="">Tous les statuts</option><option value="EN_ATTENTE">En attente</option><option value="ACCEPTEE">Acceptée</option><option value="REFUSEE">Refusée</option></select>
-                <input placeholder="Type ID" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })} />
-                <input placeholder="Collaborateur ID" value={filters.collaborateur} onChange={(e) => setFilters({ ...filters, collaborateur: e.target.value })} />
-                <input placeholder="Département ID" value={filters.departement} onChange={(e) => setFilters({ ...filters, departement: e.target.value })} />
+                <select value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}><option value="">Tous les types</option>{options.types.map((type) => <option key={type.id} value={type.id}>{type.nom}</option>)}</select>
+                <select value={filters.collaborateur} onChange={(e) => setFilters({ ...filters, collaborateur: e.target.value })}><option value="">Toutes les personnes</option>{options.collaborateurs.map((personne) => <option key={personne.id} value={personne.id}>{personne.nom}</option>)}</select>
+                <select value={filters.departement} onChange={(e) => setFilters({ ...filters, departement: e.target.value })}><option value="">Tous les départements</option>{options.departements.map((departement) => <option key={departement.id} value={departement.id}>{departement.nom}</option>)}</select>
                 <label className="date-filter"><span>De</span><input aria-label="Date de début" type="date" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} /></label>
                 <label className="date-filter"><span>À</span><input aria-label="Date de fin" type="date" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} /></label>
                 <button className="refresh-filter-button" type="button" title="Réinitialiser les filtres" aria-label="Réinitialiser les filtres" onClick={reinitialiserFiltres}><RefreshCw size={17} /></button>

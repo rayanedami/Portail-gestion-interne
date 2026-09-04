@@ -13,6 +13,8 @@ router.delete("/:id", DemandeController.delete);
 
 router.get("/", DemandeController.getAll);
 
+router.get("/options", DemandeController.getOptions);
+
 router.get("/:id", DemandeController.getById);
 
 module.exports = router;

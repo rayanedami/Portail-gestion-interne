@@ -2,6 +2,24 @@ const Demande = require("../models/Demande");
 
 const DemandeController = {
 
+    async getOptions(req, res) {
+        try {
+            const db = require("../config/db");
+            const [types] = await db.query("SELECT id, nom FROM type_demande ORDER BY nom");
+            const [collaborateurs] = await db.query(
+                `SELECT u.id, CONCAT(u.prenom, ' ', u.nom) AS nom
+                 FROM utilisateur u JOIN role r ON r.id = u.role_id
+                 WHERE r.nom IN ('COLLABORATEUR', 'RESPONSABLE')
+                 ORDER BY u.prenom, u.nom`
+            );
+            const [departements] = await db.query("SELECT id, nom FROM departement ORDER BY nom");
+            res.json({ types, collaborateurs, departements });
+        } catch (error) {
+            console.error("Erreur options demandes :", error.message);
+            res.status(500).json({ message: "Erreur serveur" });
+        }
+    },
+
     async create(req, res) {
         try {
             const { motif, type_demande_id } = req.body;
