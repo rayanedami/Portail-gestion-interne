@@ -171,6 +171,20 @@
     flex-direction: column;
 }
 
+.protected-page-shell {
+    min-height: 100vh;
+    background: #f7f8fa;
+}
+
+.protected-sidebar {
+    background: #ffffff;
+}
+
+.protected-page-content {
+    min-height: 100vh;
+    margin-left: 245px;
+}
+
 /* ================= HEADER ================= */
 
 .accueil-header {
@@ -268,11 +282,9 @@
 
     border-radius: 12px;
 
-    background: linear-gradient(
-        120deg,
-        #ff591b 0%,
-        #f4511e 100%
-    );
+    background: linear-gradient(120deg,
+            #ff591b 0%,
+            #f4511e 100%);
 
     color: #ffffff;
 
@@ -773,6 +785,15 @@
     .accueil-content {
         width: 100%;
         margin-left: 0;
+    }
+
+    .protected-page-content {
+        margin-left: 210px;
+    }
+
+    .protected-sidebar {
+        width: 210px;
+        transform: translateX(0);
     }
 
     .mobile-menu-button {
