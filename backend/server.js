@@ -13,6 +13,7 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const logRoutes = require("./routes/logRoutes");
 const pieceJointeRoutes = require("./routes/pieceJointeRoutes");
 const departementRoutes = require("./routes/departementRoutes");
+const roleRoutes = require("./routes/roleRoutes");
 const { requireAuth } = require("./middleware/auth");
 
 
@@ -35,6 +36,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/logs", logRoutes);
 app.use("/api/pieces-jointes", pieceJointeRoutes);
 app.use("/api/departements", departementRoutes);
+app.use("/api/roles", roleRoutes);
 
 app.get("/", (req, res) => {
     res.json({

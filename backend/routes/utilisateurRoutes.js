@@ -9,6 +9,8 @@ router.use(requireRoles("ADMINISTRATEUR"));
 
 router.get("/", UtilisateurController.getAll);
 
+router.put("/:id", UtilisateurController.update);
+
 router.get("/:id", UtilisateurController.getById);
 
 module.exports = router;
