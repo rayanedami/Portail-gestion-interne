@@ -82,6 +82,36 @@ const Badge = {
         return rows[0];
     },
 
+    async getByQrCode(qrCode) {
+        await this.expireBadges();
+        const [rows] = await db.query(`
+            SELECT
+                b.id,
+                b.qr_code,
+                b.date_generation,
+                b.date_expiration,
+                b.statut,
+                b.rendez_vous_id,
+                r.date_rendez_vous,
+                r.heure_rendez_vous,
+                r.statut AS rendez_vous_statut,
+                CONCAT(v.prenom, ' ', v.nom) AS visiteur_nom,
+                v.societe AS visiteur_societe
+            FROM badge b
+            JOIN rendez_vous r ON r.id = b.rendez_vous_id
+            LEFT JOIN visiteur v ON v.id = r.visiteur_id
+            WHERE b.qr_code = ?
+        `, [qrCode]);
+        return rows[0];
+    },
+
+    async markUsed(id) {
+        await db.query(
+            `UPDATE badge SET statut = 'UTILISE' WHERE id = ? AND statut = 'VALIDE'`,
+            [id]
+        );
+    },
+
     async expireBadges() {
         await db.query(
             `UPDATE badge

@@ -63,28 +63,11 @@ function ScannerQR() {
             setLoading(true);
             setError("");
 
-            const utilisateur = obtenirUtilisateur();
-
-            if (!utilisateur || !utilisateur.id) {
-                throw new Error(
-                    "Impossible de récupérer l'identifiant de l'agent d'accueil."
-                );
-            }
-
-            if (!badge.rendez_vous_id) {
-                throw new Error(
-                    "Ce badge n'est associé à aucun rendez-vous."
-                );
-            }
-
             const dateEntree = obtenirDateLocale();
 
             const response = await api.post("/visites", {
                 date_entree: dateEntree,
-                date_sortie: null,
-                statut: "EN_COURS",
-                rendez_vous_id: badge.rendez_vous_id,
-                agent_accueil_id: utilisateur.id
+                qr_code: badge.qr_code
             });
 
             const data = response.data;
@@ -100,6 +83,7 @@ function ScannerQR() {
             console.error("Erreur création visite :", error);
 
             setError(
+                error.response?.data?.message ||
                 error.message ||
                 "Erreur lors de l'enregistrement de la visite."
             );
@@ -116,63 +100,14 @@ function ScannerQR() {
 
             await arreterScanner();
 
-            const response = await api.get("/badges");
-            const data = response.data;
-
-            const badges = Array.isArray(data)
-                ? data
-                : data.badges || data.data || [];
-
-            const badge = badges.find(
-                (item) =>
-                    String(item.qr_code || "").trim() ===
-                    String(qrCode || "").trim()
-            );
-
-            if (!badge) {
-                setResultat({
-                    type: "error",
-                    message: "Badge introuvable."
-                });
-
-                return;
-            }
-
-            const statut = String(
-                badge.statut || ""
-            ).toUpperCase();
-
-            if (statut !== "VALIDE") {
-                setResultat({
-                    type: "error",
-                    message: "Ce badge n'est pas actif.",
-                    badge
-                });
-
-                return;
-            }
-
-            if (badge.date_expiration) {
-                const expiration = new Date(badge.date_expiration);
-                const maintenant = new Date();
-
-                if (expiration < maintenant) {
-                    setResultat({
-                        type: "error",
-                        message: "Ce badge a expiré.",
-                        badge
-                    });
-
-                    return;
-                }
-            }
-
-            await creerVisite(badge);
+            const verification = await api.get(`/badges/verify?qr_code=${encodeURIComponent(qrCode)}`);
+            await creerVisite(verification.data.badge);
 
         } catch (error) {
             console.error("Erreur vérification QR :", error);
 
             setError(
+                error.response?.data?.message ||
                 error.message ||
                 "Erreur lors de la vérification du QR Code."
             );

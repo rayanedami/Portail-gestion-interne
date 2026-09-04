@@ -6,8 +6,35 @@ const VisiteController = {
 
     async create(req, res) {
         try {
-            const visite = await Visite.create(req.body);
-            const badge = await Badge.createForRendezVous(visite.rendez_vous_id);
+            const qrCode = String(req.body.qr_code || "").trim();
+            if (!qrCode) {
+                return res.status(400).json({ message: "QR Code obligatoire" });
+            }
+
+            const badge = await Badge.getByQrCode(qrCode);
+            if (!badge) {
+                return res.status(404).json({ message: "Badge introuvable" });
+            }
+            if (badge.statut !== "VALIDE") {
+                return res.status(409).json({ message: "Badge non valide", badge });
+            }
+            if (new Date(badge.date_expiration) <= new Date()) {
+                return res.status(409).json({ message: "Badge expire", badge });
+            }
+
+            const existing = await Visite.findOpenByRendezVousId(badge.rendez_vous_id);
+            if (existing) {
+                return res.status(409).json({ message: "Ce visiteur est deja en visite", visite_id: existing.id });
+            }
+
+            const visite = await Visite.create({
+                date_entree: req.body.date_entree || new Date(),
+                date_sortie: null,
+                statut: "EN_COURS",
+                rendez_vous_id: badge.rendez_vous_id,
+                agent_accueil_id: req.auth.id
+            });
+            await Badge.markUsed(badge.id);
 
             await Notification.notifyVisitor(
                 visite.rendez_vous_id,
@@ -18,7 +45,7 @@ const VisiteController = {
             res.status(201).json({
                 message: "Visite créée avec succès",
                 visite,
-                badge
+                badge: { ...badge, statut: "UTILISE" }
             });
 
         } catch (error) {
@@ -32,10 +59,25 @@ const VisiteController = {
 
     async update(req, res) {
         try {
-            const visite = await Visite.update(
-                req.params.id,
-                req.body
-            );
+            const current = await Visite.getById(req.params.id);
+            if (!current) {
+                return res.status(404).json({ message: "Visite introuvable" });
+            }
+
+            const statut = String(req.body.statut || current.statut).toUpperCase();
+            if (!["EN_ATTENTE", "PREVUE", "EN_COURS", "TERMINEE", "ANNULEE"].includes(statut)) {
+                return res.status(400).json({ message: "Statut de visite invalide" });
+            }
+
+            const visite = await Visite.update(req.params.id, {
+                date_entree: req.body.date_entree ?? current.date_entree,
+                date_sortie: statut === "TERMINEE"
+                    ? (req.body.date_sortie || new Date())
+                    : (req.body.date_sortie ?? current.date_sortie),
+                statut,
+                rendez_vous_id: current.rendez_vous_id,
+                agent_accueil_id: current.agent_accueil_id
+            });
 
             if (visite && String(req.body.statut || "").toUpperCase() === "TERMINEE") {
                 await Notification.notifyVisitor(

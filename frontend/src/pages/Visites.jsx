@@ -94,12 +94,12 @@ function Visites() {
             return "SORTI";
         }
 
-        return "PRÉSENT";
+        return "EN_ATTENTE";
     };
 
     const visiteursPresents = visites.filter((visite) => {
         const statut = getStatut(visite);
-        return statut === "PRESENT" || statut === "PRÉSENT";
+        return statut === "EN_COURS" || statut === "PRESENT" || statut === "PRÉSENT";
     }).length;
 
     const visitesTerminees = visites.filter((visite) => {
@@ -277,7 +277,7 @@ function Visites() {
                                                 >
                                                     {statut}
                                                 </span>
-                                                {(statut === "PRESENT" || statut === "PRÉSENT") && (
+                                                {(statut === "EN_COURS" || statut === "PRESENT" || statut === "PRÉSENT") && (
                                                     <button
                                                         className="btn-retry-visites"
                                                         onClick={() => enregistrerSortie(visite)}

@@ -11,6 +11,8 @@ router.delete("/:id", requireRoles("AGENT_ACCUEIL", "ADMINISTRATEUR"), BadgeCont
 
 router.get("/", requireRoles("AGENT_ACCUEIL", "ADMINISTRATEUR", "VISITEUR"), BadgeController.getAll);
 
+router.get("/verify", requireRoles("AGENT_ACCUEIL", "ADMINISTRATEUR"), BadgeController.verify);
+
 router.get("/:id", requireRoles("AGENT_ACCUEIL", "ADMINISTRATEUR", "VISITEUR"), BadgeController.getById);
 
 module.exports = router;

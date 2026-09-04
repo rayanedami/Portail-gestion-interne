@@ -170,6 +170,24 @@
     color: #168044;
 }
 
+.statut-en_cours,
+.statut-en-cours {
+    background: #e7f7ed;
+    color: #168044;
+}
+
+.statut-en_attente,
+.statut-en-attente {
+    background: #fff4d6;
+    color: #a15c00;
+}
+
+.statut-annulee,
+.statut-annule {
+    background: #fee4e2;
+    color: #b42318;
+}
+
 .statut-sorti {
     background: #f0f0f0;
     color: #666;

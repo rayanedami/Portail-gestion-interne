@@ -18,8 +18,8 @@ const Visite = {
             [
                 date_entree,
                 date_sortie,
-                ["PREVUE", "EN_COURS", "TERMINEE", "ANNULEE"].includes(statut)
-                    ? statut
+                ["EN_ATTENTE", "PREVUE", "EN_COURS", "TERMINEE", "ANNULEE"].includes(statut)
+                    ? (statut === "EN_ATTENTE" ? "PREVUE" : statut)
                     : "EN_COURS",
                 rendez_vous_id,
                 agent_accueil_id
@@ -49,7 +49,7 @@ const Visite = {
             [
                 date_entree,
                 date_sortie,
-                statut,
+                statut === "EN_ATTENTE" ? "PREVUE" : statut,
                 rendez_vous_id,
                 agent_accueil_id,
                 id
@@ -68,13 +68,23 @@ const Visite = {
         return result.affectedRows > 0;
     },
 
+    async findOpenByRendezVousId(rendezVousId) {
+        const [rows] = await db.query(
+            `SELECT id FROM visite
+             WHERE rendez_vous_id = ? AND statut = 'EN_COURS'
+             LIMIT 1`,
+            [rendezVousId]
+        );
+        return rows[0];
+    },
+
     async getAll() {
         const [rows] = await db.query(`
             SELECT
                 v.id,
                 v.date_entree,
                 v.date_sortie,
-                v.statut,
+                CASE WHEN v.statut = 'PREVUE' THEN 'EN_ATTENTE' ELSE v.statut END AS statut,
 
                 v.rendez_vous_id,
                 v.agent_accueil_id,
@@ -117,7 +127,7 @@ const Visite = {
                 v.id,
                 v.date_entree,
                 v.date_sortie,
-                v.statut,
+                CASE WHEN v.statut = 'PREVUE' THEN 'EN_ATTENTE' ELSE v.statut END AS statut,
 
                 v.rendez_vous_id,
                 v.agent_accueil_id,

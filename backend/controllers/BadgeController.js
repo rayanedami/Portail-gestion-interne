@@ -114,6 +114,31 @@ const BadgeController = {
                 message: "Erreur serveur"
             });
         }
+    },
+
+    async verify(req, res) {
+        try {
+            const qrCode = String(req.query.qr_code || "").trim();
+            if (!qrCode) {
+                return res.status(400).json({ message: "QR Code obligatoire" });
+            }
+
+            const badge = await Badge.getByQrCode(qrCode);
+            if (!badge) {
+                return res.status(404).json({ message: "Badge introuvable" });
+            }
+            if (badge.statut !== "VALIDE") {
+                return res.status(409).json({ message: "Badge non valide", badge });
+            }
+            if (new Date(badge.date_expiration) <= new Date()) {
+                return res.status(409).json({ message: "Badge expire", badge });
+            }
+
+            res.json({ message: "Badge valide", badge });
+        } catch (error) {
+            console.error("Erreur verification badge :", error.message);
+            res.status(500).json({ message: "Erreur serveur" });
+        }
     }
 };
 
