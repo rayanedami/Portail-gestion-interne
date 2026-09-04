@@ -1,4 +1,5 @@
 const Demande = require("../models/Demande");
+const Log = require("../models/Log");
 
 const DemandeController = {
 
@@ -36,6 +37,8 @@ const DemandeController = {
                 type_demande_id,
                 collaborateur_id
             });
+
+            await Log.record({ action: `CREATION_DEMANDE #${demande.id}`, utilisateurId: req.auth.id, req });
 
             res.status(201).json({
                 message: "Demande créée avec succès",

@@ -1,6 +1,7 @@
 const Visite = require("../models/Visite");
 const Notification = require("../models/Notification");
 const Badge = require("../models/Badge");
+const Log = require("../models/Log");
 
 const VisiteController = {
 
@@ -35,6 +36,7 @@ const VisiteController = {
                 agent_accueil_id: req.auth.id
             });
             await Badge.markUsed(badge.id);
+            await Log.record({ action: `ENTREE_VISITEUR visite #${visite.id}`, utilisateurId: req.auth.id, req });
 
             await Notification.notifyVisitor(
                 visite.rendez_vous_id,
@@ -80,6 +82,7 @@ const VisiteController = {
             });
 
             if (visite && String(req.body.statut || "").toUpperCase() === "TERMINEE") {
+                await Log.record({ action: `SORTIE_VISITEUR visite #${visite.id}`, utilisateurId: req.auth.id, req });
                 await Notification.notifyVisitor(
                     visite.rendez_vous_id,
                     "Votre visite est terminée.",

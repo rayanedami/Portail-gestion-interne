@@ -1,4 +1,5 @@
 const Validation = require("../models/Validation");
+const Log = require("../models/Log");
 
 const ValidationController = {
 
@@ -7,6 +8,12 @@ const ValidationController = {
             const validation = await Validation.decide({
                 ...req.body,
                 responsable_id: req.auth.id
+            });
+            const decision = String(req.body.decision || "").toUpperCase();
+            await Log.record({
+                action: `${decision.includes("REFUS") ? "REFUS_DEMANDE" : "VALIDATION_DEMANDE"} #${req.body.demande_id}`,
+                utilisateurId: req.auth.id,
+                req
             });
             return res.status(201).json({ message: "Décision enregistrée", validation });
         } catch (error) {

@@ -1,11 +1,13 @@
 const Badge = require("../models/Badge");
 const Notification = require("../models/Notification");
+const Log = require("../models/Log");
 
 const BadgeController = {
 
     async create(req, res) {
         try {
             const badge = await Badge.create(req.body);
+            await Log.record({ action: `GENERATION_BADGE #${badge.id}`, utilisateurId: req.auth.id, req });
 
             await Notification.notifyVisitor(
                 badge.rendez_vous_id,
@@ -133,6 +135,8 @@ const BadgeController = {
             if (new Date(badge.date_expiration) <= new Date()) {
                 return res.status(409).json({ message: "Badge expire", badge });
             }
+
+            await Log.record({ action: `SCAN_QR badge #${badge.id}`, utilisateurId: req.auth.id, req });
 
             res.json({ message: "Badge valide", badge });
         } catch (error) {

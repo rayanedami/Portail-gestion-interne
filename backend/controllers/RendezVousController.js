@@ -2,6 +2,7 @@ const db = require("../config/db");
 const RendezVous = require("../models/RendezVous");
 const Notification = require("../models/Notification");
 const Badge = require("../models/Badge");
+const Log = require("../models/Log");
 
 const RendezVousController = {
 
@@ -33,9 +34,11 @@ const RendezVousController = {
             data.statut = data.statut || "PLANIFIE";
 
             const rendezVous = await RendezVous.create(data);
+            await Log.record({ action: `CREATION_RENDEZ_VOUS #${rendezVous.id}`, utilisateurId: req.auth.id, req });
             let badge = null;
             if (String(data.statut).toUpperCase() === "CONFIRME") {
                 badge = await Badge.createForRendezVous(rendezVous.id);
+                await Log.record({ action: `GENERATION_BADGE rendez-vous #${rendezVous.id}`, utilisateurId: req.auth.id, req });
             }
 
             await Notification.notifyUser(

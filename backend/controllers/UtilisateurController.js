@@ -1,4 +1,5 @@
 const Utilisateur = require("../models/Utilisateur");
+const Log = require("../models/Log");
 
 const UtilisateurController = {
 
@@ -51,6 +52,7 @@ const UtilisateurController = {
                 departement_id: departement_id ? Number(departement_id) : null
             });
             if (!updated) return res.status(404).json({ message: "Utilisateur introuvable" });
+            await Log.record({ action: `MODIFICATION_UTILISATEUR #${req.params.id}`, utilisateurId: req.auth.id, req });
             res.json({ message: "Utilisateur modifié avec succès", utilisateur: updated });
         } catch (error) {
             console.error("Erreur modification utilisateur :", error.message);

@@ -2,10 +2,24 @@ const db = require("../config/db");
 
 const Log = {
 
+    async record({ action, utilisateurId, req }) {
+        if (!utilisateurId) return null;
+        try {
+            return await this.create({
+                action,
+                utilisateur_id: utilisateurId,
+                adresse_ip: req?.ip || req?.socket?.remoteAddress || null
+            });
+        } catch (error) {
+            console.error("Erreur journalisation :", error.message);
+            return null;
+        }
+    },
+
     async create(data) {
         const {
             action,
-            date_action,
+            date_action = new Date(),
             adresse_ip,
             utilisateur_id
         } = data;

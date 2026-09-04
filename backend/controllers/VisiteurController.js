@@ -1,10 +1,12 @@
 const Visiteur = require("../models/Visiteur");
+const Log = require("../models/Log");
 
 const VisiteurController = {
 
     async create(req, res) {
         try {
             const visiteur = await Visiteur.create(req.body);
+            await Log.record({ action: `CREATION_VISITEUR #${visiteur.id}`, utilisateurId: req.auth.id, req });
 
             res.status(201).json({
                 message: "Visiteur créé avec succès",

@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const db = require("../config/db");
 const { createToken } = require("../middleware/auth");
+const Log = require("../models/Log");
 
 const AuthController = {
 
@@ -63,6 +64,8 @@ const AuthController = {
             }
 
             delete utilisateur.mot_de_passe;
+
+            await Log.record({ action: "CONNEXION", utilisateurId: utilisateur.id, req });
 
             res.json({
                 message: "Connexion réussie",
@@ -202,6 +205,8 @@ const AuthController = {
             );
 
             await connection.commit();
+
+            await Log.record({ action: `CREATION_UTILISATEUR #${utilisateurId}`, utilisateurId, req });
 
             res.status(201).json({
                 message: "Compte visiteur créé avec succès",
