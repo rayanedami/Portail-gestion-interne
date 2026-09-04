@@ -158,13 +158,37 @@
 .demandes-toolbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
     margin-bottom: 18px;
 }
 
 .search-box {
     position: relative;
-    width: 340px;
+    flex: 1 1 280px;
+    min-width: 240px;
+    max-width: 380px;
+}
+
+.demandes-toolbar>select,
+.demandes-toolbar>input[type="date"],
+.demandes-toolbar>input:not([type]) {
+    height: 40px;
+    min-width: 135px;
+    border: 1px solid #d0d5dd;
+    border-radius: 7px;
+    padding: 0 11px;
+    outline: none;
+    background: #fff;
+    color: #344054;
+    font: inherit;
+    font-size: 12px;
+}
+
+.demandes-toolbar>select:focus,
+.demandes-toolbar>input:focus {
+    border-color: #ff591b;
+    box-shadow: 0 0 0 3px rgba(255, 89, 27, .1);
 }
 
 .search-box svg {

@@ -47,6 +47,34 @@
     margin-bottom: 25px;
 }
 
+.visites-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.visites-filters input,
+.visites-filters select {
+    flex: 1 1 150px;
+    min-width: 140px;
+    height: 40px;
+    border: 1px solid #d0d5dd;
+    border-radius: 7px;
+    padding: 0 11px;
+    outline: none;
+    background: #fff;
+    color: #344054;
+    font: inherit;
+    font-size: 12px;
+}
+
+.visites-filters input:focus,
+.visites-filters select:focus {
+    border-color: #f58220;
+    box-shadow: 0 0 0 3px rgba(245, 130, 32, .12);
+}
+
 .visite-stat-card {
     background: white;
     border-radius: 12px;
