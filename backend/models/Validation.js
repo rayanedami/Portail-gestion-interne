@@ -6,8 +6,7 @@ const Validation = {
         const connection = await db.getConnection();
 
         try {
-            const { demande_id, responsable_id, niveau, decision, commentaire } = data;
-            const niveauActuel = Number(niveau);
+            const { demande_id, responsable_id, decision, commentaire } = data;
             const decisionDemandee = String(decision).toUpperCase();
             const decisionFinale = decisionDemandee === "VALIDEE"
                 ? "APPROUVEE"
@@ -23,6 +22,20 @@ const Validation = {
 
             if (demandes.length === 0) {
                 throw new Error("Demande introuvable");
+            }
+
+            const [dernieresValidations] = await connection.query(
+                `SELECT niveau, decision FROM validation
+                 WHERE demande_id = ?
+                 ORDER BY niveau DESC
+                 LIMIT 1`,
+                [demande_id]
+            );
+            const niveauActuel = dernieresValidations.length > 0
+                ? Number(dernieresValidations[0].niveau) + 1
+                : 1;
+            if (niveauActuel > 2) {
+                throw new Error("Cette demande a déjà terminé son workflow de validation");
             }
 
             await connection.query(
@@ -42,7 +55,7 @@ const Validation = {
 
             const message = decisionFinale === "REFUSEE"
                 ? `Votre demande #${demande_id} a été refusée.`
-                : statut === "VALIDEE"
+                : statut === "ACCEPTEE"
                     ? `Votre demande #${demande_id} a été acceptée.`
                     : `Votre demande #${demande_id} a été validée au niveau ${niveauActuel}.`;
 

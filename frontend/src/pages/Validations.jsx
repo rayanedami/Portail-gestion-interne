@@ -13,6 +13,8 @@ function Validations() {
     const [error, setError] = useState("");
 
     const [selectedDemande, setSelectedDemande] = useState(null);
+    const [historique, setHistorique] = useState([]);
+    const [showDetail, setShowDetail] = useState(false);
     const [showRefusModal, setShowRefusModal] = useState(false);
     const [commentaire, setCommentaire] = useState("");
 
@@ -56,7 +58,6 @@ function Validations() {
 
             const response = await api.post("/validations/decision", {
                 demande_id: demande.id,
-                niveau: 1,
                 decision: "APPROUVEE",
                 commentaire: "Demande validée par le responsable."
             });
@@ -74,6 +75,22 @@ function Validations() {
                 err.response?.data?.message ||
                 "Erreur lors de la validation de la demande."
             );
+        }
+    };
+
+    const examinerDemande = async (demande) => {
+        try {
+            const response = await api.get("/validations");
+            setHistorique(
+                (response.data || []).filter(
+                    (validation) => Number(validation.demande_id) === Number(demande.id)
+                )
+            );
+            setSelectedDemande(demande);
+            setShowDetail(true);
+            setError("");
+        } catch (err) {
+            setError("Impossible de récupérer l'historique de validation.");
         }
     };
 
@@ -99,7 +116,6 @@ function Validations() {
 
             const response = await api.post("/validations/decision", {
                 demande_id: selectedDemande.id,
-                niveau: 1,
                 decision: "REFUSEE",
                 commentaire: commentaire.trim()
             });
@@ -236,6 +252,14 @@ function Validations() {
                             <div className="validation-actions">
 
                                 <button
+                                    className="details-button"
+                                    type="button"
+                                    onClick={() => examinerDemande(demande)}
+                                >
+                                    Examiner
+                                </button>
+
+                                <button
                                     className="approve-button"
                                     type="button"
                                     onClick={() =>
@@ -262,6 +286,27 @@ function Validations() {
                         </div>
                     ))}
 
+                </div>
+            )}
+
+            {showDetail && selectedDemande && (
+                <div className="modal-overlay">
+                    <div className="refus-modal validation-detail-modal">
+                        <h2>Détail de la demande #{selectedDemande.id}</h2>
+                        <p><strong>Collaborateur :</strong> {selectedDemande.collaborateur_id}</p>
+                        <p><strong>Type :</strong> {selectedDemande.nom_type || selectedDemande.type_demande_id}</p>
+                        <p><strong>Motif :</strong> {selectedDemande.motif}</p>
+                        <p><strong>Date :</strong> {selectedDemande.date_soumission || "Non renseignée"}</p>
+                        <p><strong>Statut :</strong> {selectedDemande.statut}</p>
+                        <p><strong>Niveau actuel :</strong> {historique.length ? Math.max(...historique.map((item) => Number(item.niveau))) : 1}</p>
+                        <h3>Historique des validations</h3>
+                        {historique.length === 0 ? <p>Aucune validation enregistrée.</p> : historique.map((item) => (
+                            <p key={item.id}>Niveau {item.niveau} - {item.decision} - Responsable #{item.responsable_id}{item.commentaire ? ` - ${item.commentaire}` : ""}</p>
+                        ))}
+                        <div className="modal-actions">
+                            <button type="button" className="cancel-button" onClick={() => { setShowDetail(false); setSelectedDemande(null); }}>Fermer</button>
+                        </div>
+                    </div>
                 </div>
             )}
 
