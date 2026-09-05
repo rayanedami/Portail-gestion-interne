@@ -29,7 +29,8 @@ function Profil() {
     useEffect(() => {
         if (utilisateur) {
             setFormulaire({
-                nomComplet: `${utilisateur.prenom || ""} ${utilisateur.nom || ""}`.trim(),
+                nom: utilisateur.nom || "",
+                prenom: utilisateur.prenom || "",
                 email: utilisateur.email || "",
                 telephone: utilisateur.telephone || "",
                 role: utilisateur.role || "COLLABORATEUR",
@@ -56,14 +57,10 @@ function Profil() {
         event.preventDefault();
         setMessage("");
 
-        const noms = (formulaire?.nomComplet || "").trim().split(/\s+/);
-        const prenom = noms.shift();
-        const nom = noms.join(" ");
-
         try {
             const response = await api.put("/auth/profile", {
-                prenom,
-                nom,
+                prenom: formulaire.prenom.trim(),
+                nom: formulaire.nom.trim(),
                 email: formulaire.email.trim(),
                 telephone: formulaire.telephone.trim(),
                 departement_id: role === ROLES.ADMINISTRATEUR
@@ -122,7 +119,8 @@ function Profil() {
                         </div>
 
                         <form className="profil-form" onSubmit={enregistrerProfil}>
-                            <label>Nom complet<input value={formulaire?.nomComplet || ""} onChange={(event) => setFormulaire({ ...formulaire, nomComplet: event.target.value })} /></label>
+                            <label>Nom<input required value={formulaire?.nom || ""} onChange={(event) => setFormulaire({ ...formulaire, nom: event.target.value })} /></label>
+                            <label>Prénom<input required value={formulaire?.prenom || ""} onChange={(event) => setFormulaire({ ...formulaire, prenom: event.target.value })} /></label>
                             <label>Email<input type="email" value={formulaire?.email || ""} onChange={(event) => setFormulaire({ ...formulaire, email: event.target.value })} /></label>
                             <label>Téléphone<input value={formulaire?.telephone || ""} onChange={(event) => setFormulaire({ ...formulaire, telephone: event.target.value })} /></label>
                             <label>Rôle<input value={formulaire?.role || ""} readOnly /></label>

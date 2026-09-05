@@ -292,6 +292,8 @@ const AuthController = {
                 [req.auth.id]
             );
 
+            await Log.record({ action: "MODIFICATION_PROFIL", utilisateurId: req.auth.id, req });
+
             return res.json({
                 message: "Profil mis à jour avec succès",
                 utilisateur: rows[0]
