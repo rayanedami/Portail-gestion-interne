@@ -206,6 +206,25 @@ function Accueil() {
     );
 
     const activitesRecentes = logs.slice(0, 6);
+    const visitesAujourdHui = visites.filter((visite) =>
+        String(visite.date_entree || "").slice(0, 10) === dateAujourdHui
+    );
+    const adminDemandesStats = [
+        { label: "Approuvees", value: demandesApprouvees, color: "green" },
+        { label: "En attente", value: demandesEnAttente, color: "orange" },
+        { label: "Refusees", value: demandesRefusees, color: "red" },
+        { label: "Autres", value: Math.max(demandes.length - demandesApprouvees - demandesEnAttente - demandesRefusees, 0), color: "gray" }
+    ];
+    const adminActivity = Array.from({ length: 7 }, (_, index) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (6 - index));
+        const key = date.toISOString().slice(0, 10);
+        return {
+            label: date.toLocaleDateString("fr-FR", { day: "2-digit", month: "short" }),
+            value: logs.filter((log) => String(log.date_action || "").slice(0, 10) === key).length
+        };
+    });
+    const adminMaxActivity = Math.max(...adminActivity.map((item) => item.value), 1);
 
     const dashboardCards = role === ROLES.RESPONSABLE
         ? [
@@ -439,53 +458,52 @@ function Accueil() {
                             </div>
                         </>
                     ) : role === ROLES.ADMINISTRATEUR ? (
-                        <>
-                            <div className="stats-grid admin-stats-grid">
+                        <div className="admin-dashboard">
+                            <div className="admin-dashboard-head">
+                                <div>
+                                    <span className="admin-eyebrow">ESPACE ADMINISTRATION</span>
+                                    <h2>Bonjour {nomComplet || "Administrateur"}</h2>
+                                    <p>Voici un aperçu global de l'activité de votre portail.</p>
+                                </div>
+                                <div className="admin-date-card"><CalendarDays size={16} /><span>{new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</span></div>
+                            </div>
+
+                            <div className="admin-stat-grid">
                                 {[
-                                    ["Utilisateurs", utilisateurs.length, "blue", Users],
-                                    ["Demandes totales", demandes.length, "orange", ClipboardList],
-                                    ["Demandes en attente", demandesEnAttente, "yellow", BarChart3],
-                                    ["Visiteurs", visiteurs.length, "green", Users],
-                                    ["Visites aujourd'hui", visites.filter((visite) => String(visite.date_entree || "").slice(0, 10) === dateAujourdHui).length, "orange", DoorOpen],
-                                    ["Rendez-vous aujourd'hui", rendezVousAujourdHui, "blue", CalendarDays]
-                                ].map(([label, value, couleur, Icon]) => (
-                                    <div className="stat-card" key={label}>
-                                        <div className={`stat-icon ${couleur}`}><Icon size={22} /></div>
-                                        <div>
-                                            <span className="stat-label">{label}</span>
-                                            <strong className="stat-number">{chargement ? "..." : value}</strong>
-                                        </div>
-                                    </div>
+                                    ["Demandes", demandes.length, "Total demandes", ClipboardList, "blue", "/demandes"],
+                                    ["Validations", demandesEnAttente, "En attente", CheckCircle2, "green", "/validations"],
+                                    ["Visiteurs", visiteurs.length, "Enregistres", Users, "purple", "/visiteurs"],
+                                    ["Rendez-vous", rendezVous.length, "Aujourd'hui: " + rendezVousAujourdHui, CalendarDays, "orange", "/rendez-vous"],
+                                    ["Visites en cours", visitesEnCours, "Actuellement", DoorOpen, "teal", "/visites"]
+                                ].map(([label, value, detail, Icon, color, route]) => (
+                                    <button className="admin-stat-card" key={label} onClick={() => allerVers(route)}>
+                                        <div className={`admin-stat-icon ${color}`}><Icon size={22} /></div>
+                                        <div><span>{label}</span><strong>{chargement ? "..." : value}</strong><small>{detail}</small></div>
+                                        <em>Voir tout</em>
+                                    </button>
                                 ))}
                             </div>
 
-                            <div className="recent-section admin-activity-section">
-                                <div className="section-title recent-title">
-                                    <div>
-                                        <h2>Activités récentes</h2>
-                                        <p>Dernières actions enregistrées dans les journaux.</p>
+                            <div className="admin-dashboard-grid admin-main-grid">
+                                <section className="admin-panel admin-demandes-panel">
+                                    <div className="admin-panel-head"><div><h3>Demandes recentes</h3><p>Dernieres demandes enregistrees.</p></div><button onClick={() => allerVers("/demandes")}>Voir toutes</button></div>
+                                    <div className="admin-list">
+                                        {demandes.slice(0, 5).map((demande) => <div className="admin-list-row" key={demande.id}><span className="admin-row-icon"><ClipboardList size={16} /></span><div><strong>{demande.nom_type || demande.motif || `Demande #${demande.id}`}</strong><small>{demande.collaborateur_nom || "Collaborateur"} · {formatDate(demande.date_soumission)}</small></div><span className={`admin-pill ${String(demande.statut || "").toLowerCase()}`}>{demande.statut || "-"}</span></div>)}
+                                        {demandes.length === 0 && <div className="admin-empty">Aucune demande.</div>}
                                     </div>
-                                    <button className="view-all-button" onClick={() => allerVers("/logs")}>Voir les logs</button>
-                                </div>
-                                <div className="recent-card">
-                                    {activitesRecentes.length === 0 ? (
-                                        <div className="empty-state"><BarChart3 size={30} /><strong>Aucune activité récente</strong><span>Les actions enregistrées apparaîtront ici.</span></div>
-                                    ) : (
-                                        <div className="demandes-list">
-                                            {activitesRecentes.map((log) => (
-                                                <div className="demande-row" key={log.id}>
-                                                    <div className="demande-info">
-                                                        <div className="demande-icon"><BarChart3 size={18} /></div>
-                                                        <div><strong>{log.action || "Action enregistrée"}</strong><span>{log.date_action ? new Date(log.date_action).toLocaleString("fr-FR") : "Date non renseignée"}</span></div>
-                                                    </div>
-                                                    <span className="status">Utilisateur #{log.utilisateur_id || "-"}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
+                                </section>
+
+                                <section className="admin-panel admin-chart-panel"><div className="admin-panel-head"><div><h3>Statistiques des demandes</h3><p>Repartition actuelle</p></div><span className="admin-period">Ce mois</span></div><div className="admin-donut-wrap"><div className="admin-donut"><strong>{demandes.length}</strong><span>Total</span></div><div className="admin-legend">{adminDemandesStats.map((item) => <div key={item.label}><i className={`legend-dot ${item.color}`}></i><span>{item.label}</span><strong>{item.value}</strong></div>)}</div></div></section>
+
+                                <section className="admin-panel admin-rdv-panel"><div className="admin-panel-head"><div><h3>Rendez-vous aujourd'hui</h3><p>{rendezVousAujourdHui} rendez-vous</p></div><button onClick={() => allerVers("/rendez-vous")}>Voir tous</button></div><div className="admin-list admin-timeline-list">{rendezVous.filter((rdv) => String(rdv.date_rendez_vous || "").slice(0, 10) === dateAujourdHui).slice(0, 5).map((rdv) => <div className="admin-list-row" key={rdv.id}><time>{String(rdv.heure_rendez_vous || "").slice(0, 5)}</time><div><strong>{rdv.visiteur_nom || "Visiteur"}</strong><small>{rdv.visiteur_societe || "Societe non renseignee"}</small></div><span className={`admin-pill ${String(rdv.statut || "").toLowerCase()}`}>{rdv.statut}</span></div>)}{rendezVousAujourdHui === 0 && <div className="admin-empty">Aucun rendez-vous aujourd'hui.</div>}</div></section>
                             </div>
-                        </>
+
+                            <div className="admin-dashboard-grid admin-secondary-grid">
+                                <section className="admin-panel"><div className="admin-panel-head"><div><h3>Visiteurs recents</h3><p>Derniers visiteurs enregistres.</p></div><button onClick={() => allerVers("/visiteurs")}>Voir tous</button></div><div className="admin-list">{visiteurs.slice(0, 5).map((visiteur) => <div className="admin-list-row" key={visiteur.id}><span className="admin-avatar">{String(visiteur.prenom || visiteur.nom || "V").charAt(0).toUpperCase()}</span><div><strong>{visiteur.prenom} {visiteur.nom}</strong><small>{visiteur.societe || "Societe non renseignee"}</small></div><span className="admin-pill neutral">Enregistre</span></div>)}{visiteurs.length === 0 && <div className="admin-empty">Aucun visiteur.</div>}</div></section>
+                                <section className="admin-panel admin-activity-chart"><div className="admin-panel-head"><div><h3>Activite des 7 derniers jours</h3><p>Actions journalisees</p></div><button onClick={() => allerVers("/logs")}>Voir les logs</button></div><div className="admin-bars">{adminActivity.map((item) => <div className="admin-bar-item" key={item.label}><div className="admin-bar-track"><span style={{ height: `${Math.max((item.value / adminMaxActivity) * 100, item.value ? 8 : 2)}%` }}></span></div><small>{item.label}</small><strong>{item.value}</strong></div>)}</div></section>
+                                <section className="admin-panel"><div className="admin-panel-head"><div><h3>Notifications recentes</h3><p>Dernieres alertes du portail.</p></div><button onClick={() => allerVers("/notifications")}>Voir toutes</button></div><div className="admin-list">{notifications.slice(0, 5).map((notification) => <div className="admin-list-row" key={notification.id}><span className="admin-row-icon"><Bell size={16} /></span><div><strong>{notification.message}</strong><small>{notification.date_envoi ? new Date(notification.date_envoi).toLocaleString("fr-FR") : "Date non renseignee"}</small></div></div>)}{notifications.length === 0 && <div className="admin-empty">Aucune notification.</div>}</div></section>
+                            </div>
+                        </div>
                     ) : role === ROLES.AGENT_ACCUEIL ? (
                         <>
                             <div className="stats-grid agent-accueil-stats">
