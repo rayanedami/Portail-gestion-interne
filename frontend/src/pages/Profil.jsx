@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ROLES } from "../config/roleConfig";
@@ -19,6 +19,8 @@ function Profil() {
     const [formulaire, setFormulaire] = useState(null);
     const [departements, setDepartements] = useState([]);
     const [message, setMessage] = useState("");
+    const [photo, setPhoto] = useState("");
+    const photoInputRef = useRef(null);
 
     useEffect(() => {
         if (!isLoggedIn) {
@@ -28,6 +30,7 @@ function Profil() {
 
     useEffect(() => {
         if (utilisateur) {
+            setPhoto(localStorage.getItem(`profil-photo-${utilisateur.id}`) || "");
             setFormulaire({
                 nom: utilisateur.nom || "",
                 prenom: utilisateur.prenom || "",
@@ -39,6 +42,27 @@ function Profil() {
             });
         }
     }, [utilisateur]);
+
+    const changerPhoto = (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        if (!file.type.startsWith("image/")) {
+            setMessage("Veuillez sélectionner une image.");
+            return;
+        }
+        if (file.size > 2 * 1024 * 1024) {
+            setMessage("La photo ne doit pas dépasser 2 Mo.");
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+            const value = String(reader.result);
+            setPhoto(value);
+            localStorage.setItem(`profil-photo-${utilisateur.id}`, value);
+            setMessage("Photo mise à jour.");
+        };
+        reader.readAsDataURL(file);
+    };
 
     useEffect(() => {
         if (role === ROLES.ADMINISTRATEUR) {
@@ -110,8 +134,9 @@ function Profil() {
 
                     <div className="profil-layout">
                         <div className="profil-summary">
-                            <div className="profil-avatar"><UserRound size={48} /></div>
-                            <button type="button" className="change-photo-button" disabled title="La photo est gérée par l'administrateur">Changer la photo</button>
+                            <div className="profil-avatar">{photo ? <img src={photo} alt="Profil" /> : <UserRound size={48} />}</div>
+                            <input ref={photoInputRef} type="file" accept="image/*" onChange={changerPhoto} hidden />
+                            <button type="button" className="change-photo-button" onClick={() => photoInputRef.current?.click()}>Changer la photo</button>
                             <h2>{utilisateur.prenom} {utilisateur.nom}</h2>
                             <span className="profil-role"><ShieldCheck size={15} />{utilisateur.role || "COLLABORATEUR"}</span>
                             <strong>{utilisateur.email}</strong>

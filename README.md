@@ -20,3 +20,19 @@ Plateforme web de gestion des demandes administratives (congés, attestations, m
 -  Historique des visites, notifications et logs
 
 ##  Structure du projet
+
+## Configuration de l'envoi d'emails
+
+Le mot de passe oublié utilise SMTP. Renseigner ces variables dans `backend/.env` pour activer l'envoi réel des liens de réinitialisation :
+
+```env
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=compte@example.com
+SMTP_PASS=mot-de-passe-smtp
+SMTP_FROM=compte@example.com
+FRONTEND_URL=http://localhost:5173
+```
+
+Ne jamais versionner le fichier `.env` ni ses secrets.

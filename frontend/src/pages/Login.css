@@ -129,6 +129,11 @@ body {
 }
 
 .forgot-password {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
     margin: -4px 0 15px;
     color: #f4511e;
     cursor: pointer;
@@ -377,4 +382,37 @@ body {
     .feature p {
         font-size: 9px;
     }
+}
+
+.forgot-password-form {
+    display: grid;
+    gap: 8px;
+    margin: 14px 0 18px;
+    padding: 14px;
+    border: 1px solid #eaecf0;
+    border-radius: 7px;
+    background: #f9fafb;
+}
+
+.forgot-password-form label {
+    color: #344054;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.forgot-password-form input {
+    height: 38px;
+    border: 1px solid #d0d5dd;
+    border-radius: 6px;
+    padding: 0 10px;
+}
+
+.forgot-password-form button {
+    height: 38px;
+    border: 0;
+    border-radius: 6px;
+    background: #ff591b;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 700;
 }
