@@ -188,6 +188,26 @@
     overflow-x: hidden;
 }
 
+@media print {
+    @page {
+        size: landscape;
+        margin: 12mm;
+    }
+
+    .protected-page-shell,
+    .protected-page-content {
+        width: 100% !important;
+        min-height: auto !important;
+        margin: 0 !important;
+        background: #fff !important;
+    }
+
+    .accueil-sidebar,
+    .protected-sidebar {
+        display: none !important;
+    }
+}
+
 /* ================= HEADER ================= */
 
 .accueil-header {

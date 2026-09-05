@@ -635,4 +635,23 @@
         padding: 0;
         background: #fff;
     }
+
+    .visiteurs-card,
+    .table-wrapper {
+        overflow: visible !important;
+        box-shadow: none;
+    }
+
+    .visiteurs-table {
+        width: 100% !important;
+        min-width: 0 !important;
+        table-layout: fixed;
+        font-size: 10px;
+    }
+
+    .visiteurs-table th,
+    .visiteurs-table td {
+        padding: 7px 6px;
+        overflow-wrap: anywhere;
+    }
 }

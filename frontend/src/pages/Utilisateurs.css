@@ -305,4 +305,16 @@
         padding: 0;
         background: #fff;
     }
+
+    .admin-page>table {
+        min-width: 0 !important;
+        table-layout: fixed;
+        font-size: 10px;
+    }
+
+    .admin-page th,
+    .admin-page td {
+        padding: 7px 6px;
+        overflow-wrap: anywhere;
+    }
 }

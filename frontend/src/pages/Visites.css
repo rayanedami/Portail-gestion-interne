@@ -319,4 +319,34 @@
         padding: 0;
         background: #fff;
     }
+
+    .visites-stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .visite-stat-card {
+        min-height: 80px;
+        padding: 14px;
+        box-shadow: none;
+    }
+
+    .visites-card,
+    .table-container-visites {
+        overflow: visible !important;
+        box-shadow: none;
+    }
+
+    .visites-table {
+        width: 100% !important;
+        min-width: 0 !important;
+        table-layout: fixed;
+        font-size: 10px;
+    }
+
+    .visites-table th,
+    .visites-table td {
+        padding: 8px 6px;
+        overflow-wrap: anywhere;
+    }
 }

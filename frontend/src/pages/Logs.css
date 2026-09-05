@@ -178,6 +178,21 @@
         padding: 0;
         background: #fff;
     }
+
+    .logs-card {
+        overflow: visible !important;
+        box-shadow: none;
+    }
+
+    .logs-card table {
+        table-layout: fixed;
+    }
+
+    .logs-card th,
+    .logs-card td {
+        padding: 8px;
+        overflow-wrap: anywhere;
+    }
 }
 
 @media (max-width: 650px) {
