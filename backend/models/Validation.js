@@ -143,8 +143,15 @@ const Validation = {
                 v.commentaire,
                 v.date_validation,
                 v.demande_id,
-                v.responsable_id
+                v.responsable_id,
+                CONCAT(collab.prenom, ' ', collab.nom) AS collaborateur_nom,
+                t.nom AS type_demande_nom,
+                CONCAT(resp.prenom, ' ', resp.nom) AS responsable_nom
             FROM validation v
+            JOIN demande d ON d.id = v.demande_id
+            JOIN utilisateur collab ON collab.id = d.collaborateur_id
+            JOIN type_demande t ON t.id = d.type_demande_id
+            JOIN utilisateur resp ON resp.id = v.responsable_id
             ORDER BY v.id DESC
         `);
 
@@ -160,8 +167,15 @@ const Validation = {
                 v.commentaire,
                 v.date_validation,
                 v.demande_id,
-                v.responsable_id
+                v.responsable_id,
+                CONCAT(collab.prenom, ' ', collab.nom) AS collaborateur_nom,
+                t.nom AS type_demande_nom,
+                CONCAT(resp.prenom, ' ', resp.nom) AS responsable_nom
             FROM validation v
+            JOIN demande d ON d.id = v.demande_id
+            JOIN utilisateur collab ON collab.id = d.collaborateur_id
+            JOIN type_demande t ON t.id = d.type_demande_id
+            JOIN utilisateur resp ON resp.id = v.responsable_id
             WHERE v.id = ?
         `, [id]);
 

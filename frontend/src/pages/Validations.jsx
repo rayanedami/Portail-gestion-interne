@@ -239,7 +239,7 @@ function Validations() {
                                     <strong>Collaborateur :</strong>
 
                                     <span>
-                                        {demande.collaborateur_id ||
+                                        {demande.collaborateur_nom ||
                                             "Non renseigné"}
                                     </span>
                                 </div>
@@ -248,7 +248,7 @@ function Validations() {
                                     <strong>Type :</strong>
 
                                     <span>
-                                        {demande.type_demande_id ||
+                                        {demande.nom_type ||
                                             "Non renseigné"}
                                     </span>
                                 </div>
@@ -299,7 +299,7 @@ function Validations() {
                 <div className="modal-overlay">
                     <div className="refus-modal validation-detail-modal">
                         <h2>Détail de la demande #{selectedDemande.id}</h2>
-                        <p><strong>Collaborateur :</strong> {selectedDemande.collaborateur_id}</p>
+                        <p><strong>Collaborateur :</strong> {selectedDemande.collaborateur_nom || "Non renseigné"}</p>
                         <p><strong>Type :</strong> {selectedDemande.nom_type || selectedDemande.type_demande_id}</p>
                         <p><strong>Motif :</strong> {selectedDemande.motif}</p>
                         <p><strong>Date :</strong> {formaterDate(selectedDemande.date_soumission)}</p>
@@ -307,7 +307,7 @@ function Validations() {
                         <p><strong>Niveau actuel :</strong> {historique.length ? Math.max(...historique.map((item) => Number(item.niveau))) : 1}</p>
                         <h3>Historique des validations</h3>
                         {historique.length === 0 ? <p>Aucune validation enregistrée.</p> : historique.map((item) => (
-                            <p key={item.id}>Niveau {item.niveau} - {item.decision} - Responsable #{item.responsable_id}{item.commentaire ? ` - ${item.commentaire}` : ""}</p>
+                            <p key={item.id}>Niveau {item.niveau} - {item.decision} - Responsable : {item.responsable_nom || `#${item.responsable_id}`}{item.commentaire ? ` - ${item.commentaire}` : ""}</p>
                         ))}
                         <div className="modal-actions">
                             <button type="button" className="cancel-button" onClick={() => { setShowDetail(false); setSelectedDemande(null); }}>Fermer</button>
