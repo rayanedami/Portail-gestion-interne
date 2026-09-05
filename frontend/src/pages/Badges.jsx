@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { QrCode, Trash2, Edit, RefreshCw } from "lucide-react";
+import { QrCode, Trash2, Edit, RefreshCw, X } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
