@@ -84,6 +84,13 @@ const Validation = {
             commentaire
         } = data;
 
+        if (!Number.isInteger(Number(niveau)) || Number(niveau) < 1 || Number(niveau) > 2) {
+            throw new Error("Niveau de validation invalide");
+        }
+        if (!["EN_ATTENTE", "APPROUVEE", "REFUSEE"].includes(String(decision).toUpperCase())) {
+            throw new Error("Décision de validation invalide");
+        }
+
         const [result] = await db.query(
             `INSERT INTO validation
             (demande_id, responsable_id, niveau, decision, commentaire, date_validation)
@@ -106,6 +113,13 @@ const Validation = {
             decision,
             commentaire
         } = data;
+
+        if (!Number.isInteger(Number(niveau)) || Number(niveau) < 1 || Number(niveau) > 2) {
+            throw new Error("Niveau de validation invalide");
+        }
+        if (!["EN_ATTENTE", "APPROUVEE", "REFUSEE"].includes(String(decision).toUpperCase())) {
+            throw new Error("Décision de validation invalide");
+        }
 
         await db.query(
             `UPDATE validation

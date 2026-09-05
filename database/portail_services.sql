@@ -9,7 +9,8 @@ USE portail_services;
 CREATE TABLE role (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nom VARCHAR(50) NOT NULL,
-    description VARCHAR(255)
+    description VARCHAR(255),
+    CONSTRAINT uq_role_nom UNIQUE (nom)
 );
 
 -- =====================================================
@@ -17,7 +18,8 @@ CREATE TABLE role (
 CREATE TABLE departement (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nom VARCHAR(100) NOT NULL,
-    description VARCHAR(255)
+    description VARCHAR(255),
+    CONSTRAINT uq_departement_nom UNIQUE (nom)
 );
 
 -- =====================================================
@@ -42,7 +44,8 @@ CREATE TABLE utilisateur (
 CREATE TABLE type_demande (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nom VARCHAR(100) NOT NULL,
-    description VARCHAR(255)
+    description VARCHAR(255),
+    CONSTRAINT uq_type_demande_nom UNIQUE (nom)
 );
 
 -- =====================================================
@@ -90,6 +93,7 @@ CREATE TABLE validation (
     date_validation DATETIME,
     demande_id INT NOT NULL,
     responsable_id INT NOT NULL,
+    CONSTRAINT uq_validation_demande_niveau UNIQUE (demande_id, niveau),
     FOREIGN KEY (demande_id) REFERENCES demande (id),
     FOREIGN KEY (responsable_id) REFERENCES utilisateur (id)
 );
@@ -98,11 +102,13 @@ CREATE TABLE validation (
 -- 8. VISITEUR
 CREATE TABLE visiteur (
     id INT PRIMARY KEY AUTO_INCREMENT,
+    utilisateur_id INT UNIQUE,
     nom VARCHAR(100) NOT NULL,
     prenom VARCHAR(100) NOT NULL,
     email VARCHAR(150),
     telephone VARCHAR(20),
-    societe VARCHAR(150)
+    societe VARCHAR(150),
+    FOREIGN KEY (utilisateur_id) REFERENCES utilisateur (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- =====================================================
@@ -144,11 +150,11 @@ CREATE TABLE visite (
     date_entree DATETIME,
     date_sortie DATETIME,
     statut ENUM(
-        'PREVUE',
+        'EN_ATTENTE',
         'EN_COURS',
         'TERMINEE',
         'ANNULEE'
-    ) NOT NULL DEFAULT 'PREVUE',
+    ) NOT NULL DEFAULT 'EN_ATTENTE',
     rendez_vous_id INT NOT NULL,
     agent_accueil_id INT NOT NULL,
     FOREIGN KEY (rendez_vous_id) REFERENCES rendez_vous (id),
@@ -200,6 +206,10 @@ VALUES (
     (
         'AGENT_ACCUEIL',
         'Utilisateur qui gère l accueil et les visites'
+    ),
+    (
+        'VISITEUR',
+        'Visiteur externe qui crée un compte et prend des rendez-vous'
     );
 
 SELECT * FROM role;
@@ -241,7 +251,7 @@ VALUES (
         'Dami',
         'Rayane',
         'rayane@portail.ma',
-        '123456',
+        '$2b$10$X4D9dR/qulrdMHUvLmHJt./h/deR0xdU5X/rd5kOExZwgVUOcDrxu',
         '0600000000',
         1,
         2
@@ -250,7 +260,7 @@ VALUES (
         'Test',
         'Responsable',
         'responsable@portail.ma',
-        '123456',
+        '$2b$10$X4D9dR/qulrdMHUvLmHJt./h/deR0xdU5X/rd5kOExZwgVUOcDrxu',
         '0600000001',
         2,
         2
@@ -259,7 +269,7 @@ VALUES (
         'Test',
         'Administrateur',
         'admin@portail.ma',
-        '123456',
+        '$2b$10$X4D9dR/qulrdMHUvLmHJt./h/deR0xdU5X/rd5kOExZwgVUOcDrxu',
         '0600000002',
         3,
         3
@@ -268,7 +278,7 @@ VALUES (
         'Test',
         'Accueil',
         'accueil@portail.ma',
-        '123456',
+        '$2b$10$X4D9dR/qulrdMHUvLmHJt./h/deR0xdU5X/rd5kOExZwgVUOcDrxu',
         '0600000003',
         4,
         3
@@ -468,7 +478,13 @@ INSERT INTO
         rendez_vous_id,
         agent_accueil_id
     )
-VALUES (NULL, NULL, 'PREVUE', 1, 4);
+VALUES (
+        NULL,
+        NULL,
+        'EN_ATTENTE',
+        1,
+        4
+    );
 
 SELECT vi.id, vi.date_entree, vi.date_sortie, vi.statut, vi.rendez_vous_id, u.nom, u.prenom
 FROM visite vi
@@ -544,23 +560,6 @@ FROM
     LEFT JOIN visiteur vis ON r.visiteur_id = vis.id
     LEFT JOIN badge b ON b.rendez_vous_id = r.id
     LEFT JOIN visite vi ON vi.rendez_vous_id = r.id;
-
-INSERT INTO
-    role (nom, description)
-VALUES (
-        'VISITEUR',
-        'Visiteur externe qui crée un compte et prend des rendez-vous'
-    );
-
-ALTER TABLE visiteur
-ADD COLUMN utilisateur_id INT NULL UNIQUE AFTER id;
-
-ALTER TABLE visiteur
-ADD CONSTRAINT fk_visiteur_utilisateur FOREIGN KEY (utilisateur_id) REFERENCES utilisateur (id) ON DELETE CASCADE ON UPDATE CASCADE;
-
-DESCRIBE visiteur;
-
-SHOW CREATE TABLE visiteur;
 
 SELECT u.id, u.nom, u.prenom, u.email, r.nom AS role, v.utilisateur_id, v.societe
 FROM

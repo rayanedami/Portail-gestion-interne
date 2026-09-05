@@ -74,7 +74,7 @@ const Badge = {
         const [rows] = await db.query(
             `SELECT id, qr_code, date_generation, date_expiration, statut, rendez_vous_id
              FROM badge
-             WHERE rendez_vous_id = ?
+             WHERE rendez_vous_id = ? AND statut = 'VALIDE'
              ORDER BY id DESC
              LIMIT 1`,
             [id]

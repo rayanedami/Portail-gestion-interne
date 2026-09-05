@@ -56,6 +56,9 @@ const DemandeController = {
 
     async update(req, res) {
         try {
+            if (req.body.statut && !["EN_ATTENTE", "EN_COURS", "ACCEPTEE", "REFUSEE"].includes(String(req.body.statut).toUpperCase())) {
+                return res.status(400).json({ message: "Statut de demande invalide" });
+            }
             const demande = await Demande.update(req.params.id, req.body);
 
             if (!demande) {

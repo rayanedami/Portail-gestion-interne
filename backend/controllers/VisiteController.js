@@ -67,8 +67,15 @@ const VisiteController = {
             }
 
             const statut = String(req.body.statut || current.statut).toUpperCase();
-            if (!["EN_ATTENTE", "PREVUE", "EN_COURS", "TERMINEE", "ANNULEE"].includes(statut)) {
+            if (!["EN_ATTENTE", "EN_COURS", "TERMINEE", "ANNULEE"].includes(statut)) {
                 return res.status(400).json({ message: "Statut de visite invalide" });
+            }
+
+            if (statut === "EN_COURS" && !(req.body.date_entree ?? current.date_entree)) {
+                return res.status(400).json({ message: "Une date d'entrée est obligatoire pour une visite en cours" });
+            }
+            if (statut === "TERMINEE" && !(req.body.date_sortie ?? current.date_sortie)) {
+                return res.status(400).json({ message: "Une date de sortie est obligatoire pour une visite terminée" });
             }
 
             const visite = await Visite.update(req.params.id, {
