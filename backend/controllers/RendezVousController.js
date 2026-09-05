@@ -35,6 +35,18 @@ const RendezVousController = {
 
             const rendezVous = await RendezVous.create(data);
             await Log.record({ action: `CREATION_RENDEZ_VOUS #${rendezVous.id}`, utilisateurId: req.auth.id, req });
+            await Notification.notifyReception(
+                "Un nouveau rendez-vous visiteur a été enregistré.",
+                "RENDEZ_VOUS",
+                rendezVous.id
+            );
+            if (String(data.date_rendez_vous).slice(0, 10) === new Date().toISOString().slice(0, 10)) {
+                await Notification.notifyReception(
+                    `Un visiteur est attendu aujourd'hui à ${String(data.heure_rendez_vous).slice(0, 5)}.`,
+                    "VISITEUR_ATTENDU",
+                    rendezVous.id
+                );
+            }
             let badge = null;
             if (String(data.statut).toUpperCase() === "CONFIRME") {
                 badge = await Badge.createForRendezVous(rendezVous.id);
@@ -95,6 +107,18 @@ const RendezVousController = {
 
             const rendezVous = await RendezVous.update(req.params.id, data);
 
+            const receptionMessage = String(data.statut).toUpperCase() === "ANNULE"
+                ? "Un rendez-vous visiteur a été annulé."
+                : "Un rendez-vous visiteur a été modifié.";
+            await Notification.notifyReception(receptionMessage, "RENDEZ_VOUS", rendezVous.id);
+            if (String(data.date_rendez_vous).slice(0, 10) === new Date().toISOString().slice(0, 10)) {
+                await Notification.notifyReception(
+                    `Un visiteur est attendu aujourd'hui à ${String(data.heure_rendez_vous).slice(0, 5)}.`,
+                    "VISITEUR_ATTENDU",
+                    rendezVous.id
+                );
+            }
+
             let badge = null;
             if (String(data.statut).toUpperCase() === "CONFIRME") {
                 badge = await Badge.createForRendezVous(rendezVous.id);
@@ -135,6 +159,12 @@ const RendezVousController = {
             }
 
             const rendezVous = await RendezVous.cancel(req.params.id);
+
+            await Notification.notifyReception(
+                "Un rendez-vous visiteur a été annulé.",
+                "RENDEZ_VOUS",
+                rendezVous.id
+            );
 
             await Notification.notifyVisitor(
                 rendezVous.id,

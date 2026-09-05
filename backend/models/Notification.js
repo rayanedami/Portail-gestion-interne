@@ -30,6 +30,25 @@ const Notification = {
         );
     },
 
+    async notifyReception(message, type, rendez_vous_id = null) {
+        const [agents] = await db.query(
+            `SELECT u.id
+             FROM utilisateur u
+             JOIN role r ON r.id = u.role_id
+             WHERE r.nom = 'AGENT_ACCUEIL' AND u.actif = 1`
+        );
+
+        await Promise.all(
+            agents.map((agent) => this.notifyUser(
+                agent.id,
+                message,
+                type,
+                null,
+                rendez_vous_id
+            ))
+        );
+    },
+
     async create(data) {
         const {
             message,

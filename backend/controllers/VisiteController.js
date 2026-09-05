@@ -37,6 +37,7 @@ const VisiteController = {
             });
             await Badge.markUsed(badge.id);
             await Log.record({ action: `ENTREE_VISITEUR visite #${visite.id}`, utilisateurId: req.auth.id, req });
+            await Notification.notifyReception("L'entrée du visiteur a été enregistrée.", "VISITE", visite.rendez_vous_id);
 
             await Notification.notifyVisitor(
                 visite.rendez_vous_id,
@@ -90,6 +91,7 @@ const VisiteController = {
 
             if (visite && String(req.body.statut || "").toUpperCase() === "TERMINEE") {
                 await Log.record({ action: `SORTIE_VISITEUR visite #${visite.id}`, utilisateurId: req.auth.id, req });
+                await Notification.notifyReception("La sortie du visiteur a été enregistrée.", "VISITE", visite.rendez_vous_id);
                 await Notification.notifyVisitor(
                     visite.rendez_vous_id,
                     "Votre visite est terminée.",

@@ -8,6 +8,11 @@ const BadgeController = {
         try {
             const badge = await Badge.create(req.body);
             await Log.record({ action: `GENERATION_BADGE #${badge.id}`, utilisateurId: req.auth.id, req });
+            await Notification.notifyReception(
+                "Le badge QR du visiteur a été généré.",
+                "BADGE",
+                badge.rendez_vous_id
+            );
 
             await Notification.notifyVisitor(
                 badge.rendez_vous_id,
@@ -127,16 +132,20 @@ const BadgeController = {
 
             const badge = await Badge.getByQrCode(qrCode);
             if (!badge) {
+                await Notification.notifyReception("Le QR Code du visiteur est invalide ou expiré.", "QR_INVALIDE");
                 return res.status(404).json({ message: "Badge introuvable" });
             }
             if (badge.statut !== "VALIDE") {
+                await Notification.notifyReception("Le QR Code du visiteur est invalide ou expiré.", "QR_INVALIDE", badge.rendez_vous_id);
                 return res.status(409).json({ message: "Badge non valide", badge });
             }
             if (new Date(badge.date_expiration) <= new Date()) {
+                await Notification.notifyReception("Le QR Code du visiteur est invalide ou expiré.", "QR_INVALIDE", badge.rendez_vous_id);
                 return res.status(409).json({ message: "Badge expire", badge });
             }
 
             await Log.record({ action: `SCAN_QR badge #${badge.id}`, utilisateurId: req.auth.id, req });
+            await Notification.notifyReception("Le QR Code du visiteur a été validé.", "SCAN_QR", badge.rendez_vous_id);
 
             res.json({ message: "Badge valide", badge });
         } catch (error) {
