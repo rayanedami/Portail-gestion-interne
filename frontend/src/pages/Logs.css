@@ -1,6 +1,6 @@
 .logs-page {
     min-height: 100vh;
-    padding: 32px;
+    padding: 34px 38px 48px;
     background: #f7f8fa;
     color: #101828;
 }
@@ -202,4 +202,8 @@
     .logs-card table {
         min-width: 700px;
     }
+}
+
+.logs-card tbody tr:hover {
+    background: #fffaf7;
 }
