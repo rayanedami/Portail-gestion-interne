@@ -12,6 +12,13 @@ function Validations() {
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
 
+    const formaterDate = (date) => date
+        ? new Date(date).toLocaleString("fr-FR", {
+            dateStyle: "medium",
+            timeStyle: "short"
+        })
+        : "Non renseignée";
+
     const [selectedDemande, setSelectedDemande] = useState(null);
     const [historique, setHistorique] = useState([]);
     const [showDetail, setShowDetail] = useState(false);
@@ -295,7 +302,7 @@ function Validations() {
                         <p><strong>Collaborateur :</strong> {selectedDemande.collaborateur_id}</p>
                         <p><strong>Type :</strong> {selectedDemande.nom_type || selectedDemande.type_demande_id}</p>
                         <p><strong>Motif :</strong> {selectedDemande.motif}</p>
-                        <p><strong>Date :</strong> {selectedDemande.date_soumission || "Non renseignée"}</p>
+                        <p><strong>Date :</strong> {formaterDate(selectedDemande.date_soumission)}</p>
                         <p><strong>Statut :</strong> {selectedDemande.statut}</p>
                         <p><strong>Niveau actuel :</strong> {historique.length ? Math.max(...historique.map((item) => Number(item.niveau))) : 1}</p>
                         <h3>Historique des validations</h3>
