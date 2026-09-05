@@ -1,5 +1,6 @@
 const Validation = require("../models/Validation");
 const Log = require("../models/Log");
+const Notification = require("../models/Notification");
 
 const ValidationController = {
 
@@ -10,6 +11,43 @@ const ValidationController = {
                 responsable_id: req.auth.id
             });
             const decision = String(req.body.decision || "").toUpperCase();
+            const commentaire = req.body.commentaire || "";
+            if (decision.includes("REFUS")) {
+                await Notification.notifyUser(
+                    validation.collaborateur_id,
+                    `Votre demande a été refusée. Motif : ${commentaire || "Non précisé"}`,
+                    "VALIDATION",
+                    validation.demande_id
+                );
+            } else if (validation.niveau === 1) {
+                await Notification.notifyUser(
+                    validation.collaborateur_id,
+                    "Votre demande a été approuvée par le responsable.",
+                    "VALIDATION",
+                    validation.demande_id
+                );
+                await Notification.notifyUser(
+                    validation.collaborateur_id,
+                    "Votre demande a été transmise pour validation finale.",
+                    "VALIDATION",
+                    validation.demande_id
+                );
+                await Notification.notifyRole(
+                    "RESPONSABLE",
+                    "Une demande nécessite votre validation au niveau 2.",
+                    "VALIDATION",
+                    validation.demande_id,
+                    null,
+                    req.auth.id
+                );
+            } else {
+                await Notification.notifyUser(
+                    validation.collaborateur_id,
+                    "Votre demande a été acceptée.",
+                    "VALIDATION",
+                    validation.demande_id
+                );
+            }
             await Log.record({
                 action: `${decision.includes("REFUS") ? "REFUS_DEMANDE" : "VALIDATION_DEMANDE"} #${req.body.demande_id}`,
                 utilisateurId: req.auth.id,

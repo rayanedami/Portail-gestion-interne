@@ -49,6 +49,27 @@ const Notification = {
         );
     },
 
+    async notifyRole(roleName, message, type, demande_id = null, rendez_vous_id = null, excludeUserId = null) {
+        const [users] = await db.query(
+            `SELECT u.id
+             FROM utilisateur u
+             JOIN role r ON r.id = u.role_id
+             WHERE r.nom = ? AND u.actif = 1
+               AND (? IS NULL OR u.id <> ?)`,
+            [roleName, excludeUserId, excludeUserId]
+        );
+
+        await Promise.all(
+            users.map((user) => this.notifyUser(
+                user.id,
+                message,
+                type,
+                demande_id,
+                rendez_vous_id
+            ))
+        );
+    },
+
     async create(data) {
         const {
             message,

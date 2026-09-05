@@ -1,5 +1,6 @@
 const Demande = require("../models/Demande");
 const Log = require("../models/Log");
+const Notification = require("../models/Notification");
 
 const DemandeController = {
 
@@ -38,6 +39,21 @@ const DemandeController = {
                 collaborateur_id
             });
 
+            await Notification.notifyUser(
+                req.auth.id,
+                "Votre demande a été créée avec succès.",
+                "DEMANDE",
+                demande.id
+            );
+            await Notification.notifyRole(
+                "RESPONSABLE",
+                "Une nouvelle demande nécessite votre validation.",
+                "VALIDATION",
+                demande.id,
+                null,
+                req.auth.id
+            );
+
             await Log.record({ action: `CREATION_DEMANDE #${demande.id}`, utilisateurId: req.auth.id, req });
 
             res.status(201).json({
@@ -66,6 +82,21 @@ const DemandeController = {
                     message: "Demande introuvable"
                 });
             }
+
+            await Notification.notifyUser(
+                demande.collaborateur_id,
+                "Votre demande a été modifiée.",
+                "DEMANDE",
+                demande.id
+            );
+            await Notification.notifyRole(
+                "RESPONSABLE",
+                "Une demande que vous devez traiter a été modifiée.",
+                "VALIDATION",
+                demande.id,
+                null,
+                req.auth.id
+            );
 
             res.json({
                 message: "Demande modifiée avec succès",

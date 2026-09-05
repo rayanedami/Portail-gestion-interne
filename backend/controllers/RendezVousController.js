@@ -55,7 +55,7 @@ const RendezVousController = {
 
             await Notification.notifyUser(
                 data.collaborateur_id,
-                `Un nouveau rendez-vous #${rendezVous.id} a été créé.`,
+                "Un nouveau rendez-vous a été créé.",
                 "RENDEZ_VOUS",
                 null,
                 rendezVous.id
@@ -121,12 +121,29 @@ const RendezVousController = {
 
             let badge = null;
             if (String(data.statut).toUpperCase() === "CONFIRME") {
+                await Notification.notifyUser(
+                    data.collaborateur_id,
+                    "Votre rendez-vous a été confirmé.",
+                    "RENDEZ_VOUS",
+                    null,
+                    rendezVous.id
+                );
                 badge = await Badge.createForRendezVous(rendezVous.id);
             }
 
+            const updateMessage = String(data.statut).toUpperCase() === "CONFIRME"
+                ? "Votre rendez-vous a été confirmé."
+                : "Votre rendez-vous a été modifié.";
+            await Notification.notifyUser(
+                rendezVous.collaborateur_id,
+                updateMessage,
+                "RENDEZ_VOUS",
+                null,
+                rendezVous.id
+            );
             await Notification.notifyVisitor(
                 rendezVous.id,
-                `Votre rendez-vous #${rendezVous.id} a été modifié.`,
+                updateMessage,
                 "RENDEZ_VOUS"
             );
 
@@ -163,6 +180,13 @@ const RendezVousController = {
             await Notification.notifyReception(
                 "Un rendez-vous visiteur a été annulé.",
                 "RENDEZ_VOUS",
+                rendezVous.id
+            );
+            await Notification.notifyUser(
+                rendezVous.collaborateur_id,
+                "Votre rendez-vous a été annulé.",
+                "RENDEZ_VOUS",
+                null,
                 rendezVous.id
             );
 

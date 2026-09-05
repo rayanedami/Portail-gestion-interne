@@ -53,20 +53,14 @@ const Validation = {
                 [statut, demande_id]
             );
 
-            const message = decisionFinale === "REFUSEE"
-                ? `Votre demande #${demande_id} a été refusée.`
-                : statut === "ACCEPTEE"
-                    ? `Votre demande #${demande_id} a été acceptée.`
-                    : `Votre demande #${demande_id} a été validée au niveau ${niveauActuel}.`;
-
-            await connection.query(
-                `INSERT INTO notification
-                (message, type, date_envoi, est_lue, utilisateur_id, demande_id)
-                VALUES (?, ?, NOW(), 0, ?, ?)`,
-                [message, "VALIDATION", demandes[0].collaborateur_id, demande_id]
-            );
             await connection.commit();
-            return { demande_id, niveau: niveauActuel, decision: decisionFinale, statut };
+            return {
+                demande_id,
+                collaborateur_id: demandes[0].collaborateur_id,
+                niveau: niveauActuel,
+                decision: decisionFinale,
+                statut
+            };
         } catch (error) {
             await connection.rollback();
             throw error;

@@ -44,12 +44,6 @@ const Demande = {
                     [demandeId, responsables[0].id]
                 );
             }
-            await connection.query(
-                `INSERT INTO notification
-                 (message, type, date_envoi, est_lue, utilisateur_id, demande_id)
-                 VALUES (?, 'DEMANDE', NOW(), 0, ?, ?)`,
-                [`Votre demande #${demandeId} a été soumise.`, collaborateur_id, demandeId]
-            );
             await connection.commit();
             return this.getById(demandeId);
         } catch (error) {
