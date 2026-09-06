@@ -21,6 +21,7 @@ import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import { formatDate } from "../utils/formatDate";
 import { printTable } from "../utils/printTable";
+import { exportExcel } from "../utils/exportExcel";
 import "./Demandes.css";
 
 function Demandes() {
@@ -45,6 +46,7 @@ function Demandes() {
     });
 
     const utilisateurId = utilisateur?.id;
+    const peutCreerDemande = utilisateur?.role === "COLLABORATEUR";
 
     useEffect(() => {
         fetchDemandes();
@@ -66,17 +68,11 @@ function Demandes() {
                 ? response.data
                 : response.data.demandes || [];
 
-            // Afficher uniquement les demandes du collaborateur connecté
-            const mesDemandes = data.filter(
-                (demande) =>
-                    Number(
-                        demande.utilisateur_id ??
-                        demande.demandeur_id ??
-                        demande.collaborateur_id
-                    ) === Number(utilisateurId)
-            );
+            const demandesVisibles = utilisateur?.role === "COLLABORATEUR"
+                ? data.filter((demande) => Number(demande.collaborateur_id) === Number(utilisateurId))
+                : data;
 
-            setDemandes(mesDemandes);
+            setDemandes(demandesVisibles);
         } catch (error) {
             console.error("Erreur récupération demandes :", error);
             setMessage("Impossible de récupérer les demandes.");
@@ -212,16 +208,7 @@ function Demandes() {
     };
 
     const exporterExcel = () => {
-        const rows = [
-            ["Motif", "Type", "Statut", "Date"],
-            ...filteredDemandes.map((demande) => [demande.motif, demande.nom_type, demande.statut, demande.date_soumission])
-        ];
-        const csv = rows.map((row) => row.map((value) => `"${String(value || "").replaceAll('"', '""')}"`).join(",")).join("\n");
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(new Blob([`\ufeff${csv}`], { type: "text/csv;charset=utf-8" }));
-        link.download = "demandes.csv";
-        link.click();
-        URL.revokeObjectURL(link.href);
+        exportExcel("demandes.xlsx", ["Motif", "Type", "Statut", "Date"], filteredDemandes.map((demande) => [demande.motif, demande.nom_type, demande.statut, demande.date_soumission]));
     };
 
     const exporterPdf = () => {
@@ -245,12 +232,12 @@ function Demandes() {
                         <ClipboardList />
                     </div>
 
-                    <h1>{showForm ? "Nouvelle demande" : "Mes demandes"}</h1>
+                    <h1>{showForm ? "Nouvelle demande" : utilisateur?.role === "COLLABORATEUR" ? "Mes demandes" : "Toutes les demandes"}</h1>
 
-                    <p>{showForm ? "Remplissez le formulaire ci-dessous pour soumettre une nouvelle demande." : "Consultez et gérez vos demandes administratives."}</p>
+                    <p>{showForm ? "Remplissez le formulaire ci-dessous pour soumettre une nouvelle demande." : utilisateur?.role === "COLLABORATEUR" ? "Consultez et gérez vos demandes administratives." : "Consultez et suivez les demandes de tous les collaborateurs."}</p>
                 </div>
 
-                {!showForm && <button
+                {!showForm && peutCreerDemande && <button
                     className="add-demande-button"
                     onClick={() => navigate("/nouvelle-demande")}
                 >

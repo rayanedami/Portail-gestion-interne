@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ClipboardList, Download, RefreshCw, Search, Printer } from "lucide-react";
 import api from "../services/api";
 import { printTable } from "../utils/printTable";
+import { exportExcel } from "../utils/exportExcel";
 import "./Logs.css";
 
 function Logs() {
@@ -38,27 +39,14 @@ function Logs() {
         : "-";
 
     const exporter = () => {
-        const csv = [
-            ["Action", "Utilisateur", "Date", "Adresse IP"],
-            ...logsFiltres.map((log) => [log.action, log.utilisateur_nom || log.utilisateur_id || "", log.date_action || "", log.adresse_ip || ""])
-        ].map((ligne) => ligne.map((valeur) => `"${String(valeur).replaceAll('"', '""')}"`).join(",")).join("\n");
-        const lien = document.createElement("a");
-        lien.href = URL.createObjectURL(new Blob([`\ufeff${csv}`], { type: "text/csv;charset=utf-8" }));
-        lien.download = "logs.csv";
-        lien.click();
-        URL.revokeObjectURL(lien.href);
+        exportExcel("logs.xlsx", ["Action", "Utilisateur", "Date", "Adresse IP"], logsFiltres.map((log) => [log.action, log.utilisateur_nom || log.utilisateur_id || "", log.date_action || "", log.adresse_ip || ""]));
     };
 
     const exporterPdf = () => {
         printTable({
             title: "Journaux d'activité",
             headers: ["Action", "Utilisateur", "Date", "Adresse IP"],
-            rows: logsFiltres.map((log) => [
-                log.action,
-                log.utilisateur_nom || log.utilisateur_id || "",
-                formaterDate(log.date_action),
-                log.adresse_ip || "-"
-            ])
+            rows: logsFiltres.map((log) => [log.action, log.utilisateur_nom || log.utilisateur_id || "", formaterDate(log.date_action), log.adresse_ip || "-"])
         });
     };
 

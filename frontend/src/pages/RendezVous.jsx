@@ -13,7 +13,9 @@ import {
     X,
     CheckCircle2,
     XCircle,
-    AlertCircle
+    AlertCircle,
+    UsersRound,
+    Building2
 } from "lucide-react";
 import api from "../services/api";
 import { formatDate } from "../utils/formatDate";
@@ -242,7 +244,11 @@ function RendezVous() {
                         <label>Date<input required type="date" value={formData.date_rendez_vous} onChange={(e) => setFormData({ ...formData, date_rendez_vous: e.target.value })} /></label>
                         <label>Heure<input required type="time" value={formData.heure_rendez_vous} onChange={(e) => setFormData({ ...formData, heure_rendez_vous: e.target.value })} /></label>
                         <label>Visiteur<select required value={formData.visiteur_id} onChange={(e) => setFormData({ ...formData, visiteur_id: e.target.value })}><option value="">Sélectionner un visiteur</option>{options.visiteurs.map((visiteur) => <option key={visiteur.id} value={visiteur.id}>{visiteur.prenom} {visiteur.nom}{visiteur.societe ? ` - ${visiteur.societe}` : ""}</option>)}</select></label>
-                        <label>Collaborateur<select required value={formData.collaborateur_id} onChange={(e) => setFormData({ ...formData, collaborateur_id: e.target.value })}><option value="">Sélectionner un collaborateur</option>{options.collaborateurs.map((collaborateur) => <option key={collaborateur.id} value={collaborateur.id}>{collaborateur.prenom} {collaborateur.nom} - {collaborateur.role}</option>)}</select></label>
+                        <label>Collaborateur{utilisateur?.role === "COLLABORATEUR" ? (
+                            <input value={`${utilisateur.prenom || ""} ${utilisateur.nom || ""}`.trim()} readOnly />
+                        ) : (
+                            <select required value={formData.collaborateur_id} onChange={(e) => setFormData({ ...formData, collaborateur_id: e.target.value })}><option value="">Sélectionner un collaborateur</option>{options.collaborateurs.map((collaborateur) => <option key={collaborateur.id} value={collaborateur.id}>{collaborateur.prenom} {collaborateur.nom} - {collaborateur.role}</option>)}</select>
+                        )}</label>
                         <label>Statut<select value={formData.statut || "PLANIFIE"} onChange={(e) => setFormData({ ...formData, statut: e.target.value })}>
                             <option value="PLANIFIE">EN ATTENTE</option>
                             <option value="CONFIRME">CONFIRME</option>
@@ -387,24 +393,23 @@ function RendezVous() {
                             >
 
                                 <div className="rdv-date">
-
-                                    <span>
+                                    <small>Date du rendez-vous</small>
+                                    <strong>
                                         {formatDate(
                                             rdv.date_rendez_vous || rdv.date,
                                             false
                                         )}
-                                    </span>
-
+                                    </strong>
                                 </div>
 
                                 <div className="rdv-content">
 
                                     <div className="rdv-content-header">
 
-                                        <h3>
-                                            {rdv.motif ||
-                                                "Rendez-vous"}
-                                        </h3>
+                                        <div>
+                                            <span className="rdv-card-id">Rendez-vous #RDV-{String(rdv.id).padStart(5, "0")}</span>
+                                            <h3>{rdv.motif || "Rendez-vous"}</h3>
+                                        </div>
 
                                         <span
                                             className={`rdv-status ${status.className}`}
@@ -418,19 +423,25 @@ function RendezVous() {
 
                                     <div className="rdv-details">
 
-                                        <span>
+                                        <span className="rdv-detail-item">
                                             <Clock />
-                                            {rdv.heure_rendez_vous ||
-                                                rdv.heure ||
-                                                "Heure non définie"}
+                                            <span><small>Heure</small>{rdv.heure_rendez_vous || rdv.heure || "Non définie"}</span>
                                         </span>
 
-                                        <span>
+                                        <span className="rdv-detail-item">
                                             <MapPin />
-                                            {rdv.visiteur_nom || "Visiteur non renseigné"}
+                                            <span><small>Visiteur</small>{rdv.visiteur_nom || "Non renseigné"}</span>
                                         </span>
 
-                                        {rdv.collaborateur_nom && <span>{rdv.collaborateur_nom}</span>}
+                                        <span className="rdv-detail-item">
+                                            <UsersRound />
+                                            <span><small>Personne à rencontrer</small>{rdv.collaborateur_nom || "Non renseigné"}</span>
+                                        </span>
+
+                                        <span className="rdv-detail-item rdv-company">
+                                            <Building2 />
+                                            <span><small>Société</small>{rdv.visiteur_societe || "Non renseignée"}</span>
+                                        </span>
 
                                     </div>
 

@@ -1,15 +1,48 @@
 const db = require("../config/db");
+const nodemailer = require("nodemailer");
+
+function createMailTransporter() {
+    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) return null;
+    return nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: Number(process.env.SMTP_PORT || 587),
+        secure: String(process.env.SMTP_SECURE).toLowerCase() === "true",
+        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
+    });
+}
 
 const Notification = {
 
     async notifyUser(utilisateur_id, message, type, demande_id = null, rendez_vous_id = null) {
-        return this.create({
+        const notification = await this.create({
             utilisateur_id,
             message,
             type,
             demande_id,
             rendez_vous_id
         });
+        await this.sendImportantEmail(utilisateur_id, message, type);
+        return notification;
+    },
+
+    async sendImportantEmail(utilisateurId, message, type) {
+        const importantTypes = ["DEMANDE", "VALIDATION", "RENDEZ_VOUS", "BADGE", "VISITE", "QR_INVALIDE"];
+        if (!importantTypes.includes(String(type).toUpperCase())) return;
+        const transporter = createMailTransporter();
+        if (!transporter) return;
+
+        try {
+            const [rows] = await db.query("SELECT email, prenom, nom FROM utilisateur WHERE id = ? AND actif = 1", [utilisateurId]);
+            if (!rows[0]?.email) return;
+            await transporter.sendMail({
+                from: process.env.SMTP_FROM || process.env.SMTP_USER,
+                to: rows[0].email,
+                subject: `Portail Services - ${type}`,
+                text: `Bonjour ${rows[0].prenom || ""} ${rows[0].nom || ""},\n\n${message}`
+            });
+        } catch (error) {
+            console.error("Erreur envoi notification email :", error.message);
+        }
     },
 
     async notifyVisitor(rendez_vous_id, message, type) {

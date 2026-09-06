@@ -25,25 +25,40 @@ const Validation = {
             }
 
             const [dernieresValidations] = await connection.query(
-                `SELECT niveau, decision FROM validation
+                `SELECT id, niveau, decision FROM validation
                  WHERE demande_id = ?
                  ORDER BY niveau DESC
                  LIMIT 1`,
                 [demande_id]
             );
-            const niveauActuel = dernieresValidations.length > 0
-                ? Number(dernieresValidations[0].niveau) + 1
-                : 1;
+            const derniereValidation = dernieresValidations[0];
+            const niveauActuel = !derniereValidation
+                ? 1
+                : derniereValidation.decision === "EN_ATTENTE"
+                    ? Number(derniereValidation.niveau)
+                    : Number(derniereValidation.niveau) + 1;
             if (niveauActuel > 2) {
                 throw new Error("Cette demande a déjà terminé son workflow de validation");
             }
+            if (niveauActuel === 2 && derniereValidation && derniereValidation.decision !== "APPROUVEE") {
+                throw new Error("La validation de niveau 1 doit être approuvée avant le niveau 2");
+            }
 
-            await connection.query(
-                `INSERT INTO validation
-                (demande_id, responsable_id, niveau, decision, commentaire, date_validation)
-                VALUES (?, ?, ?, ?, ?, NOW())`,
-                [demande_id, responsable_id, niveauActuel, decisionFinale, commentaire || null]
-            );
+            if (derniereValidation?.decision === "EN_ATTENTE") {
+                await connection.query(
+                    `UPDATE validation
+                     SET responsable_id = ?, decision = ?, commentaire = ?, date_validation = NOW()
+                     WHERE id = ?`,
+                    [responsable_id, decisionFinale, commentaire || null, derniereValidation.id]
+                );
+            } else {
+                await connection.query(
+                    `INSERT INTO validation
+                    (demande_id, responsable_id, niveau, decision, commentaire, date_validation)
+                    VALUES (?, ?, ?, ?, ?, NOW())`,
+                    [demande_id, responsable_id, niveauActuel, decisionFinale, commentaire || null]
+                );
+            }
 
             const statut = decisionFinale === "REFUSEE"
                 ? "REFUSEE"

@@ -8,7 +8,7 @@ const { uploadPieceJointe } = require("../middleware/upload");
 
 router.use(requireRoles("COLLABORATEUR", "RESPONSABLE", "ADMINISTRATEUR"));
 
-router.post("/", uploadPieceJointe.single("piece_jointe"), DemandeController.create);
+router.post("/", requireRoles("COLLABORATEUR"), uploadPieceJointe.single("piece_jointe"), DemandeController.create);
 router.put("/:id", DemandeController.update);
 router.delete("/:id", DemandeController.delete);
 

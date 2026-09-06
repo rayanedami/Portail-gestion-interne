@@ -7,9 +7,6 @@ const { requireRoles } = require("../middleware/auth");
 router.use(requireRoles("RESPONSABLE", "ADMINISTRATEUR"));
 
 router.post("/decision", ValidationController.decide);
-router.post("/", ValidationController.create);
-router.put("/:id", ValidationController.update);
-router.delete("/:id", ValidationController.delete);
 
 router.get("/", ValidationController.getAll);
 router.get("/:id", ValidationController.getById);

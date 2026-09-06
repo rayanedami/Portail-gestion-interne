@@ -40,30 +40,11 @@ const Log = {
     },
 
     async update(id, data) {
-        const {
-            action,
-            adresse_ip
-        } = data;
-
-        await db.query(
-            `UPDATE log
-             SET action = ?,
-                 adresse_ip = ?
-             WHERE id = ?`,
-            [action, adresse_ip, id]
-        );
-
-        return this.getById(id);
+        throw new Error("Les logs sont immuables et ne peuvent pas être modifiés");
     },
 
     async delete(id) {
-        const [result] = await db.query(
-            `DELETE FROM log
-             WHERE id = ?`,
-            [id]
-        );
-
-        return result.affectedRows > 0;
+        throw new Error("Les logs sont immuables et ne peuvent pas être supprimés");
     },
 
     async getAll() {
@@ -87,11 +68,11 @@ const Log = {
     async getById(id) {
         const [rows] = await db.query(`
             SELECT
-                id,
-                action,
-                date_action,
-                adresse_ip,
-                utilisateur_id,
+                l.id,
+                l.action,
+                l.date_action,
+                l.adresse_ip,
+                l.utilisateur_id,
                 CONCAT(u.prenom, ' ', u.nom) AS utilisateur_nom,
                 u.email AS utilisateur_email
             FROM log l

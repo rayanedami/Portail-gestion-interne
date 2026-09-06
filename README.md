@@ -183,6 +183,15 @@ Les logs permettent notamment de garder une trace des :
 - Visual Studio Code
 - Git
 
+## Documentation et validation
+
+- Documentation technique : `docs/DOCUMENTATION_TECHNIQUE.md`
+- Guide utilisateur : `docs/GUIDE_UTILISATEUR.md`
+- Modèle de données : `docs/MODELE_DONNEES.md`
+- Plan du rapport de stage : `docs/PLAN_RAPPORT_STAGE.md`
+- Tests backend : `cd backend && npm test`
+- Exports Excel : fichiers `.xlsx` générés depuis les écrans de gestion
+
 ## Structure du projet
 
 ```text

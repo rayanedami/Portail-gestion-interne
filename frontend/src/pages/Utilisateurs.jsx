@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Search, Users, Eye, Pencil, X, Check, Download, Printer } from "lucide-react";
 import api from "../services/api";
 import { printTable } from "../utils/printTable";
+import { exportExcel } from "../utils/exportExcel";
 import "./Utilisateurs.css";
 
 function Utilisateurs() {
@@ -71,37 +72,14 @@ function Utilisateurs() {
     };
 
     const exporter = () => {
-        const lignes = [
-            ["Nom", "Email", "Téléphone", "Rôle", "Département", "Actif"],
-            ...resultats.map((utilisateur) => [
-                `${utilisateur.prenom} ${utilisateur.nom}`,
-                utilisateur.email,
-                utilisateur.telephone || "",
-                utilisateur.role_nom || "Rôle non renseigné",
-                utilisateur.departement_nom || "Département non renseigné",
-                utilisateur.actif ? "Oui" : "Non"
-            ])
-        ];
-        const csv = lignes.map((ligne) => ligne.map((valeur) => `"${String(valeur).replaceAll('"', '""')}"`).join(",")).join("\n");
-        const lien = document.createElement("a");
-        lien.href = URL.createObjectURL(new Blob([`\ufeff${csv}`], { type: "text/csv;charset=utf-8" }));
-        lien.download = "utilisateurs.csv";
-        lien.click();
-        URL.revokeObjectURL(lien.href);
+        exportExcel("utilisateurs.xlsx", ["Nom", "Email", "Téléphone", "Rôle", "Département", "Actif"], resultats.map((utilisateur) => [`${utilisateur.prenom} ${utilisateur.nom}`, utilisateur.email, utilisateur.telephone || "", utilisateur.role_nom || "Rôle non renseigné", utilisateur.departement_nom || "Département non renseigné", utilisateur.actif ? "Oui" : "Non"]));
     };
 
     const exporterPdf = () => {
         printTable({
             title: "Gestion des utilisateurs",
             headers: ["Nom", "Email", "Téléphone", "Rôle", "Département", "Actif"],
-            rows: resultats.map((utilisateur) => [
-                `${utilisateur.prenom} ${utilisateur.nom}`,
-                utilisateur.email,
-                utilisateur.telephone || "",
-                utilisateur.role_nom || "Rôle non renseigné",
-                utilisateur.departement_nom || "Département non renseigné",
-                utilisateur.actif ? "Oui" : "Non"
-            ])
+            rows: resultats.map((utilisateur) => [`${utilisateur.prenom} ${utilisateur.nom}`, utilisateur.email, utilisateur.telephone || "", utilisateur.role_nom || "Rôle non renseigné", utilisateur.departement_nom || "Département non renseigné", utilisateur.actif ? "Oui" : "Non"])
         });
     };
 

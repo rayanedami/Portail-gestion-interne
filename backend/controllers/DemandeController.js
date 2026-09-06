@@ -25,6 +25,11 @@ const DemandeController = {
 
     async create(req, res) {
         try {
+            if (req.auth.role !== "COLLABORATEUR") {
+                return res.status(403).json({
+                    message: "Seul un collaborateur peut créer une demande."
+                });
+            }
             const { motif, type_demande_id } = req.body;
             const collaborateur_id = req.auth.id;
 
@@ -83,10 +88,20 @@ const DemandeController = {
 
     async update(req, res) {
         try {
-            if (req.body.statut && !["EN_ATTENTE", "EN_COURS", "ACCEPTEE", "REFUSEE"].includes(String(req.body.statut).toUpperCase())) {
-                return res.status(400).json({ message: "Statut de demande invalide" });
+            const existing = await Demande.getById(req.params.id, req.auth);
+            if (!existing) {
+                return res.status(404).json({ message: "Demande introuvable" });
             }
-            const demande = await Demande.update(req.params.id, req.body);
+            if (Object.prototype.hasOwnProperty.call(req.body, "statut")) {
+                return res.status(403).json({
+                    message: "Le statut d'une demande est modifié uniquement par le workflow de validation"
+                });
+            }
+            const demande = await Demande.update(req.params.id, {
+                motif: req.body.motif ?? existing.motif,
+                type_demande_id: req.body.type_demande_id ?? existing.type_demande_id,
+                statut: existing.statut
+            });
 
             if (!demande) {
                 return res.status(404).json({
@@ -108,6 +123,7 @@ const DemandeController = {
                 null,
                 req.auth.id
             );
+            await Log.record({ action: `MODIFICATION_DEMANDE #${demande.id}`, utilisateurId: req.auth.id, req });
 
             res.json({
                 message: "Demande modifiée avec succès",
@@ -122,6 +138,10 @@ const DemandeController = {
 
     async delete(req, res) {
         try {
+            const existing = await Demande.getById(req.params.id, req.auth);
+            if (!existing) {
+                return res.status(404).json({ message: "Demande introuvable" });
+            }
             const deleted = await Demande.delete(req.params.id);
 
             if (!deleted) {
@@ -129,6 +149,8 @@ const DemandeController = {
                     message: "Demande introuvable"
                 });
             }
+
+            await Log.record({ action: `SUPPRESSION_DEMANDE #${req.params.id}`, utilisateurId: req.auth.id, req });
 
             res.json({
                 message: "Demande supprimée avec succès"

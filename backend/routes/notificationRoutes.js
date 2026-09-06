@@ -6,7 +6,6 @@ const { requireRoles } = require("../middleware/auth");
 
 router.use(requireRoles("COLLABORATEUR", "RESPONSABLE", "ADMINISTRATEUR", "AGENT_ACCUEIL", "VISITEUR"));
 
-router.post("/", NotificationController.create);
 router.put("/:id", NotificationController.update);
 router.delete("/:id", NotificationController.delete);
 

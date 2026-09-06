@@ -16,6 +16,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import { printTable } from "../utils/printTable";
+import { exportExcel } from "../utils/exportExcel";
 import "./Visiteurs.css";
 
 function Visiteurs() {
@@ -242,13 +243,7 @@ function Visiteurs() {
     });
 
     const exporterExcel = () => {
-        const rows = [["Nom", "Prenom", "Email", "Telephone", "Societe"], ...filteredVisiteurs.map((visiteur) => [visiteur.nom, visiteur.prenom, visiteur.email, visiteur.telephone, visiteur.societe])];
-        const csv = rows.map((row) => row.map((value) => `"${String(value || "").replaceAll('"', '""')}"`).join(",")).join("\n");
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(new Blob([`\ufeff${csv}`], { type: "text/csv;charset=utf-8" }));
-        link.download = "visiteurs.csv";
-        link.click();
-        URL.revokeObjectURL(link.href);
+        exportExcel("visiteurs.xlsx", ["Nom", "Prénom", "Email", "Téléphone", "Société"], filteredVisiteurs.map((visiteur) => [visiteur.nom, visiteur.prenom, visiteur.email, visiteur.telephone, visiteur.societe]));
     };
 
     const exporterPdf = () => {

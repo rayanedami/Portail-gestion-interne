@@ -15,6 +15,7 @@ const logRoutes = require("./routes/logRoutes");
 const pieceJointeRoutes = require("./routes/pieceJointeRoutes");
 const departementRoutes = require("./routes/departementRoutes");
 const roleRoutes = require("./routes/roleRoutes");
+const statistiqueRoutes = require("./routes/statistiqueRoutes");
 const { requireAuth } = require("./middleware/auth");
 
 
@@ -39,6 +40,7 @@ app.use("/api/logs", logRoutes);
 app.use("/api/pieces-jointes", pieceJointeRoutes);
 app.use("/api/departements", departementRoutes);
 app.use("/api/roles", roleRoutes);
+app.use("/api/statistiques", statistiqueRoutes);
 
 app.get("/", (req, res) => {
     res.json({

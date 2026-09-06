@@ -475,7 +475,8 @@
 
 .rdv-date {
     display: flex;
-    width: 145px;
+    width: 170px;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 20px;
@@ -500,7 +501,30 @@
 
 .rdv-content-header h3 {
     margin: 0 0 12px;
-    font-size: 15px;
+    text-align: center;
+}
+
+.rdv-date small {
+    margin-bottom: 8px;
+    color: #c2410c;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.rdv-date strong {
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.rdv-card-id {
+    display: block;
+    margin-bottom: 5px;
+    color: #98a2b3;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .04em;
 }
 
 .rdv-status {
@@ -516,6 +540,70 @@
 .rdv-status svg {
     width: 13px;
     height: 13px;
+}
+
+.rdv-details span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.rdv-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 24px;
+}
+
+.rdv-details .rdv-detail-item {
+    align-items: flex-start;
+    gap: 8px;
+    color: #475467;
+    font-size: 12px;
+}
+
+.rdv-detail-item>span {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+}
+
+.rdv-detail-item small {
+    color: #98a2b3;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.rdv-details svg {
+    width: 14px;
+    height: 14px;
+}
+
+.rdv-details .rdv-company {
+    color: #667085;
+    font-size: 12px;
+}
+
+@media (max-width: 700px) {
+    .rdv-card {
+        flex-direction: column;
+    }
+
+    .rdv-date {
+        width: 100%;
+        align-items: flex-start;
+        padding: 14px 18px;
+        text-align: left;
+    }
+
+    .rdv-date small {
+        margin-bottom: 4px;
+    }
+
+    .rdv-content {
+        padding: 18px;
+    }
 }
 
 .rdv-success {

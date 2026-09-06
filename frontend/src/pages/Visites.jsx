@@ -3,6 +3,7 @@ import "./Visites.css";
 import api from "../services/api";
 import { DoorOpen, RefreshCw, UsersRound, Download, Printer } from "lucide-react";
 import { printTable } from "../utils/printTable";
+import { exportExcel } from "../utils/exportExcel";
 
 const API_URL = "http://localhost:3000/api";
 
@@ -124,13 +125,7 @@ function Visites() {
     }).length;
 
     const exporterExcel = () => {
-        const rows = [["Visiteur", "Rendez-vous", "Date entree", "Date sortie", "Statut"], ...visites.map((visite) => [getNomVisiteur(visite), visite.rendez_vous_id, visite.date_entree, visite.date_sortie, getStatut(visite)])];
-        const csv = rows.map((row) => row.map((value) => `"${String(value || "").replaceAll('"', '""')}"`).join(",")).join("\n");
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(new Blob([`\ufeff${csv}`], { type: "text/csv;charset=utf-8" }));
-        link.download = "visites.csv";
-        link.click();
-        URL.revokeObjectURL(link.href);
+        exportExcel("visites.xlsx", ["Visiteur", "Rendez-vous", "Date entrée", "Date sortie", "Statut"], visites.map((visite) => [getNomVisiteur(visite), visite.rendez_vous_id, visite.date_entree, visite.date_sortie, getStatut(visite)]));
     };
 
     const exporterPdf = () => {
