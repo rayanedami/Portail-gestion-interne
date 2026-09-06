@@ -60,12 +60,15 @@ function PiecesJointes() {
     };
 
     const telechargerPiece = (piece) => {
-        if (!piece.fichier && !piece.url) {
+        if (!piece.url_fichier && !piece.fichier && !piece.url) {
             setMessage("Fichier indisponible.");
             return;
         }
 
-        const url = piece.url || piece.fichier;
+        const fileUrl = piece.url_fichier || piece.url || piece.fichier;
+        const url = fileUrl.startsWith("http")
+            ? fileUrl
+            : `http://localhost:3000${fileUrl}`;
 
         window.open(url, "_blank");
     };
@@ -139,9 +142,9 @@ function PiecesJointes() {
                                             `Document #${piece.id}`}
                                     </strong>
 
-                                    {piece.type && (
+                                    {(piece.type_fichier || piece.type) && (
                                         <small>
-                                            {piece.type}
+                                            {piece.type_fichier || piece.type}
                                         </small>
                                     )}
                                 </div>

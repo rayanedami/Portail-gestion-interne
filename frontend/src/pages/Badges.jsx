@@ -76,22 +76,6 @@ function Badges() {
         }));
     };
 
-    const generateQRCode = () => {
-        const code =
-            "BADGE-" +
-            Date.now() +
-            "-" +
-            Math.random()
-                .toString(36)
-                .substring(2, 8)
-                .toUpperCase();
-
-        setFormData((prev) => ({
-            ...prev,
-            qr_code: code
-        }));
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -321,17 +305,9 @@ function Badges() {
                                         type="text"
                                         name="qr_code"
                                         value={formData.qr_code}
-                                        onChange={handleChange}
-                                        placeholder="Code QR"
+                                        readOnly
+                                        placeholder="Code QR généré par le serveur"
                                     />
-
-                                    <button
-                                        type="button"
-                                        className="generate-button"
-                                        onClick={generateQRCode}
-                                    >
-                                        Générer
-                                    </button>
 
                                 </div>
 

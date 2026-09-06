@@ -143,6 +143,17 @@ const BadgeController = {
                 await Notification.notifyReception("Le QR Code du visiteur est invalide ou expiré.", "QR_INVALIDE", badge.rendez_vous_id);
                 return res.status(409).json({ message: "Badge expire", badge });
             }
+            if (!badge.rendez_vous_id || !badge.date_rendez_vous || !badge.heure_rendez_vous || !badge.visiteur_nom) {
+                return res.status(409).json({ message: "Les informations du rendez-vous associé sont incomplètes", badge });
+            }
+            if (String(badge.rendez_vous_statut).toUpperCase() !== "CONFIRME") {
+                await Badge.expireForRendezVous(badge.rendez_vous_id);
+                const message = String(badge.rendez_vous_statut).toUpperCase() === "ANNULE"
+                    ? "Rendez-vous annulé"
+                    : "Le rendez-vous associé au badge n'est pas confirmé";
+                await Notification.notifyReception(message, "QR_INVALIDE", badge.rendez_vous_id);
+                return res.status(409).json({ message, badge: { ...badge, statut: "EXPIRE" } });
+            }
 
             await Log.record({ action: `SCAN_QR badge #${badge.id}`, utilisateurId: req.auth.id, req });
             await Notification.notifyReception("Le QR Code du visiteur a été validé.", "SCAN_QR", badge.rendez_vous_id);

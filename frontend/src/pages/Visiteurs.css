@@ -200,6 +200,25 @@
     font-size: 12px;
 }
 
+.refresh-visiteurs-button {
+    display: inline-flex;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #d0d5dd;
+    border-radius: 7px;
+    background: #fff;
+    color: #475467;
+    cursor: pointer;
+}
+
+.refresh-visiteurs-button:hover {
+    border-color: #ff591b;
+    color: #ff591b;
+    background: #fff7f3;
+}
+
 /* ================= TABLE CARD ================= */
 
 .visiteurs-card {

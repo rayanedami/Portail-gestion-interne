@@ -141,3 +141,7 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Uploaded visitor/request files
+backend/uploads/*
+!backend/uploads/.gitkeep

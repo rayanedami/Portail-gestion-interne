@@ -11,11 +11,21 @@ const Visiteur = {
             societe
         } = data;
 
+        const [users] = await db.query(
+            `SELECT u.id
+             FROM utilisateur u
+             JOIN role r ON r.id = u.role_id
+             WHERE u.email = ? AND r.nom = 'VISITEUR' AND u.actif = 1
+             LIMIT 1`,
+            [email || null]
+        );
+        const utilisateurId = users[0]?.id || null;
+
         const [result] = await db.query(
             `INSERT INTO visiteur
-            (nom, prenom, email, telephone, societe)
-            VALUES (?, ?, ?, ?, ?)`,
-            [nom, prenom, email, telephone, societe]
+            (utilisateur_id, nom, prenom, email, telephone, societe)
+            VALUES (?, ?, ?, ?, ?, ?)`,
+            [utilisateurId, nom, prenom, email, telephone, societe]
         );
 
         return this.getById(result.insertId);
@@ -52,8 +62,23 @@ const Visiteur = {
     async getAll(auth, filters = {}) {
         const clauses = [];
         const params = [];
-        if (auth?.role === "VISITEUR") { clauses.push("v.utilisateur_id = ?"); params.push(auth.id); }
-        if (filters.nom) { clauses.push("v.nom LIKE ?"); params.push(`%${filters.nom}%`); }
+        if (auth?.role === "VISITEUR") {
+            await db.query(
+                `UPDATE visiteur v
+                 JOIN utilisateur u ON u.email = v.email
+                 JOIN role r ON r.id = u.role_id
+                 SET v.utilisateur_id = u.id
+                 WHERE v.utilisateur_id IS NULL
+                   AND u.id = ? AND r.nom = 'VISITEUR'`,
+                [auth.id]
+            );
+            clauses.push("v.utilisateur_id = ?");
+            params.push(auth.id);
+        }
+        if (filters.nom) {
+            clauses.push("(v.nom LIKE ? OR v.prenom LIKE ?)");
+            params.push(`%${filters.nom}%`, `%${filters.nom}%`);
+        }
         if (filters.prenom) { clauses.push("v.prenom LIKE ?"); params.push(`%${filters.prenom}%`); }
         if (filters.societe) { clauses.push("v.societe LIKE ?"); params.push(`%${filters.societe}%`); }
         if (filters.statut) { clauses.push("EXISTS (SELECT 1 FROM rendez_vous r WHERE r.visiteur_id = v.id AND r.statut = ?)"); params.push(filters.statut); }

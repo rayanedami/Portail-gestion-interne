@@ -7,15 +7,13 @@ import {
     UserRound,
     Mail,
     Phone,
-    ShieldCheck,
-    ArrowLeft,
-    LogOut
+    ShieldCheck
 } from "lucide-react";
 import "./Profil.css";
 
 function Profil() {
     const navigate = useNavigate();
-    const { utilisateur, logout, isLoggedIn, updateUtilisateur, role } = useAuth();
+    const { utilisateur, isLoggedIn, updateUtilisateur, role } = useAuth();
     const [formulaire, setFormulaire] = useState(null);
     const [departements, setDepartements] = useState([]);
     const [message, setMessage] = useState("");
@@ -72,9 +70,8 @@ function Profil() {
         }
     }, [role]);
 
-    const handleLogout = () => {
-        logout();
-        navigate("/");
+    const annulerProfil = () => {
+        navigate(role === ROLES.VISITEUR ? "/accueil-visiteur" : "/accueil", { replace: true });
     };
 
     const enregistrerProfil = async (event) => {
@@ -109,24 +106,6 @@ function Profil() {
     return (
         <div className="profil-page">
 
-            <header className="profil-header">
-                <button
-                    className="profil-back"
-                    onClick={() => navigate("/accueil")}
-                >
-                    <ArrowLeft size={18} />
-                    Retour à l'accueil
-                </button>
-
-                <button
-                    className="profil-logout"
-                    onClick={handleLogout}
-                >
-                    <LogOut size={17} />
-                    Déconnexion
-                </button>
-            </header>
-
             <main className="profil-container">
 
                 <section className="profil-card">
@@ -155,7 +134,7 @@ function Profil() {
                                     {departements.map((departement) => <option key={departement.id} value={departement.id}>{departement.nom}</option>)}
                                 </select>
                             ) : <input value={formulaire?.departement || "Non renseigné"} readOnly />}</label>
-                            <div className="profil-actions"><button type="button" className="profil-cancel" onClick={() => navigate("/accueil")}>Annuler</button><button type="submit" className="profil-save">Enregistrer</button></div>
+                            <div className="profil-actions"><button type="button" className="profil-cancel" onClick={annulerProfil}>Annuler</button><button type="submit" className="profil-save">Enregistrer</button></div>
                             {message && <p className="profil-message">{message}</p>}
                         </form>
                     </div>

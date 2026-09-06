@@ -24,26 +24,13 @@ function MonBadge() {
             setLoading(true);
             setError("");
 
-            const [rendezVousResponse, visiteursResponse] = await Promise.all([
-                api.get("/rendez-vous"),
-                api.get("/visiteurs")
-            ]);
-
-            const rendezVous = rendezVousResponse.data;
-            const visiteurs = visiteursResponse.data;
-            const monProfilVisiteur = visiteurs.find(
-                (visiteur) =>
-                    Number(visiteur.utilisateur_id) === Number(utilisateur?.id)
-            );
-
-            if (!monProfilVisiteur) {
-                setBadge(null);
-                return;
-            }
+            const rendezVousResponse = await api.get("/rendez-vous");
+            const rendezVous = Array.isArray(rendezVousResponse.data)
+                ? rendezVousResponse.data
+                : rendezVousResponse.data?.rendezVous || [];
 
             const mesRendezVous = rendezVous.filter(
-                (rdv) =>
-                    Number(rdv.visiteur_id) === Number(monProfilVisiteur.id)
+                (rdv) => Number(rdv.visiteur_id) > 0
             );
 
             if (mesRendezVous.length === 0) {

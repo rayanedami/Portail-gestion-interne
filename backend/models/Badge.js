@@ -13,6 +13,9 @@ const Badge = {
         } = data;
 
         const rendezVous = await this.getRendezVous(rendez_vous_id);
+        if (String(rendezVous.statut).toUpperCase() !== "CONFIRME") {
+            throw new Error("Un badge ne peut être généré que pour un rendez-vous confirmé.");
+        }
         const expiration = date_expiration || this.getExpiration(rendezVous);
 
         const [result] = await db.query(
@@ -58,6 +61,7 @@ const Badge = {
     async getRendezVous(id) {
         const [rows] = await db.query(
             `SELECT id, date_rendez_vous, heure_rendez_vous
+                    , statut
              FROM rendez_vous
              WHERE id = ?`,
             [id]
@@ -112,6 +116,15 @@ const Badge = {
         );
     },
 
+    async expireForRendezVous(rendezVousId) {
+        await db.query(
+            `UPDATE badge
+             SET statut = 'EXPIRE'
+             WHERE rendez_vous_id = ? AND statut = 'VALIDE'`,
+            [rendezVousId]
+        );
+    },
+
     async expireBadges() {
         await db.query(
             `UPDATE badge
@@ -130,6 +143,9 @@ const Badge = {
         } = data;
 
         const rendezVous = await this.getRendezVous(rendez_vous_id);
+        if (String(rendezVous.statut).toUpperCase() !== "CONFIRME") {
+            throw new Error("Un badge ne peut être associé qu'à un rendez-vous confirmé.");
+        }
 
         await db.query(
             `UPDATE badge
@@ -164,9 +180,9 @@ const Badge = {
     async getAll(auth) {
         await this.expireBadges();
         const visitorFilter = auth?.role === "VISITEUR"
-            ? "WHERE u.id = ?"
+            ? "WHERE (u.id = ? OR (u.id IS NULL AND v.email = (SELECT email FROM utilisateur WHERE id = ?)))"
             : "";
-        const params = auth?.role === "VISITEUR" ? [auth.id] : [];
+        const params = auth?.role === "VISITEUR" ? [auth.id, auth.id] : [];
         const [rows] = await db.query(`
             SELECT
                 b.id,
@@ -192,9 +208,9 @@ const Badge = {
     async getById(id, auth) {
         await this.expireBadges();
         const visitorFilter = auth?.role === "VISITEUR"
-            ? "AND u.id = ?"
+            ? "AND (u.id = ? OR (u.id IS NULL AND v.email = (SELECT email FROM utilisateur WHERE id = ?)))"
             : "";
-        const params = auth?.role === "VISITEUR" ? [id, auth.id] : [id];
+        const params = auth?.role === "VISITEUR" ? [id, auth.id, auth.id] : [id];
         const [rows] = await db.query(`
             SELECT
                 b.id,

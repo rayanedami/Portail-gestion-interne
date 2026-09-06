@@ -1,4 +1,5 @@
 const Demande = require("../models/Demande");
+const PieceJointe = require("../models/PieceJointe");
 const Log = require("../models/Log");
 const Notification = require("../models/Notification");
 
@@ -38,6 +39,16 @@ const DemandeController = {
                 type_demande_id,
                 collaborateur_id
             });
+
+            if (req.file) {
+                await PieceJointe.create({
+                    nom_fichier: req.file.originalname,
+                    url_fichier: `/uploads/${req.file.filename}`,
+                    type_fichier: req.file.mimetype,
+                    taille: req.file.size,
+                    demande_id: demande.id
+                });
+            }
 
             await Notification.notifyUser(
                 req.auth.id,

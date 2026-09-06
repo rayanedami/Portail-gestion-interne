@@ -4,10 +4,11 @@ const router = express.Router();
 
 const DemandeController = require("../controllers/DemandeController");
 const { requireRoles } = require("../middleware/auth");
+const { uploadPieceJointe } = require("../middleware/upload");
 
 router.use(requireRoles("COLLABORATEUR", "RESPONSABLE", "ADMINISTRATEUR"));
 
-router.post("/", DemandeController.create);
+router.post("/", uploadPieceJointe.single("piece_jointe"), DemandeController.create);
 router.put("/:id", DemandeController.update);
 router.delete("/:id", DemandeController.delete);
 

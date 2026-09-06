@@ -105,11 +105,16 @@ const Demande = {
                 d.collaborateur_id,
                 d.type_demande_id,
                 t.nom AS nom_type,
-                CONCAT(u.prenom, ' ', u.nom) AS collaborateur_nom
+                CONCAT(u.prenom, ' ', u.nom) AS collaborateur_nom,
+                COUNT(p.id) AS nombre_pieces_jointes
             FROM demande d
             JOIN type_demande t ON t.id = d.type_demande_id
             JOIN utilisateur u ON u.id = d.collaborateur_id
+            LEFT JOIN piece_jointe p ON p.demande_id = d.id
             ${where}
+            GROUP BY d.id, d.date_soumission, d.motif, d.statut,
+                     d.collaborateur_id, d.type_demande_id, t.nom,
+                     u.prenom, u.nom
             ORDER BY d.id DESC
         `, params);
 

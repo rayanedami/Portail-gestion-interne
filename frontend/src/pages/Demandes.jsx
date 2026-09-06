@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
     ClipboardList,
     Plus,
@@ -10,23 +10,34 @@ import {
     AlertCircle,
     RefreshCw,
     Download,
-    Printer
+    Printer,
+    Eye,
+    Paperclip,
+    UploadCloud,
+    FileCheck,
+    X
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import { formatDate } from "../utils/formatDate";
+import { printTable } from "../utils/printTable";
 import "./Demandes.css";
 
 function Demandes() {
     const { utilisateur } = useAuth();
     const location = useLocation();
+    const navigate = useNavigate();
     const [demandes, setDemandes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
-    const [showForm, setShowForm] = useState(false);
+    const [demandeSelectionnee, setDemandeSelectionnee] = useState(null);
+    const [fichierJoint, setFichierJoint] = useState(null);
+    const [fichierErreur, setFichierErreur] = useState("");
+    const fichierInputRef = useRef(null);
+    const showForm = location.pathname === "/nouvelle-demande";
     const [search, setSearch] = useState("");
-    const [filters, setFilters] = useState({ type: "", statut: "", departement: "", from: "", to: "", search: "" });
-    const [options, setOptions] = useState({ types: [], departements: [] });
+    const [filters, setFilters] = useState({ type: "", statut: "", from: "", to: "", search: "" });
+    const [options, setOptions] = useState({ types: [] });
 
     const [formData, setFormData] = useState({
         motif: "",
@@ -41,15 +52,9 @@ function Demandes() {
 
     useEffect(() => {
         api.get("/demandes/options")
-            .then((response) => setOptions(response.data || { types: [], departements: [] }))
+            .then((response) => setOptions(response.data || { types: [] }))
             .catch((error) => console.error("Erreur options demandes :", error));
     }, []);
-
-    useEffect(() => {
-        if (location.pathname === "/nouvelle-demande") {
-            setShowForm(true);
-        }
-    }, [location.pathname]);
 
     const fetchDemandes = async () => {
         try {
@@ -87,17 +92,41 @@ function Demandes() {
         });
     };
 
+    const selectionnerFichier = (file) => {
+        if (!file) return;
+
+        const formatsAcceptes = ["application/pdf", "image/jpeg", "image/png"];
+        if (!formatsAcceptes.includes(file.type)) {
+            setFichierJoint(null);
+            setFichierErreur("Formats acceptés : PDF, JPG et PNG.");
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            setFichierJoint(null);
+            setFichierErreur("La pièce jointe ne doit pas dépasser 5 Mo.");
+            return;
+        }
+
+        setFichierErreur("");
+        setFichierJoint(file);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setMessage("");
 
         try {
-            await api.post("/demandes", {
-                motif: formData.motif,
-                type_demande_id: Number(formData.type_demande_id),
-                collaborateur_id: utilisateurId,
-                statut: "EN_ATTENTE"
-            });
+            const demandeData = new FormData();
+            demandeData.append("motif", formData.motif);
+            demandeData.append("type_demande_id", String(Number(formData.type_demande_id)));
+            demandeData.append("collaborateur_id", String(utilisateurId));
+            demandeData.append("statut", "EN_ATTENTE");
+            if (fichierJoint) {
+                demandeData.append("piece_jointe", fichierJoint);
+            }
+
+            await api.post("/demandes", demandeData);
 
             setMessage("Demande créée avec succès.");
 
@@ -105,9 +134,10 @@ function Demandes() {
                 motif: "",
                 type_demande_id: ""
             });
+            setFichierJoint(null);
+            setFichierErreur("");
 
-            setShowForm(false);
-
+            navigate("/demandes");
             fetchDemandes();
         } catch (error) {
             console.error("Erreur création demande :", error);
@@ -178,7 +208,7 @@ function Demandes() {
 
     const reinitialiserFiltres = () => {
         setSearch("");
-        setFilters({ type: "", statut: "", departement: "", from: "", to: "", search: "" });
+        setFilters({ type: "", statut: "", from: "", to: "", search: "" });
     };
 
     const exporterExcel = () => {
@@ -194,6 +224,19 @@ function Demandes() {
         URL.revokeObjectURL(link.href);
     };
 
+    const exporterPdf = () => {
+        printTable({
+            title: "Mes demandes",
+            headers: ["Motif", "Type", "Statut", "Date"],
+            rows: filteredDemandes.map((demande) => [
+                demande.motif,
+                demande.nom_type,
+                demande.statut,
+                formatDate(demande.date_soumission)
+            ])
+        });
+    };
+
     return (
         <div className="demandes-page">
             <div className="demandes-header">
@@ -202,20 +245,18 @@ function Demandes() {
                         <ClipboardList />
                     </div>
 
-                    <h1>Mes demandes</h1>
+                    <h1>{showForm ? "Nouvelle demande" : "Mes demandes"}</h1>
 
-                    <p>
-                        Consultez et gérez vos demandes administratives.
-                    </p>
+                    <p>{showForm ? "Remplissez le formulaire ci-dessous pour soumettre une nouvelle demande." : "Consultez et gérez vos demandes administratives."}</p>
                 </div>
 
-                <button
+                {!showForm && <button
                     className="add-demande-button"
-                    onClick={() => setShowForm(!showForm)}
+                    onClick={() => navigate("/nouvelle-demande")}
                 >
                     <Plus />
                     Nouvelle demande
-                </button>
+                </button>}
             </div>
 
             {message && (
@@ -230,50 +271,44 @@ function Demandes() {
                     <h2>Nouvelle demande</h2>
 
                     <form onSubmit={handleSubmit}>
+                        <div className="demande-form-grid">
+                            <div className="form-field">
+                                <label>Type de demande</label>
 
-                        <div className="form-field">
-                            <label>Type de demande</label>
+                                <select
+                                    name="type_demande_id"
+                                    value={formData.type_demande_id}
+                                    onChange={handleChange}
+                                    required
+                                >
+                                    <option value="">Sélectionner un type</option>
+                                    {options.types.map((type) => <option key={type.id} value={type.id}>{type.nom}</option>)}
+                                </select>
+                            </div>
 
-                            <select
-                                name="type_demande_id"
-                                value={formData.type_demande_id}
-                                onChange={handleChange}
-                                required
-                            >
-                                <option value="">
-                                    Sélectionner un type
-                                </option>
-                                <option value="1">
-                                    Attestation
-                                </option>
-                                <option value="2">
-                                    Congé
-                                </option>
-                                <option value="3">
-                                    Document administratif
-                                </option>
-                                <option value="4">
-                                    Autorisation
-                                </option>
-                                <option value="5">
-                                    Matériel informatique
-                                </option>
-                                <option value="6">
-                                    Accès
-                                </option>
-                            </select>
+                            <div className="form-field motif-field">
+                                <label>Motif</label>
+
+                                <textarea
+                                    name="motif"
+                                    value={formData.motif}
+                                    onChange={handleChange}
+                                    placeholder="Décrivez votre demande..."
+                                    maxLength={500}
+                                    required
+                                />
+                                <span className="character-count">{formData.motif.length}/500</span>
+                            </div>
                         </div>
 
-                        <div className="form-field">
-                            <label>Motif</label>
-
-                            <textarea
-                                name="motif"
-                                value={formData.motif}
-                                onChange={handleChange}
-                                placeholder="Décrivez votre demande..."
-                                required
-                            />
+                        <div className="form-field attachment-field">
+                            <label>Pièce jointe <span>(optionnel)</span></label>
+                            <input ref={fichierInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" hidden onChange={(event) => selectionnerFichier(event.target.files?.[0])} />
+                            <button type="button" className="attachment-dropzone" onClick={() => fichierInputRef.current?.click()} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); selectionnerFichier(event.dataTransfer.files?.[0]); }}>
+                                {fichierJoint ? <><FileCheck size={30} /><strong>{fichierJoint.name}</strong><small>{(fichierJoint.size / 1024 / 1024).toFixed(2)} Mo</small></> : <><UploadCloud size={34} /><strong>Glissez un fichier ici ou cliquez pour sélectionner</strong><small>PDF, JPG, PNG (max 5 Mo)</small></>}
+                            </button>
+                            {fichierJoint && <button type="button" className="remove-file-button" onClick={() => setFichierJoint(null)}><X size={14} /> Retirer le fichier</button>}
+                            {fichierErreur && <p className="file-error">{fichierErreur}</p>}
                         </div>
 
                         <div className="form-actions">
@@ -281,7 +316,12 @@ function Demandes() {
                             <button
                                 type="button"
                                 className="cancel-button"
-                                onClick={() => setShowForm(false)}
+                                onClick={() => {
+                                    setFormData({ motif: "", type_demande_id: "" });
+                                    setFichierJoint(null);
+                                    setFichierErreur("");
+                                    navigate("/demandes", { replace: true });
+                                }}
                             >
                                 Annuler
                             </button>
@@ -299,7 +339,7 @@ function Demandes() {
                 </div>
             )}
 
-            <div className="demandes-toolbar">
+            {!showForm && <div className="demandes-toolbar">
 
                 <div className="search-box">
                     <Search />
@@ -313,13 +353,12 @@ function Demandes() {
 
                 <select value={filters.statut} onChange={(e) => setFilters({ ...filters, statut: e.target.value })}><option value="">Tous les statuts</option><option value="EN_ATTENTE">En attente</option><option value="ACCEPTEE">Acceptée</option><option value="REFUSEE">Refusée</option></select>
                 <select value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}><option value="">Tous les types</option>{options.types.map((type) => <option key={type.id} value={type.id}>{type.nom}</option>)}</select>
-                <select value={filters.departement} onChange={(e) => setFilters({ ...filters, departement: e.target.value })}><option value="">Tous les départements</option>{options.departements.map((departement) => <option key={departement.id} value={departement.id}>{departement.nom}</option>)}</select>
                 <label className="date-filter"><span>De</span><input aria-label="Date de début" type="date" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} /></label>
                 <label className="date-filter"><span>À</span><input aria-label="Date de fin" type="date" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} /></label>
                 <button className="refresh-filter-button" type="button" title="Réinitialiser les filtres" aria-label="Réinitialiser les filtres" onClick={reinitialiserFiltres}><RefreshCw size={17} /></button>
                 <div className="export-actions">
                     <button type="button" title="Exporter Excel" onClick={exporterExcel}><Download size={16} /></button>
-                    <button type="button" title="Exporter PDF" onClick={() => window.print()}><Printer size={16} /></button>
+                    <button type="button" title="Exporter PDF" onClick={exporterPdf}><Printer size={16} /></button>
                 </div>
 
                 <div className="demandes-count">
@@ -327,9 +366,9 @@ function Demandes() {
                     {filteredDemandes.length > 1 ? "s" : ""}
                 </div>
 
-            </div>
+            </div>}
 
-            <div className="demandes-list">
+            {!showForm && <div className="demandes-table-wrapper">
 
                 {loading ? (
                     <div className="empty-state">
@@ -344,72 +383,51 @@ function Demandes() {
                         </p>
                     </div>
                 ) : (
-                    filteredDemandes.map((demande) => {
-
-                        const status = getStatut(demande.statut);
-
-                        return (
-                            <div
-                                className="demande-card"
-                                key={demande.id}
-                            >
-
-                                <div className="demande-card-icon">
-                                    <ClipboardList />
-                                </div>
-
-                                <div className="demande-card-content">
-
-                                    <div className="demande-card-top">
-
-                                        <h3>
-                                            {demande.motif ||
-                                                "Demande administrative"}
-                                        </h3>
-
-                                        <span
-                                            className={`demande-status ${status.className}`}
-                                        >
-                                            {status.icon}
-                                            {status.label}
-                                        </span>
-
-                                    </div>
-
-                                    <div className="demande-info">
-
-                                        <span>
-                                            Type :{" "}
-                                            {demande.type_demande ||
-                                                demande.nom_type ||
-                                                "Non précisé"}
-                                        </span>
-
-                                        <span>
-                                            Date :{" "}
-                                            {formatDate(
-                                                demande.date_soumission ||
-                                                demande.date_demande ||
-                                                demande.created_at
-                                            )}
-                                        </span>
-
-                                    </div>
-
-                                    {demande.commentaire && (
-                                        <p className="demande-commentaire">
-                                            {demande.commentaire}
-                                        </p>
-                                    )}
-
-                                </div>
-
-                            </div>
-                        );
-                    })
+                    <table className="demandes-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Date de soumission</th>
+                                <th>Type de demande</th>
+                                <th>Motif</th>
+                                <th>Statut</th>
+                                <th>Pièces jointes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredDemandes.map((demande) => {
+                                const status = getStatut(demande.statut);
+                                return (
+                                    <tr key={demande.id}>
+                                        <td>{demande.id}</td>
+                                        <td>{formatDate(demande.date_soumission)}</td>
+                                        <td>{demande.type_demande || demande.nom_type || "Non précisé"}</td>
+                                        <td className="demande-motif-cell">{demande.motif || "Demande administrative"}</td>
+                                        <td><span className={`demande-status ${status.className}`}>{status.icon}{status.label}</span></td>
+                                        <td>{Number(demande.nombre_pieces_jointes || 0) > 0 ? <span className="pieces-count"><Paperclip size={16} /> {demande.nombre_pieces_jointes} fichier{Number(demande.nombre_pieces_jointes) > 1 ? "s" : ""}</span> : "-"}</td>
+                                        <td><button className="details-button" type="button" onClick={() => setDemandeSelectionnee(demande)}><Eye size={17} /> Détails</button></td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
                 )}
 
-            </div>
+            </div>}
+
+            {demandeSelectionnee && (
+                <div className="demande-modal-backdrop" onClick={() => setDemandeSelectionnee(null)}>
+                    <section className="demande-modal" onClick={(event) => event.stopPropagation()}>
+                        <button className="demande-modal-close" type="button" onClick={() => setDemandeSelectionnee(null)}>×</button>
+                        <h2>Détails de la demande #{demandeSelectionnee.id}</h2>
+                        <p><strong>Date :</strong> {formatDate(demandeSelectionnee.date_soumission)}</p>
+                        <p><strong>Type :</strong> {demandeSelectionnee.nom_type || "Non précisé"}</p>
+                        <p><strong>Statut :</strong> {demandeSelectionnee.statut || "Non précisé"}</p>
+                        <p><strong>Motif :</strong> {demandeSelectionnee.motif || "Non précisé"}</p>
+                    </section>
+                </div>
+            )}
 
         </div>
     );

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Search, Users, Eye, Pencil, X, Check, Download, Printer } from "lucide-react";
 import api from "../services/api";
+import { printTable } from "../utils/printTable";
 import "./Utilisateurs.css";
 
 function Utilisateurs() {
@@ -89,7 +90,20 @@ function Utilisateurs() {
         URL.revokeObjectURL(lien.href);
     };
 
-    const exporterPdf = () => window.print();
+    const exporterPdf = () => {
+        printTable({
+            title: "Gestion des utilisateurs",
+            headers: ["Nom", "Email", "Téléphone", "Rôle", "Département", "Actif"],
+            rows: resultats.map((utilisateur) => [
+                `${utilisateur.prenom} ${utilisateur.nom}`,
+                utilisateur.email,
+                utilisateur.telephone || "",
+                utilisateur.role_nom || "Rôle non renseigné",
+                utilisateur.departement_nom || "Département non renseigné",
+                utilisateur.actif ? "Oui" : "Non"
+            ])
+        });
+    };
 
     return (
         <main className="admin-page">

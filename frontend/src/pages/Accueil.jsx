@@ -171,6 +171,10 @@ function Accueil() {
         ? `${utilisateur.prenom || ""} ${utilisateur.nom || ""}`.trim()
         : "Utilisateur";
 
+    const photoProfil = utilisateur
+        ? localStorage.getItem(`profil-photo-${utilisateur.id}`)
+        : "";
+
     const menuItems = MENU_ITEMS_BY_ROLE[role] || [];
 
     const demandesApprouvees = demandes.filter((demande) =>
@@ -346,7 +350,11 @@ function Accueil() {
                         </div>
 
                         <div className="header-avatar">
-                            <UserRound size={21} />
+                            {photoProfil ? (
+                                <img src={photoProfil} alt={`Photo de ${nomComplet}`} />
+                            ) : (
+                                <UserRound size={21} />
+                            )}
                         </div>
 
                     </div>

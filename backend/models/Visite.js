@@ -22,6 +22,38 @@ const Visite = {
         return this.getById(result.insertId);
     },
 
+    async createIfNoOpen(data) {
+        const connection = await db.getConnection();
+        try {
+            await connection.beginTransaction();
+            await connection.query(
+                "SELECT id FROM rendez_vous WHERE id = ? FOR UPDATE",
+                [data.rendez_vous_id]
+            );
+            const [existingRows] = await connection.query(
+                "SELECT id FROM visite WHERE rendez_vous_id = ? AND statut = 'EN_COURS' LIMIT 1 FOR UPDATE",
+                [data.rendez_vous_id]
+            );
+            if (existingRows.length > 0) {
+                await connection.rollback();
+                return { existingId: existingRows[0].id };
+            }
+
+            const [result] = await connection.query(
+                `INSERT INTO visite (date_entree, date_sortie, statut, rendez_vous_id, agent_accueil_id)
+                 VALUES (?, ?, ?, ?, ?)`,
+                [data.date_entree, null, "EN_COURS", data.rendez_vous_id, data.agent_accueil_id]
+            );
+            await connection.commit();
+            return { visiteId: result.insertId };
+        } catch (error) {
+            await connection.rollback();
+            throw error;
+        } finally {
+            connection.release();
+        }
+    },
+
     async update(id, data) {
         const { date_entree, date_sortie, statut, rendez_vous_id, agent_accueil_id } = data;
         if (!["EN_ATTENTE", "EN_COURS", "TERMINEE", "ANNULEE"].includes(statut)) {

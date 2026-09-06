@@ -22,19 +22,26 @@ const VisiteController = {
             if (new Date(badge.date_expiration) <= new Date()) {
                 return res.status(409).json({ message: "Badge expire", badge });
             }
-
-            const existing = await Visite.findOpenByRendezVousId(badge.rendez_vous_id);
-            if (existing) {
-                return res.status(409).json({ message: "Ce visiteur est deja en visite", visite_id: existing.id });
+            if (String(badge.rendez_vous_statut).toUpperCase() !== "CONFIRME") {
+                await Badge.expireForRendezVous(badge.rendez_vous_id);
+                const message = String(badge.rendez_vous_statut).toUpperCase() === "ANNULE"
+                    ? "Rendez-vous annulé"
+                    : "Le rendez-vous associé au badge n'est pas confirmé";
+                return res.status(409).json({ message, badge: { ...badge, statut: "EXPIRE" } });
             }
 
-            const visite = await Visite.create({
+            const creation = await Visite.createIfNoOpen({
                 date_entree: req.body.date_entree || new Date(),
-                date_sortie: null,
-                statut: "EN_COURS",
                 rendez_vous_id: badge.rendez_vous_id,
                 agent_accueil_id: req.auth.id
             });
+            if (creation.existingId) {
+                return res.status(409).json({
+                    message: "Ce rendez-vous possède déjà une visite EN_COURS.",
+                    visite_id: creation.existingId
+                });
+            }
+            const visite = await Visite.getById(creation.visiteId);
             await Badge.markUsed(badge.id);
             await Log.record({ action: `ENTREE_VISITEUR visite #${visite.id}`, utilisateurId: req.auth.id, req });
             await Notification.notifyReception("L'entrée du visiteur a été enregistrée.", "VISITE", visite.rendez_vous_id);

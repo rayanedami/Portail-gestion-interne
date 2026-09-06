@@ -10,10 +10,12 @@ import {
     Mail,
     Building2,
     Download,
-    Printer
+    Printer,
+    RefreshCw
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
+import { printTable } from "../utils/printTable";
 import "./Visiteurs.css";
 
 function Visiteurs() {
@@ -80,7 +82,7 @@ function Visiteurs() {
 
     useEffect(() => {
         fetchVisiteurs();
-    }, []);
+    }, [filters]);
 
     /* =========================
        FORMULAIRE
@@ -249,6 +251,20 @@ function Visiteurs() {
         URL.revokeObjectURL(link.href);
     };
 
+    const exporterPdf = () => {
+        printTable({
+            title: "Gestion des visiteurs",
+            headers: ["Nom", "Prénom", "Email", "Téléphone", "Société"],
+            rows: filteredVisiteurs.map((visiteur) => [
+                visiteur.nom,
+                visiteur.prenom,
+                visiteur.email,
+                visiteur.telephone,
+                visiteur.societe
+            ])
+        });
+    };
+
     return (
         <div className="visiteurs-page">
 
@@ -351,18 +367,13 @@ function Visiteurs() {
 
                 </div>
 
-                <input placeholder="Nom" value={filters.nom} onChange={(e) => setFilters({ ...filters, nom: e.target.value })} />
-                <input placeholder="Prénom" value={filters.prenom} onChange={(e) => setFilters({ ...filters, prenom: e.target.value })} />
+                <input placeholder="Nom ou prénom" value={filters.nom} onChange={(e) => setFilters({ ...filters, nom: e.target.value, prenom: "" })} />
                 <input placeholder="Société" value={filters.societe} onChange={(e) => setFilters({ ...filters, societe: e.target.value })} />
                 <input type="date" value={filters.date} onChange={(e) => setFilters({ ...filters, date: e.target.value })} />
                 <select value={filters.statut} onChange={(e) => setFilters({ ...filters, statut: e.target.value })}><option value="">Tous statuts</option><option value="CONFIRME">Confirmé</option><option value="ANNULE">Annulé</option></select>
 
-                <div className="results-count">
-                    {filteredVisiteurs.length} visiteur
-                    {filteredVisiteurs.length !== 1 ? "s" : ""}
-                </div>
-
-                <div className="export-actions"><button type="button" title="Exporter Excel" onClick={exporterExcel}><Download size={16} /></button><button type="button" title="Exporter PDF" onClick={() => window.print()}><Printer size={16} /></button></div>
+                <button className="refresh-visiteurs-button" type="button" title="Actualiser" aria-label="Actualiser" onClick={fetchVisiteurs}><RefreshCw size={17} /></button>
+                <div className="export-actions"><button type="button" title="Exporter Excel" onClick={exporterExcel}><Download size={16} /></button><button type="button" title="Exporter PDF" onClick={exporterPdf}><Printer size={16} /></button></div>
 
             </div>
 

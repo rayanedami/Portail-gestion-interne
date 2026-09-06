@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ClipboardList, Download, RefreshCw, Search, Printer } from "lucide-react";
 import api from "../services/api";
+import { printTable } from "../utils/printTable";
 import "./Logs.css";
 
 function Logs() {
@@ -48,11 +49,24 @@ function Logs() {
         URL.revokeObjectURL(lien.href);
     };
 
+    const exporterPdf = () => {
+        printTable({
+            title: "Journaux d'activité",
+            headers: ["Action", "Utilisateur", "Date", "Adresse IP"],
+            rows: logsFiltres.map((log) => [
+                log.action,
+                log.utilisateur_nom || log.utilisateur_id || "",
+                formaterDate(log.date_action),
+                log.adresse_ip || "-"
+            ])
+        });
+    };
+
     return (
         <main className="logs-page">
             <div className="logs-header">
                 <div><h1><ClipboardList size={26} /> Journaux d'activité</h1><p>Consultez les actions importantes enregistrées dans le portail.</p></div>
-                <div className="logs-actions"><button title="Actualiser" onClick={chargerLogs}><RefreshCw size={17} /></button><button title="Exporter Excel" onClick={exporter}><Download size={17} /></button><button title="Exporter PDF" onClick={() => window.print()}><Printer size={17} /></button></div>
+                <div className="logs-actions"><button title="Actualiser" onClick={chargerLogs}><RefreshCw size={17} /></button><button title="Exporter Excel" onClick={exporter}><Download size={17} /></button><button title="Exporter PDF" onClick={exporterPdf}><Printer size={17} /></button></div>
             </div>
             <div className="logs-toolbar"><div className="logs-search"><Search size={17} /><input value={recherche} onChange={(event) => setRecherche(event.target.value)} placeholder="Rechercher une action, un utilisateur..." /></div><span>{logsFiltres.length} activité{logsFiltres.length !== 1 ? "s" : ""}</span></div>
             {erreur && <div className="logs-error">{erreur}</div>}

@@ -31,7 +31,21 @@ const RendezVousController = {
                 });
             }
 
-            data.statut = data.statut || "PLANIFIE";
+            const [collaborateurs] = await db.query(
+                `SELECT u.id
+                 FROM utilisateur u
+                 JOIN role r ON r.id = u.role_id
+                 WHERE u.id = ? AND u.actif = 1
+                   AND r.nom IN ('COLLABORATEUR', 'RESPONSABLE')`,
+                [data.collaborateur_id]
+            );
+            if (collaborateurs.length === 0) {
+                return res.status(400).json({ message: "Le collaborateur sélectionné est invalide." });
+            }
+
+            data.statut = req.auth.role === "VISITEUR"
+                ? "PLANIFIE"
+                : (data.statut || "PLANIFIE");
 
             const rendezVous = await RendezVous.create(data);
             await Log.record({ action: `CREATION_RENDEZ_VOUS #${rendezVous.id}`, utilisateurId: req.auth.id, req });
@@ -83,6 +97,12 @@ const RendezVousController = {
 
     async update(req, res) {
         try {
+            if (req.auth.role === "VISITEUR") {
+                return res.status(403).json({
+                    message: "Un visiteur peut consulter ses rendez-vous, mais ne peut pas les modifier ni les confirmer."
+                });
+            }
+
             const existing = await RendezVous.getById(req.params.id, req.auth);
 
             if (!existing) {
@@ -106,6 +126,10 @@ const RendezVousController = {
             }
 
             const rendezVous = await RendezVous.update(req.params.id, data);
+
+            if (String(data.statut).toUpperCase() === "ANNULE") {
+                await Badge.expireForRendezVous(rendezVous.id);
+            }
 
             const receptionMessage = String(data.statut).toUpperCase() === "ANNULE"
                 ? "Un rendez-vous visiteur a été annulé."
@@ -133,7 +157,9 @@ const RendezVousController = {
 
             const updateMessage = String(data.statut).toUpperCase() === "CONFIRME"
                 ? "Votre rendez-vous a été confirmé."
-                : "Votre rendez-vous a été modifié.";
+                : String(data.statut).toUpperCase() === "ANNULE"
+                    ? "Votre rendez-vous a été annulé."
+                    : "Votre rendez-vous a été modifié.";
             await Notification.notifyUser(
                 rendezVous.collaborateur_id,
                 updateMessage,
@@ -167,6 +193,12 @@ const RendezVousController = {
 
     async delete(req, res) {
         try {
+            if (req.auth.role === "VISITEUR") {
+                return res.status(403).json({
+                    message: "Un visiteur ne peut pas annuler un rendez-vous."
+                });
+            }
+
             const existing = await RendezVous.getById(req.params.id, req.auth);
 
             if (!existing) {
@@ -176,6 +208,7 @@ const RendezVousController = {
             }
 
             const rendezVous = await RendezVous.cancel(req.params.id);
+            await Badge.expireForRendezVous(rendezVous.id);
 
             await Notification.notifyReception(
                 "Un rendez-vous visiteur a été annulé.",
