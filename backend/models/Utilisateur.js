@@ -13,7 +13,7 @@ const Utilisateur = {
         const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
         const [rows] = await db.query(`
             SELECT
-                u.id, u.nom, u.prenom, u.email, u.telephone, u.actif,
+                u.id, u.nom, u.prenom, u.email, u.telephone, u.photo_profil, u.actif,
                 u.date_creation, u.role_id, u.departement_id,
                 r.nom AS role_nom,
                 d.nom AS departement_nom
@@ -30,7 +30,7 @@ const Utilisateur = {
     async getById(id) {
         const [rows] = await db.query(
             `SELECT
-                     u.id, u.nom, u.prenom, u.email, u.telephone, u.actif,
+                     u.id, u.nom, u.prenom, u.email, u.telephone, u.photo_profil, u.actif,
                      u.date_creation, u.role_id, u.departement_id,
                      r.nom AS role_nom,
                      d.nom AS departement_nom

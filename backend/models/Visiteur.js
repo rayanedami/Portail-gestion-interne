@@ -51,12 +51,50 @@ const Visiteur = {
     },
 
     async delete(id) {
-        const [result] = await db.query(
-            `DELETE FROM visiteur WHERE id = ?`,
-            [id]
-        );
+        const connection = await db.getConnection();
 
-        return result.affectedRows > 0;
+        try {
+            await connection.beginTransaction();
+
+            const [rendezVous] = await connection.query(
+                "SELECT id FROM rendez_vous WHERE visiteur_id = ?",
+                [id]
+            );
+            const rendezVousIds = rendezVous.map((rendezVousItem) => rendezVousItem.id);
+
+            if (rendezVousIds.length > 0) {
+                const placeholders = rendezVousIds.map(() => "?").join(", ");
+                await connection.query(
+                    `DELETE FROM notification WHERE rendez_vous_id IN (${placeholders})`,
+                    rendezVousIds
+                );
+                await connection.query(
+                    `DELETE FROM visite WHERE rendez_vous_id IN (${placeholders})`,
+                    rendezVousIds
+                );
+                await connection.query(
+                    `DELETE FROM badge WHERE rendez_vous_id IN (${placeholders})`,
+                    rendezVousIds
+                );
+                await connection.query(
+                    `DELETE FROM rendez_vous WHERE id IN (${placeholders})`,
+                    rendezVousIds
+                );
+            }
+
+            const [result] = await connection.query(
+                "DELETE FROM visiteur WHERE id = ?",
+                [id]
+            );
+
+            await connection.commit();
+            return result.affectedRows > 0 ? { deleted: true } : null;
+        } catch (error) {
+            await connection.rollback();
+            throw error;
+        } finally {
+            connection.release();
+        }
     },
 
     async getAll(auth, filters = {}) {

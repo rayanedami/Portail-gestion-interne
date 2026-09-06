@@ -17,20 +17,26 @@ const ValidationController = {
                     validation.collaborateur_id,
                     `Votre demande a été refusée. Motif : ${commentaire || "Non précisé"}`,
                     "VALIDATION",
-                    validation.demande_id
+                    validation.demande_id,
+                    null,
+                    req.auth.id
                 );
             } else if (validation.niveau === 1) {
                 await Notification.notifyUser(
                     validation.collaborateur_id,
                     "Votre demande a été approuvée par le responsable.",
                     "VALIDATION",
-                    validation.demande_id
+                    validation.demande_id,
+                    null,
+                    req.auth.id
                 );
                 await Notification.notifyUser(
                     validation.collaborateur_id,
                     "Votre demande a été transmise pour validation finale.",
                     "VALIDATION",
-                    validation.demande_id
+                    validation.demande_id,
+                    null,
+                    req.auth.id
                 );
                 await Notification.notifyRole(
                     "RESPONSABLE",
@@ -38,6 +44,7 @@ const ValidationController = {
                     "VALIDATION",
                     validation.demande_id,
                     null,
+                    req.auth.id,
                     req.auth.id
                 );
             } else {
@@ -45,7 +52,9 @@ const ValidationController = {
                     validation.collaborateur_id,
                     "Votre demande a été acceptée.",
                     "VALIDATION",
-                    validation.demande_id
+                    validation.demande_id,
+                    null,
+                    req.auth.id
                 );
             }
             await Log.record({

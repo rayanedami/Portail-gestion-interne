@@ -37,6 +37,7 @@ function RendezVous() {
     const [formData, setFormData] = useState({
         date_rendez_vous: "",
         heure_rendez_vous: "",
+        lieu: "",
         motif: "",
         visiteur_id: "",
         collaborateur_id: ""
@@ -97,6 +98,7 @@ function RendezVous() {
         setFormData(rdv ? {
             date_rendez_vous: String(rdv.date_rendez_vous || "").slice(0, 10),
             heure_rendez_vous: String(rdv.heure_rendez_vous || "").slice(0, 5),
+            lieu: rdv.lieu || "Accueil principal",
             motif: rdv.motif || "",
             visiteur_id: rdv.visiteur_id || "",
             collaborateur_id: rdv.collaborateur_id || utilisateurId || "",
@@ -104,6 +106,7 @@ function RendezVous() {
         } : {
             date_rendez_vous: "",
             heure_rendez_vous: "",
+            lieu: "",
             motif: "",
             visiteur_id: "",
             collaborateur_id: utilisateur?.role === "COLLABORATEUR" || utilisateur?.role === "RESPONSABLE" ? utilisateurId : "",
@@ -243,6 +246,7 @@ function RendezVous() {
                     <div className="rdv-form-grid">
                         <label>Date<input required type="date" value={formData.date_rendez_vous} onChange={(e) => setFormData({ ...formData, date_rendez_vous: e.target.value })} /></label>
                         <label>Heure<input required type="time" value={formData.heure_rendez_vous} onChange={(e) => setFormData({ ...formData, heure_rendez_vous: e.target.value })} /></label>
+                        <label>Lieu<input required value={formData.lieu} onChange={(e) => setFormData({ ...formData, lieu: e.target.value })} placeholder="Ex : Salle de réunion 1" /></label>
                         <label>Visiteur<select required value={formData.visiteur_id} onChange={(e) => setFormData({ ...formData, visiteur_id: e.target.value })}><option value="">Sélectionner un visiteur</option>{options.visiteurs.map((visiteur) => <option key={visiteur.id} value={visiteur.id}>{visiteur.prenom} {visiteur.nom}{visiteur.societe ? ` - ${visiteur.societe}` : ""}</option>)}</select></label>
                         <label>Collaborateur{utilisateur?.role === "COLLABORATEUR" ? (
                             <input value={`${utilisateur.prenom || ""} ${utilisateur.nom || ""}`.trim()} readOnly />
@@ -321,7 +325,7 @@ function RendezVous() {
 
             </div>
 
-            <div className={isAgentAccueil ? "rdv-table-wrapper" : "rdv-list"}>
+            <div className={utilisateur?.role !== "VISITEUR" ? "rdv-table-wrapper" : "rdv-list"}>
 
                 {loading ? (
                     <div className="rdv-empty">
@@ -341,18 +345,17 @@ function RendezVous() {
                         </p>
 
                     </div>
-                ) : isAgentAccueil ? (
+                ) : utilisateur?.role !== "VISITEUR" ? (
                     <table className="rdv-table">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>Date &amp; heure</th>
                                 <th>Visiteur</th>
-                                <th>Société</th>
                                 <th>Personne à rencontrer</th>
-                                <th>Date &amp; Heure</th>
+                                <th>Entreprise</th>
+                                <th>Lieu</th>
                                 <th>Objet</th>
                                 <th>Statut</th>
-                                <th>Badge</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -362,18 +365,18 @@ function RendezVous() {
                                 const badge = badgeFor(rdv.id);
                                 return (
                                     <tr key={rdv.id}>
-                                        <td className="rdv-id-cell">#RDV-{String(rdv.id).padStart(5, "0")}</td>
-                                        <td><strong>{rdv.visiteur_nom || "Visiteur non renseigné"}</strong></td>
-                                        <td>{rdv.visiteur_societe || "-"}</td>
+                                        <td className="rdv-date-cell"><strong>{formatDate(rdv.date_rendez_vous, false)}</strong><small>{formatTime(rdv.heure_rendez_vous)}</small></td>
+                                        <td><strong>{rdv.visiteur_nom || "Visiteur non renseigné"}</strong><small>{rdv.visiteur_email || "Email non renseigné"}</small><small>{rdv.visiteur_telephone || "Téléphone non renseigné"}</small></td>
                                         <td><strong>{rdv.collaborateur_nom || "-"}</strong></td>
-                                        <td><strong>{formatDate(rdv.date_rendez_vous, false)}</strong><small>{formatTime(rdv.heure_rendez_vous)}</small></td>
+                                        <td>{rdv.visiteur_societe || "-"}</td>
+                                        <td>{rdv.lieu || "Accueil principal"}</td>
                                         <td><strong>{rdv.motif || "-"}</strong></td>
                                         <td><span className={`rdv-table-status ${status.className}`}>{rdv.statut || "EN ATTENTE"}</span></td>
-                                        <td>{badge ? <span className="rdv-badge-qr" title={`Badge ${badge.statut}`}><QrCode /></span> : <span className="rdv-no-badge">-</span>}</td>
                                         <td>
                                             <div className="rdv-table-actions">
                                                 <button type="button" title="Voir" onClick={() => ouvrirDetails(rdv)}><Eye /></button>
-                                                {isAgentAccueil && rdv.statut !== "ANNULE" && <button type="button" title="Modifier" onClick={() => ouvrirFormulaire(rdv)}><Pencil /></button>}
+                                                {canManage && rdv.statut !== "ANNULE" && <button type="button" title="Modifier" onClick={() => ouvrirFormulaire(rdv)}><Pencil /></button>}
+                                                {canManage && rdv.statut !== "ANNULE" && <button type="button" title="Annuler" onClick={() => annulerRendezVous(rdv.id)}><Ban /></button>}
                                             </div>
                                         </td>
                                     </tr>

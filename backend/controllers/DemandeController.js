@@ -59,7 +59,9 @@ const DemandeController = {
                 req.auth.id,
                 "Votre demande a été créée avec succès.",
                 "DEMANDE",
-                demande.id
+                demande.id,
+                null,
+                req.auth.id
             );
             await Notification.notifyRole(
                 "RESPONSABLE",
@@ -67,6 +69,7 @@ const DemandeController = {
                 "VALIDATION",
                 demande.id,
                 null,
+                req.auth.id,
                 req.auth.id
             );
 
@@ -113,7 +116,9 @@ const DemandeController = {
                 demande.collaborateur_id,
                 "Votre demande a été modifiée.",
                 "DEMANDE",
-                demande.id
+                demande.id,
+                null,
+                req.auth.id
             );
             await Notification.notifyRole(
                 "RESPONSABLE",
@@ -121,6 +126,7 @@ const DemandeController = {
                 "VALIDATION",
                 demande.id,
                 null,
+                req.auth.id,
                 req.auth.id
             );
             await Log.record({ action: `MODIFICATION_DEMANDE #${demande.id}`, utilisateurId: req.auth.id, req });

@@ -28,13 +28,15 @@ function Profil() {
 
     useEffect(() => {
         if (utilisateur) {
-            setPhoto(localStorage.getItem(`profil-photo-${utilisateur.id}`) || "");
+            const photoEnregistree = utilisateur.photo_profil || localStorage.getItem(`profil-photo-${utilisateur.id}`) || "";
+            setPhoto(photoEnregistree);
             setFormulaire({
                 nom: utilisateur.nom || "",
                 prenom: utilisateur.prenom || "",
                 email: utilisateur.email || "",
                 telephone: utilisateur.telephone || "",
                 societe: utilisateur.societe || "",
+                photo_profil: utilisateur.photo_profil || photoEnregistree,
                 role: utilisateur.role || "COLLABORATEUR",
                 departement: utilisateur.departement || "Non renseigné",
                 departement_id: utilisateur.departement_id || ""
@@ -54,11 +56,25 @@ function Profil() {
             return;
         }
         const reader = new FileReader();
-        reader.onload = () => {
+        reader.onload = async () => {
             const value = String(reader.result);
             setPhoto(value);
             localStorage.setItem(`profil-photo-${utilisateur.id}`, value);
-            setMessage("Photo mise à jour.");
+            try {
+                const response = await api.put("/auth/profile", {
+                    prenom: formulaire?.prenom?.trim() || utilisateur.prenom,
+                    nom: formulaire?.nom?.trim() || utilisateur.nom,
+                    email: formulaire?.email?.trim() || utilisateur.email,
+                    telephone: formulaire?.telephone?.trim() || utilisateur.telephone || "",
+                    societe: role === ROLES.VISITEUR ? formulaire?.societe?.trim() || utilisateur.societe || "" : undefined,
+                    photo_profil: value,
+                    departement_id: role === ROLES.ADMINISTRATEUR ? Number(formulaire?.departement_id) || null : undefined
+                });
+                updateUtilisateur({ ...utilisateur, ...response.data.utilisateur, photo_profil: value });
+                setMessage("Photo mise à jour.");
+            } catch (error) {
+                setMessage(error.response?.data?.message || "Impossible d'enregistrer la photo.");
+            }
         };
         reader.readAsDataURL(file);
     };
@@ -86,6 +102,7 @@ function Profil() {
                 email: formulaire.email.trim(),
                 telephone: formulaire.telephone.trim(),
                 societe: role === ROLES.VISITEUR ? formulaire.societe.trim() : undefined,
+                photo_profil: photo || formulaire.photo_profil || null,
                 departement_id: role === ROLES.ADMINISTRATEUR
                     ? Number(formulaire.departement_id) || null
                     : undefined
@@ -93,7 +110,8 @@ function Profil() {
             updateUtilisateur({
                 ...utilisateur,
                 ...response.data.utilisateur,
-                societe: response.data.utilisateur?.societe ?? formulaire.societe.trim()
+                societe: response.data.utilisateur?.societe ?? formulaire.societe.trim(),
+                photo_profil: response.data.utilisateur?.photo_profil ?? photo
             });
             setMessage("Profil mis à jour avec succès.");
         } catch (error) {

@@ -13,13 +13,14 @@ function createMailTransporter() {
 
 const Notification = {
 
-    async notifyUser(utilisateur_id, message, type, demande_id = null, rendez_vous_id = null) {
+    async notifyUser(utilisateur_id, message, type, demande_id = null, rendez_vous_id = null, expediteur_id = null) {
         const notification = await this.create({
             utilisateur_id,
             message,
             type,
             demande_id,
-            rendez_vous_id
+            rendez_vous_id,
+            expediteur_id
         });
         await this.sendImportantEmail(utilisateur_id, message, type);
         return notification;
@@ -45,7 +46,7 @@ const Notification = {
         }
     },
 
-    async notifyVisitor(rendez_vous_id, message, type) {
+    async notifyVisitor(rendez_vous_id, message, type, expediteur_id = null) {
         const [rows] = await db.query(
             `SELECT v.utilisateur_id
              FROM rendez_vous r
@@ -59,11 +60,12 @@ const Notification = {
             message,
             type,
             null,
-            rendez_vous_id
+            rendez_vous_id,
+            expediteur_id
         );
     },
 
-    async notifyReception(message, type, rendez_vous_id = null) {
+    async notifyReception(message, type, rendez_vous_id = null, expediteur_id = null) {
         const [agents] = await db.query(
             `SELECT u.id
              FROM utilisateur u
@@ -77,12 +79,13 @@ const Notification = {
                 message,
                 type,
                 null,
-                rendez_vous_id
+                rendez_vous_id,
+                expediteur_id
             ))
         );
     },
 
-    async notifyRole(roleName, message, type, demande_id = null, rendez_vous_id = null, excludeUserId = null) {
+    async notifyRole(roleName, message, type, demande_id = null, rendez_vous_id = null, excludeUserId = null, expediteur_id = null) {
         const [users] = await db.query(
             `SELECT u.id
              FROM utilisateur u
@@ -98,7 +101,8 @@ const Notification = {
                 message,
                 type,
                 demande_id,
-                rendez_vous_id
+                rendez_vous_id,
+                expediteur_id
             ))
         );
     },
@@ -111,13 +115,14 @@ const Notification = {
             est_lue = 0,
             utilisateur_id,
             demande_id,
-            rendez_vous_id
+                rendez_vous_id,
+                expediteur_id
         } = data;
 
         const [result] = await db.query(
             `INSERT INTO notification
-            (message, type, date_envoi, est_lue, utilisateur_id, demande_id, rendez_vous_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                (message, type, date_envoi, est_lue, utilisateur_id, demande_id, rendez_vous_id, expediteur_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)` ,
             [
                 message,
                 type,
@@ -125,7 +130,8 @@ const Notification = {
                 est_lue,
                 utilisateur_id,
                 demande_id,
-                rendez_vous_id
+                    rendez_vous_id,
+                    expediteur_id
             ]
         );
 
@@ -167,16 +173,13 @@ const Notification = {
             : "WHERE utilisateur_id = ?";
         const params = auth?.role === "ADMINISTRATEUR" ? [] : [auth.id];
         const [rows] = await db.query(`
-            SELECT
-                id,
-                message,
-                type,
-                date_envoi,
-                est_lue,
-                utilisateur_id,
-                demande_id,
-                rendez_vous_id
-            FROM notification
+            SELECT n.id, n.message, n.type, n.date_envoi, n.est_lue,
+                   n.utilisateur_id, n.demande_id, n.rendez_vous_id,
+                   n.expediteur_id,
+                   CONCAT(exp.prenom, ' ', exp.nom) AS expediteur_nom,
+                   exp.photo_profil AS expediteur_photo
+            FROM notification n
+            LEFT JOIN utilisateur exp ON exp.id = n.expediteur_id
             ${where}
             ORDER BY id DESC
         `, params);
@@ -190,16 +193,13 @@ const Notification = {
             : "WHERE id = ? AND utilisateur_id = ?";
         const params = (!auth || auth.role === "ADMINISTRATEUR") ? [id] : [id, auth.id];
         const [rows] = await db.query(`
-            SELECT
-                id,
-                message,
-                type,
-                date_envoi,
-                est_lue,
-                utilisateur_id,
-                demande_id,
-                rendez_vous_id
-            FROM notification
+            SELECT n.id, n.message, n.type, n.date_envoi, n.est_lue,
+                   n.utilisateur_id, n.demande_id, n.rendez_vous_id,
+                   n.expediteur_id,
+                   CONCAT(exp.prenom, ' ', exp.nom) AS expediteur_nom,
+                   exp.photo_profil AS expediteur_photo
+            FROM notification n
+            LEFT JOIN utilisateur exp ON exp.id = n.expediteur_id
             ${where}
         `, params);
 

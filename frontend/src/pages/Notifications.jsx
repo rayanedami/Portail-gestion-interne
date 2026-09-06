@@ -4,7 +4,14 @@ import {
     Check,
     CheckCheck,
     Clock,
-    Search
+    Search,
+    Trash2,
+    Eye,
+    CalendarDays,
+    ClipboardList,
+    UserRound,
+    Megaphone,
+    Users
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
@@ -17,6 +24,7 @@ function Notifications() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
     const [message, setMessage] = useState("");
+    const [selection, setSelection] = useState([]);
 
     const utilisateurId = utilisateur?.id;
 
@@ -117,6 +125,30 @@ function Notifications() {
         );
     };
 
+    const supprimerNotification = async (notification) => {
+        try {
+            await api.delete(`/notifications/${notification.id}`);
+            setNotifications((previous) => previous.filter((item) => item.id !== notification.id));
+            setSelection((previous) => previous.filter((id) => id !== notification.id));
+        } catch (error) {
+            setMessage(error.response?.data?.message || "Impossible de supprimer la notification.");
+        }
+    };
+
+    const getNotificationMeta = (type) => {
+        const value = String(type || "").toUpperCase();
+        if (value.includes("RENDEZ")) return { label: "Rendez-vous", className: "notification-type-blue", icon: <CalendarDays /> };
+        if (value.includes("VISITE")) return { label: "Visite", className: "notification-type-green", icon: <UserRound /> };
+        if (value.includes("VALIDATION")) return { label: "Validation", className: "notification-type-orange", icon: <ClipboardList /> };
+        if (value.includes("DEMANDE")) return { label: "Demande", className: "notification-type-red", icon: <Bell /> };
+        if (value.includes("UTILISATEUR")) return { label: "Utilisateur", className: "notification-type-purple", icon: <Users /> };
+        return { label: "Notification système", className: "notification-type-teal", icon: <Megaphone /> };
+    };
+
+    const toggleSelection = (id) => {
+        setSelection((previous) => previous.includes(id) ? previous.filter((item) => item !== id) : [...previous, id]);
+    };
+
     const filteredNotifications = notifications.filter(
         (notification) => {
             const text = `
@@ -191,7 +223,7 @@ function Notifications() {
 
             </div>
 
-            <div className="notifications-list">
+            <div className="notifications-table-wrapper">
 
                 {loading ? (
                     <div className="notification-empty">
@@ -212,74 +244,42 @@ function Notifications() {
 
                     </div>
                 ) : (
-                    filteredNotifications.map(
-                        (notification) => {
+                    <table className="notifications-table">
+                        <thead>
+                            <tr>
+                                <th className="notification-check-cell"><input type="checkbox" aria-label="Sélectionner toutes les notifications" checked={selection.length === filteredNotifications.length && filteredNotifications.length > 0} onChange={(event) => setSelection(event.target.checked ? filteredNotifications.map((item) => item.id) : [])} /></th>
+                                <th>Type</th>
+                                <th>Message</th>
+                                <th>Expéditeur</th>
+                                <th>Date</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredNotifications.map((notification) => {
 
                             const isUnread =
                                 !notification.est_lue ||
                                 Number(notification.est_lue) === 0;
+                            const meta = getNotificationMeta(notification.type);
 
                             return (
-                                <div
-                                    className={`notification-card ${isUnread
-                                        ? "notification-unread"
-                                        : ""
-                                        }`}
+                                <tr className={isUnread ? "notification-unread" : ""}
                                     key={notification.id}
                                 >
-
-                                    <div className="notification-icon">
-
-                                        <Bell />
-
-                                    </div>
-
-                                    <div className="notification-content">
-
-                                        <div className="notification-top">
-
-                                            <span className="notification-type">
-                                                {notification.type ||
-                                                    "Information"}
-                                            </span>
-
-                                            {isUnread && (
-                                                <span className="new-badge">
-                                                    Nouvelle
-                                                </span>
-                                            )}
-
-                                        </div>
-
-                                        <p className="notification-text">
-                                            {notification.message}
-                                        </p>
-
-                                        <div className="notification-date">
-                                            <Clock />
-                                            {formatDate(notification.date_envoi)}
-                                        </div>
-
-                                    </div>
-
-                                    {isUnread && (
-                                        <button
-                                            className="read-button"
-                                            title="Marquer comme lu"
-                                            onClick={() =>
-                                                markAsRead(
-                                                    notification
-                                                )
-                                            }
-                                        >
-                                            <Check />
-                                        </button>
-                                    )}
-
-                                </div>
+                                    <td className="notification-check-cell"><input type="checkbox" aria-label="Sélectionner la notification" checked={selection.includes(notification.id)} onChange={() => toggleSelection(notification.id)} /></td>
+                                    <td><div className={`notification-type-cell ${meta.className}`}><span className="notification-icon">{meta.icon}</span><strong>{meta.label}</strong>{isUnread && <em>Important</em>}</div></td>
+                                    <td><div className="notification-message-cell"><strong>{notification.message}</strong><small>{notification.demande_id ? `Référence : #DM-${String(notification.demande_id).padStart(4, "0")}` : notification.rendez_vous_id ? `Rendez-vous #${notification.rendez_vous_id}` : "Portail de gestion interne"}</small></div></td>
+                                    <td><div className="notification-sender"><span className="sender-avatar">{notification.expediteur_photo ? <img src={notification.expediteur_photo} alt="" /> : <UserRound />}</span><div><strong>{notification.expediteur_nom || "Système"}</strong><small>{notification.expediteur_nom ? "Utilisateur" : "Portail"}</small></div></div></td>
+                                    <td className="notification-date-cell"><strong>{notification.date_envoi ? new Date(notification.date_envoi).toLocaleDateString("fr-FR") : "-"}</strong><small>{notification.date_envoi ? new Date(notification.date_envoi).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : ""}</small></td>
+                                    <td><span className={`notification-read-status ${isUnread ? "unread" : "read"}`}>{isUnread ? "Non lu" : "Lu"}</span></td>
+                                    <td><div className="notification-actions"><button type="button" title={isUnread ? "Marquer comme lu" : "Déjà lu"} onClick={() => markAsRead(notification)}><Eye /></button><button type="button" title="Supprimer" onClick={() => supprimerNotification(notification)}><Trash2 /></button></div></td>
+                                </tr>
                             );
-                        }
-                    )
+                        })}
+                        </tbody>
+                    </table>
                 )}
 
             </div>

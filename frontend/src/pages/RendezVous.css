@@ -345,7 +345,7 @@
 
 .rdv-table {
     width: 100%;
-    min-width: 1050px;
+    min-width: 1120px;
     border-collapse: collapse;
     font-size: 12px;
 }
@@ -489,7 +489,8 @@
 
 .rdv-content {
     flex: 1;
-    padding: 20px;
+    min-width: 0;
+    padding: 20px 24px;
 }
 
 .rdv-content-header {
@@ -501,7 +502,9 @@
 
 .rdv-content-header h3 {
     margin: 0 0 12px;
-    text-align: center;
+    color: #101828;
+    font-size: 18px;
+    text-align: left;
 }
 
 .rdv-date small {
@@ -621,24 +624,6 @@
     color: #b54708;
 }
 
-.rdv-details {
-    display: flex;
-    gap: 25px;
-    color: #667085;
-    font-size: 12px;
-}
-
-.rdv-details span {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.rdv-details svg {
-    width: 15px;
-    height: 15px;
-}
-
 .rdv-empty {
     display: flex;
     min-height: 240px;
@@ -724,4 +709,12 @@
         justify-content: flex-end;
         padding: 0 20px 14px;
     }
+}
+
+.rdv-table .rdv-date-cell strong {
+    color: #344054;
+}
+
+.rdv-table .rdv-date-cell small {
+    color: #667085;
 }

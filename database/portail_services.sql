@@ -31,6 +31,7 @@ CREATE TABLE utilisateur (
     email VARCHAR(150) NOT NULL UNIQUE,
     mot_de_passe VARCHAR(255) NOT NULL,
     telephone VARCHAR(20),
+    photo_profil LONGTEXT,
     actif BOOLEAN NOT NULL DEFAULT TRUE,
     date_creation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     role_id INT NOT NULL,
@@ -117,6 +118,7 @@ CREATE TABLE rendez_vous (
     id INT PRIMARY KEY AUTO_INCREMENT,
     date_rendez_vous DATE NOT NULL,
     heure_rendez_vous TIME NOT NULL,
+    lieu VARCHAR(150) NOT NULL DEFAULT 'Accueil principal',
     motif VARCHAR(255),
     statut ENUM(
         'PLANIFIE',
@@ -128,7 +130,7 @@ CREATE TABLE rendez_vous (
     collaborateur_id INT NOT NULL,
     visiteur_id INT NOT NULL,
     FOREIGN KEY (collaborateur_id) REFERENCES utilisateur (id),
-    FOREIGN KEY (visiteur_id) REFERENCES visiteur (id)
+    FOREIGN KEY (visiteur_id) REFERENCES visiteur (id) ON DELETE CASCADE
 );
 
 -- =====================================================
@@ -140,7 +142,7 @@ CREATE TABLE badge (
     date_expiration DATETIME NOT NULL,
     statut ENUM('VALIDE', 'EXPIRE', 'UTILISE') NOT NULL DEFAULT 'VALIDE',
     rendez_vous_id INT NOT NULL,
-    FOREIGN KEY (rendez_vous_id) REFERENCES rendez_vous (id)
+    FOREIGN KEY (rendez_vous_id) REFERENCES rendez_vous (id) ON DELETE CASCADE
 );
 
 -- =====================================================
@@ -157,7 +159,7 @@ CREATE TABLE visite (
     ) NOT NULL DEFAULT 'EN_ATTENTE',
     rendez_vous_id INT NOT NULL,
     agent_accueil_id INT NOT NULL,
-    FOREIGN KEY (rendez_vous_id) REFERENCES rendez_vous (id),
+    FOREIGN KEY (rendez_vous_id) REFERENCES rendez_vous (id) ON DELETE CASCADE,
     FOREIGN KEY (agent_accueil_id) REFERENCES utilisateur (id)
 );
 
@@ -170,11 +172,13 @@ CREATE TABLE notification (
     date_envoi DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     est_lue BOOLEAN NOT NULL DEFAULT FALSE,
     utilisateur_id INT NOT NULL,
+    expediteur_id INT,
     demande_id INT,
     rendez_vous_id INT,
     FOREIGN KEY (utilisateur_id) REFERENCES utilisateur (id),
+    FOREIGN KEY (expediteur_id) REFERENCES utilisateur (id),
     FOREIGN KEY (demande_id) REFERENCES demande (id),
-    FOREIGN KEY (rendez_vous_id) REFERENCES rendez_vous (id)
+    FOREIGN KEY (rendez_vous_id) REFERENCES rendez_vous (id) ON DELETE SET NULL
 );
 
 -- =====================================================

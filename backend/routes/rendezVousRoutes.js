@@ -11,6 +11,7 @@ router.put("/:id", RendezVousController.update);
 router.delete("/:id", RendezVousController.delete);
 
 router.get("/", RendezVousController.getAll);
+router.get("/options", requireRoles("COLLABORATEUR", "RESPONSABLE", "ADMINISTRATEUR", "AGENT_ACCUEIL"), RendezVousController.getOptions);
 router.get("/:id", RendezVousController.getById);
 
 module.exports = router;

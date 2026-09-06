@@ -11,7 +11,7 @@ function AccueilVisiteur() {
     const prenom = utilisateur?.prenom || "Visiteur";
     const nom = utilisateur?.nom || "";
     const photoProfil = utilisateur?.id
-        ? localStorage.getItem(`profil-photo-${utilisateur.id}`)
+        ? utilisateur.photo_profil || localStorage.getItem(`profil-photo-${utilisateur.id}`)
         : "";
 
     return (

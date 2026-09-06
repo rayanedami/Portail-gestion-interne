@@ -6,6 +6,7 @@ const RendezVous = {
         const {
             date_rendez_vous,
             heure_rendez_vous,
+            lieu,
             motif,
             statut,
             visiteur_id,
@@ -14,11 +15,12 @@ const RendezVous = {
 
         const [result] = await db.query(
             `INSERT INTO rendez_vous
-            (date_rendez_vous, heure_rendez_vous, motif, statut, visiteur_id, collaborateur_id)
-            VALUES (?, ?, ?, ?, ?, ?)`,
+            (date_rendez_vous, heure_rendez_vous, lieu, motif, statut, visiteur_id, collaborateur_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?)` ,
             [
                 date_rendez_vous,
                 heure_rendez_vous,
+                lieu || "Accueil principal",
                 motif || null,
                 statut || "PLANIFIE",
                 visiteur_id,
@@ -33,6 +35,7 @@ const RendezVous = {
         const {
             date_rendez_vous,
             heure_rendez_vous,
+            lieu,
             motif,
             statut,
             visiteur_id,
@@ -43,6 +46,7 @@ const RendezVous = {
             `UPDATE rendez_vous
              SET date_rendez_vous = ?,
                  heure_rendez_vous = ?,
+                 lieu = ?,
                  motif = ?,
                  statut = ?,
                  visiteur_id = ?,
@@ -51,6 +55,7 @@ const RendezVous = {
             [
                 date_rendez_vous,
                 heure_rendez_vous,
+                lieu || "Accueil principal",
                 motif || null,
                 statut || "PLANIFIE",
                 visiteur_id,
@@ -103,6 +108,7 @@ const RendezVous = {
                 r.id,
                 r.date_rendez_vous,
                 r.heure_rendez_vous,
+                r.lieu,
                 r.motif,
                 r.statut,
                 r.visiteur_id,
@@ -132,6 +138,7 @@ const RendezVous = {
                 r.id,
                 r.date_rendez_vous,
                 r.heure_rendez_vous,
+                r.lieu,
                 r.motif,
                 r.statut,
                 r.visiteur_id,

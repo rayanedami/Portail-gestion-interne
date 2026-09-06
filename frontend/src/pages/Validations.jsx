@@ -32,12 +32,15 @@ function Validations() {
 
             const response = await api.get("/demandes");
 
-            const toutesDemandes = response.data;
+            const toutesDemandes = Array.isArray(response.data)
+                ? response.data
+                : response.data?.demandes || [];
 
             const demandesEnAttente = toutesDemandes.filter(
                 (demande) =>
-                    String(demande.statut || "").toUpperCase() ===
-                    "EN_ATTENTE"
+                    ["EN_ATTENTE", "EN ATTENTE"].includes(
+                        String(demande.statut || "").toUpperCase()
+                    )
             );
 
             setDemandes(demandesEnAttente);

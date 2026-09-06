@@ -94,6 +94,7 @@ const AuthController = {
                     u.email,
                     u.mot_de_passe,
                     u.telephone,
+                    u.photo_profil,
                     v.societe,
                     u.actif,
                     u.role_id,
@@ -318,7 +319,7 @@ const AuthController = {
 
     async updateProfile(req, res) {
         try {
-            const { nom, prenom, email, telephone, societe, departement_id } = req.body;
+            const { nom, prenom, email, telephone, societe, photo_profil, departement_id } = req.body;
 
             if (!nom || !prenom || !email) {
                 return res.status(400).json({
@@ -346,16 +347,16 @@ const AuthController = {
             if (req.auth.role === "ADMINISTRATEUR") {
                 await db.query(
                     `UPDATE utilisateur
-                     SET nom = ?, prenom = ?, email = ?, telephone = ?, departement_id = ?
+                     SET nom = ?, prenom = ?, email = ?, telephone = ?, photo_profil = ?, departement_id = ?
                      WHERE id = ?`,
-                    [nom, prenom, email, telephone || null, departement_id || null, req.auth.id]
+                    [nom, prenom, email, telephone || null, photo_profil || null, departement_id || null, req.auth.id]
                 );
             } else {
                 await db.query(
                     `UPDATE utilisateur
-                     SET nom = ?, prenom = ?, email = ?, telephone = ?
+                     SET nom = ?, prenom = ?, email = ?, telephone = ?, photo_profil = ?
                      WHERE id = ?`,
-                    [nom, prenom, email, telephone || null, req.auth.id]
+                    [nom, prenom, email, telephone || null, photo_profil || null, req.auth.id]
                 );
             }
 
@@ -382,7 +383,7 @@ const AuthController = {
             }
 
             const [rows] = await db.query(
-                `SELECT u.id, u.nom, u.prenom, u.email, u.telephone, v.societe,
+                `SELECT u.id, u.nom, u.prenom, u.email, u.telephone, u.photo_profil, v.societe,
                     u.actif, u.role_id, r.nom AS role, d.nom AS departement
                  FROM utilisateur u
                  LEFT JOIN role r ON r.id = u.role_id

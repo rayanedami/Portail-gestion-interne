@@ -6,6 +6,27 @@ const Log = require("../models/Log");
 
 const RendezVousController = {
 
+    async getOptions(req, res) {
+        try {
+            const [visiteurs] = await db.query(
+                `SELECT id, nom, prenom, societe
+                 FROM visiteur
+                 ORDER BY nom, prenom`
+            );
+            const [collaborateurs] = await db.query(
+                `SELECT u.id, u.nom, u.prenom, r.nom AS role
+                 FROM utilisateur u
+                 JOIN role r ON r.id = u.role_id
+                 WHERE u.actif = 1 AND r.nom IN ('COLLABORATEUR', 'RESPONSABLE')
+                 ORDER BY u.nom, u.prenom`
+            );
+            res.json({ visiteurs, collaborateurs });
+        } catch (error) {
+            console.error("Erreur options rendez-vous :", error.message);
+            res.status(500).json({ message: "Erreur serveur" });
+        }
+    },
+
     async create(req, res) {
         try {
             const data = { ...req.body };
@@ -52,13 +73,17 @@ const RendezVousController = {
             await Notification.notifyReception(
                 "Un nouveau rendez-vous visiteur a été enregistré.",
                 "RENDEZ_VOUS",
-                rendezVous.id
+                rendezVous.id,
+                null,
+                req.auth.id
             );
             if (String(data.date_rendez_vous).slice(0, 10) === new Date().toISOString().slice(0, 10)) {
                 await Notification.notifyReception(
                     `Un visiteur est attendu aujourd'hui à ${String(data.heure_rendez_vous).slice(0, 5)}.`,
                     "VISITEUR_ATTENDU",
-                    rendezVous.id
+                    rendezVous.id,
+                    null,
+                    req.auth.id
                 );
             }
             let badge = null;
@@ -72,7 +97,8 @@ const RendezVousController = {
                 "Un nouveau rendez-vous a été créé.",
                 "RENDEZ_VOUS",
                 null,
-                rendezVous.id
+                rendezVous.id,
+                req.auth.id
             );
             await Notification.notifyVisitor(
                 rendezVous.id,
@@ -165,7 +191,8 @@ const RendezVousController = {
                 updateMessage,
                 "RENDEZ_VOUS",
                 null,
-                rendezVous.id
+                rendezVous.id,
+                req.auth.id
             );
             await Notification.notifyVisitor(
                 rendezVous.id,

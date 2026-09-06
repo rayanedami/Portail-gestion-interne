@@ -318,3 +318,20 @@
         overflow-wrap: anywhere;
     }
 }
+
+.user-name-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.user-name-cell img,
+.user-name-cell>svg {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    border-radius: 50%;
+    background: #fff1eb;
+    color: #ff591b;
+    object-fit: cover;
+}

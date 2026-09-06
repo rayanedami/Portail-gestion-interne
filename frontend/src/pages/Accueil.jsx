@@ -172,7 +172,7 @@ function Accueil() {
         : "Utilisateur";
 
     const photoProfil = utilisateur
-        ? localStorage.getItem(`profil-photo-${utilisateur.id}`)
+        ? utilisateur.photo_profil || localStorage.getItem(`profil-photo-${utilisateur.id}`)
         : "";
 
     const menuItems = MENU_ITEMS_BY_ROLE[role] || [];
