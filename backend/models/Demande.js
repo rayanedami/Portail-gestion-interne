@@ -2,6 +2,31 @@ const db = require("../config/db");
 
 const Demande = {
 
+    async attachPiecesJointes(demandes) {
+        if (demandes.length === 0) return demandes;
+
+        const demandeIds = demandes.map((demande) => demande.id);
+        const [pieces] = await db.query(
+            `SELECT id, nom_fichier, url_fichier, type_fichier, taille, date_ajout, demande_id
+             FROM piece_jointe
+             WHERE demande_id IN (?)
+             ORDER BY id DESC`,
+            [demandeIds]
+        );
+
+        const piecesParDemande = new Map();
+        pieces.forEach((piece) => {
+            const demandePieces = piecesParDemande.get(piece.demande_id) || [];
+            demandePieces.push(piece);
+            piecesParDemande.set(piece.demande_id, demandePieces);
+        });
+
+        return demandes.map((demande) => ({
+            ...demande,
+            pieces_jointes: piecesParDemande.get(demande.id) || []
+        }));
+    },
+
     async create(data) {
         const {
             motif,
@@ -118,7 +143,7 @@ const Demande = {
             ORDER BY d.id DESC
         `, params);
 
-        return rows;
+        return this.attachPiecesJointes(rows);
     },
 
     async getById(id, auth) {
@@ -140,7 +165,8 @@ const Demande = {
             WHERE d.id = ? ${ownerClause}
         `, params);
 
-        return rows[0];
+        const demandes = await this.attachPiecesJointes(rows);
+        return demandes[0];
     }
 };
 

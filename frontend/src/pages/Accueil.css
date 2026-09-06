@@ -308,64 +308,101 @@
     align-items: center;
     justify-content: space-between;
 
-    padding: 28px 32px;
+    position: relative;
+    overflow: hidden;
+    padding: 25px 34px;
 
     border-radius: 12px;
 
-    background: linear-gradient(120deg,
-            #ff591b 0%,
-            #f4511e 100%);
+    background: #f7fafc;
+    border: 1px solid #e5edf3;
 
-    color: #ffffff;
+    box-shadow: 0 7px 16px rgba(16, 24, 40, .09);
+}
 
-    box-shadow: 0 5px 18px rgba(244, 81, 30, .14);
+.welcome-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.welcome-avatar {
+    width: 76px;
+    height: 76px;
+    flex: 0 0 76px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 50%;
+    background: #fff0e8;
+    color: #f4511e;
+}
+
+.welcome-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.welcome-copy {
+    min-width: 0;
 }
 
 .welcome-small {
     font-size: 12px;
-
-    opacity: .9;
+    color: #526b84;
 }
 
 .welcome-banner h2 {
-    margin: 5px 0 7px;
+    margin: 3px 0 5px;
 
+    color: #102a43;
     font-size: 25px;
+    line-height: 1.1;
 }
 
 .welcome-banner p {
     margin: 0;
-
-    color: rgba(255, 255, 255, .88);
-
+    color: #526b84;
     font-size: 12px;
 }
 
-.welcome-role {
-    min-width: 150px;
-
-    padding: 17px 20px;
-
-    border: 1px solid rgba(255, 255, 255, .28);
-    border-radius: 9px;
-
-    background: rgba(255, 255, 255, .10);
-
-    text-align: center;
+.welcome-visual {
+    position: absolute;
+    inset: 0 0 0 53%;
+    background: linear-gradient(90deg, #f7fafc 0%, rgba(247, 250, 252, .82) 14%, rgba(247, 250, 252, .18) 58%), url("/attijari-building.jpg") center 53% / cover;
 }
 
-.welcome-role span {
-    display: block;
-
-    margin-bottom: 6px;
-
-    font-size: 10px;
-
-    opacity: .8;
+.welcome-message {
+    position: absolute;
+    top: 29px;
+    left: 17%;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    color: #2d5275;
+    font-size: 14px;
+    line-height: 1.35;
 }
 
-.welcome-role strong {
-    font-size: 13px;
+.welcome-message strong {
+    position: relative;
+    max-width: 225px;
+    padding-bottom: 7px;
+    font-weight: 500;
+}
+
+.welcome-message strong::after {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 68%;
+    height: 2px;
+    background: #f4511e;
+    content: "";
 }
 
 /* ================= STATS ================= */
@@ -1343,11 +1380,19 @@
         align-items: flex-start;
         flex-direction: column;
 
-        gap: 20px;
+        gap: 12px;
+        min-height: 170px;
     }
 
-    .welcome-role {
-        width: 100%;
+    .welcome-visual {
+        inset: 58% 0 0;
+    }
+
+    .welcome-message {
+        top: 8px;
+        left: auto;
+        right: 24px;
+        font-size: 12px;
     }
 
     .admin-dashboard-head {
@@ -1398,6 +1443,16 @@
 
     .welcome-banner {
         padding: 23px;
+    }
+
+    .welcome-content {
+        gap: 15px;
+    }
+
+    .welcome-avatar {
+        width: 60px;
+        height: 60px;
+        flex-basis: 60px;
     }
 
     .welcome-banner h2 {

@@ -140,6 +140,7 @@ const RendezVousController = {
             const data = {
                 date_rendez_vous: req.body.date_rendez_vous ?? existing.date_rendez_vous,
                 heure_rendez_vous: req.body.heure_rendez_vous ?? existing.heure_rendez_vous,
+                lieu: req.body.lieu ?? existing.lieu,
                 motif: req.body.motif ?? existing.motif,
                 statut: req.body.statut ?? existing.statut,
                 visiteur_id: existing.visiteur_id,

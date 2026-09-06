@@ -224,6 +224,11 @@ function Demandes() {
         });
     };
 
+    const urlPieceJointe = (url) => {
+        if (!url) return "#";
+        return new URL(url, api.defaults.baseURL).href;
+    };
+
     return (
         <div className="demandes-page">
             <div className="demandes-header">
@@ -385,6 +390,7 @@ function Demandes() {
                         <tbody>
                             {filteredDemandes.map((demande) => {
                                 const status = getStatut(demande.statut);
+                                const pieces = demande.pieces_jointes || [];
                                 return (
                                     <tr key={demande.id}>
                                         <td>{demande.id}</td>
@@ -392,7 +398,18 @@ function Demandes() {
                                         <td>{demande.type_demande || demande.nom_type || "Non précisé"}</td>
                                         <td className="demande-motif-cell">{demande.motif || "Demande administrative"}</td>
                                         <td><span className={`demande-status ${status.className}`}>{status.icon}{status.label}</span></td>
-                                        <td>{Number(demande.nombre_pieces_jointes || 0) > 0 ? <span className="pieces-count"><Paperclip size={16} /> {demande.nombre_pieces_jointes} fichier{Number(demande.nombre_pieces_jointes) > 1 ? "s" : ""}</span> : "-"}</td>
+                                        <td>
+                                            {pieces.length > 0 ? (
+                                                <div className="pieces-links compact">
+                                                    {pieces.map((piece) => (
+                                                        <a className="piece-icon-link" key={piece.id} href={urlPieceJointe(piece.url_fichier)} target="_blank" rel="noreferrer" title={`Ouvrir ${piece.nom_fichier}`} aria-label={`Ouvrir ${piece.nom_fichier}`}>
+                                                            <Paperclip size={16} />
+                                                        </a>
+                                                    ))}
+                                                    <span className="pieces-total">{pieces.length}</span>
+                                                </div>
+                                            ) : "-"}
+                                        </td>
                                         <td><button className="details-button" type="button" onClick={() => setDemandeSelectionnee(demande)}><Eye size={17} /> Détails</button></td>
                                     </tr>
                                 );
@@ -412,6 +429,14 @@ function Demandes() {
                         <p><strong>Type :</strong> {demandeSelectionnee.nom_type || "Non précisé"}</p>
                         <p><strong>Statut :</strong> {demandeSelectionnee.statut || "Non précisé"}</p>
                         <p><strong>Motif :</strong> {demandeSelectionnee.motif || "Non précisé"}</p>
+                        <div className="demande-pieces-detail">
+                            <strong>Pièces jointes :</strong>
+                            {demandeSelectionnee.pieces_jointes?.length > 0 ? demandeSelectionnee.pieces_jointes.map((piece) => (
+                                <a className="piece-link" key={piece.id} href={urlPieceJointe(piece.url_fichier)} target="_blank" rel="noreferrer">
+                                    <Paperclip size={15} /> {piece.nom_fichier}
+                                </a>
+                            )) : <span>Aucune pièce jointe</span>}
+                        </div>
                     </section>
                 </div>
             )}

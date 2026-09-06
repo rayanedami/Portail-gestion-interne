@@ -176,6 +176,13 @@ function Accueil() {
         : "";
 
     const menuItems = MENU_ITEMS_BY_ROLE[role] || [];
+    const welcomeMessages = {
+        [ROLES.COLLABORATEUR]: "Ensemble pour une meilleure organisation",
+        [ROLES.RESPONSABLE]: "Pilotez les demandes et les validations",
+        [ROLES.ADMINISTRATEUR]: "Gérez efficacement votre portail",
+        [ROLES.AGENT_ACCUEIL]: "Simplifiez l'accueil et la gestion des visiteurs"
+    };
+    const welcomeMessage = welcomeMessages[role] || welcomeMessages[ROLES.COLLABORATEUR];
 
     const demandesApprouvees = demandes.filter((demande) =>
         ["ACCEPTEE", "ACCEPTÉE", "APPROUVEE", "APPROUVÉE", "VALIDEE", "VALIDÉE"].includes(
@@ -369,29 +376,27 @@ function Accueil() {
                     {/* BIENVENUE */}
 
                     <div className="welcome-banner">
+                        <div className="welcome-content">
+                            <div className="welcome-avatar">
+                                {photoProfil ? (
+                                    <img src={photoProfil} alt={`Photo de ${nomComplet}`} />
+                                ) : (
+                                    <UserRound size={31} />
+                                )}
+                            </div>
 
-                        <div>
-                            <span className="welcome-small">
-                                Bienvenue,
-                            </span>
-
-                            <h2>
-                                {nomComplet}
-                            </h2>
-
-                            <p>
-                                Gérez facilement vos demandes
-                                administratives et vos rendez-vous.
-                            </p>
+                            <div className="welcome-copy">
+                                <span className="welcome-small">Bonjour</span>
+                                <h2>{nomComplet}</h2>
+                                <p>Voici un aperçu de l'activité de votre espace {role?.toLowerCase() || "personnel"}.</p>
+                            </div>
                         </div>
 
-                        <div className="welcome-role">
-                            <span>Votre rôle</span>
-                            <strong>
-                                {utilisateur?.role || "COLLABORATEUR"}
-                            </strong>
+                        <div className="welcome-visual">
+                            <div className="welcome-message">
+                                <strong>{welcomeMessage}</strong>
+                            </div>
                         </div>
-
                     </div>
 
 
