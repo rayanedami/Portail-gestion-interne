@@ -10,6 +10,9 @@ function AccueilVisiteur() {
 
     const prenom = utilisateur?.prenom || "Visiteur";
     const nom = utilisateur?.nom || "";
+    const photoProfil = utilisateur?.id
+        ? localStorage.getItem(`profil-photo-${utilisateur.id}`)
+        : "";
 
     return (
         <div className="visiteur-page">
@@ -30,7 +33,11 @@ function AccueilVisiteur() {
                 <div className="visiteur-user">
 
                     <div className="user-avatar">
-                        {prenom.charAt(0).toUpperCase()}
+                        {photoProfil ? (
+                            <img src={photoProfil} alt={`Photo de ${prenom} ${nom}`} />
+                        ) : (
+                            prenom.charAt(0).toUpperCase()
+                        )}
                     </div>
 
                     <div>

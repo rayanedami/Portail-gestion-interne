@@ -26,6 +26,7 @@ function RendezVous() {
     const [search, setSearch] = useState("");
     const [message, setMessage] = useState("");
     const [badges, setBadges] = useState([]);
+    const [options, setOptions] = useState({ visiteurs: [], collaborateurs: [] });
     const [detailRendezVous, setDetailRendezVous] = useState(null);
     const [historiqueVisites, setHistoriqueVisites] = useState([]);
     const [detailLoading, setDetailLoading] = useState(false);
@@ -50,10 +51,18 @@ function RendezVous() {
             setLoading(true);
 
             const requests = [api.get("/rendez-vous")];
-            if (utilisateur?.role === "AGENT_ACCUEIL") {
+            if (utilisateur?.role !== "VISITEUR") {
+                requests.push(api.get("/rendez-vous/options"));
+            }
+            if (utilisateur?.role === "AGENT_ACCUEIL" || utilisateur?.role === "ADMINISTRATEUR") {
                 requests.push(api.get("/badges"));
             }
-            const [response, badgesResponse] = await Promise.all(requests);
+            const responses = await Promise.all(requests);
+            const response = responses[0];
+            const optionsResponse = utilisateur?.role !== "VISITEUR" ? responses[1] : null;
+            const badgesResponse = utilisateur?.role === "AGENT_ACCUEIL" || utilisateur?.role === "ADMINISTRATEUR"
+                ? responses[responses.length - 1]
+                : null;
 
             const data = Array.isArray(response.data)
                 ? response.data
@@ -62,6 +71,7 @@ function RendezVous() {
                 [];
 
             setRendezVous(data);
+            setOptions(optionsResponse?.data || { visiteurs: [], collaborateurs: [] });
             setBadges(badgesResponse?.data || []);
         } catch (error) {
             console.error(
@@ -79,6 +89,9 @@ function RendezVous() {
 
     const ouvrirFormulaire = (rdv = null) => {
         setEditingRendezVous(rdv);
+        const statutParDefaut = utilisateur?.role === "AGENT_ACCUEIL"
+            ? "CONFIRME"
+            : "PLANIFIE";
         setFormData(rdv ? {
             date_rendez_vous: String(rdv.date_rendez_vous || "").slice(0, 10),
             heure_rendez_vous: String(rdv.heure_rendez_vous || "").slice(0, 5),
@@ -92,7 +105,7 @@ function RendezVous() {
             motif: "",
             visiteur_id: "",
             collaborateur_id: utilisateur?.role === "COLLABORATEUR" || utilisateur?.role === "RESPONSABLE" ? utilisateurId : "",
-            statut: "PLANIFIE"
+            statut: statutParDefaut
         });
         setShowForm(true);
     };
@@ -228,8 +241,8 @@ function RendezVous() {
                     <div className="rdv-form-grid">
                         <label>Date<input required type="date" value={formData.date_rendez_vous} onChange={(e) => setFormData({ ...formData, date_rendez_vous: e.target.value })} /></label>
                         <label>Heure<input required type="time" value={formData.heure_rendez_vous} onChange={(e) => setFormData({ ...formData, heure_rendez_vous: e.target.value })} /></label>
-                        <label>Visiteur ID<input required type="number" min="1" value={formData.visiteur_id} onChange={(e) => setFormData({ ...formData, visiteur_id: e.target.value })} /></label>
-                        <label>Collaborateur ID<input required type="number" min="1" value={formData.collaborateur_id} onChange={(e) => setFormData({ ...formData, collaborateur_id: e.target.value })} /></label>
+                        <label>Visiteur<select required value={formData.visiteur_id} onChange={(e) => setFormData({ ...formData, visiteur_id: e.target.value })}><option value="">Sélectionner un visiteur</option>{options.visiteurs.map((visiteur) => <option key={visiteur.id} value={visiteur.id}>{visiteur.prenom} {visiteur.nom}{visiteur.societe ? ` - ${visiteur.societe}` : ""}</option>)}</select></label>
+                        <label>Collaborateur<select required value={formData.collaborateur_id} onChange={(e) => setFormData({ ...formData, collaborateur_id: e.target.value })}><option value="">Sélectionner un collaborateur</option>{options.collaborateurs.map((collaborateur) => <option key={collaborateur.id} value={collaborateur.id}>{collaborateur.prenom} {collaborateur.nom} - {collaborateur.role}</option>)}</select></label>
                         <label>Statut<select value={formData.statut || "PLANIFIE"} onChange={(e) => setFormData({ ...formData, statut: e.target.value })}>
                             <option value="PLANIFIE">EN ATTENTE</option>
                             <option value="CONFIRME">CONFIRME</option>

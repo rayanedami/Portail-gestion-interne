@@ -125,6 +125,7 @@ export const MENU_ITEMS_BY_ROLE = {
         { label: "Visiteurs", path: "/visiteurs", icon: "building" },
         { label: "Visites", path: "/visites", icon: "list" },
         { label: "Rendez-vous", path: "/rendez-vous", icon: "calendar" },
+        { label: "Badges/QR", path: "/badges", icon: "badge" },
         { label: "Notifications", path: "/notifications", icon: "bell" },
         { label: "Logs", path: "/logs", icon: "list" },
         { label: "Profil", path: "/profil", icon: "user" }

@@ -34,6 +34,7 @@ function Profil() {
                 prenom: utilisateur.prenom || "",
                 email: utilisateur.email || "",
                 telephone: utilisateur.telephone || "",
+                societe: utilisateur.societe || "",
                 role: utilisateur.role || "COLLABORATEUR",
                 departement: utilisateur.departement || "Non renseigné",
                 departement_id: utilisateur.departement_id || ""
@@ -84,11 +85,16 @@ function Profil() {
                 nom: formulaire.nom.trim(),
                 email: formulaire.email.trim(),
                 telephone: formulaire.telephone.trim(),
+                societe: role === ROLES.VISITEUR ? formulaire.societe.trim() : undefined,
                 departement_id: role === ROLES.ADMINISTRATEUR
                     ? Number(formulaire.departement_id) || null
                     : undefined
             });
-            updateUtilisateur(response.data.utilisateur);
+            updateUtilisateur({
+                ...utilisateur,
+                ...response.data.utilisateur,
+                societe: response.data.utilisateur?.societe ?? formulaire.societe.trim()
+            });
             setMessage("Profil mis à jour avec succès.");
         } catch (error) {
             setMessage(error.response?.data?.message || "Impossible de mettre à jour le profil.");
@@ -127,6 +133,7 @@ function Profil() {
                             <label>Prénom<input required value={formulaire?.prenom || ""} onChange={(event) => setFormulaire({ ...formulaire, prenom: event.target.value })} /></label>
                             <label>Email<input type="email" value={formulaire?.email || ""} onChange={(event) => setFormulaire({ ...formulaire, email: event.target.value })} /></label>
                             <label>Téléphone<input value={formulaire?.telephone || ""} onChange={(event) => setFormulaire({ ...formulaire, telephone: event.target.value })} /></label>
+                            {role === ROLES.VISITEUR && <label>Société<input value={formulaire?.societe || ""} onChange={(event) => setFormulaire({ ...formulaire, societe: event.target.value })} placeholder="Nom de votre société" /></label>}
                             <label>Rôle<input value={formulaire?.role || ""} readOnly /></label>
                             <label>Département{role === ROLES.ADMINISTRATEUR ? (
                                 <select value={formulaire?.departement_id || ""} onChange={(event) => setFormulaire({ ...formulaire, departement_id: event.target.value })}>

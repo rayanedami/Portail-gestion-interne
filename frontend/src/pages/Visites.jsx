@@ -12,11 +12,19 @@ function Visites() {
     const [error, setError] = useState("");
     const [filters, setFilters] = useState({
         visiteur: "",
+        rendez_vous_id: "",
         date: "",
-        statut: "",
-        from: "",
-        to: ""
+        statut: ""
     });
+
+    const reinitialiserFiltres = () => {
+        setFilters({
+            visiteur: "",
+            rendez_vous_id: "",
+            date: "",
+            statut: ""
+        });
+    };
 
     const chargerVisites = async () => {
         try {
@@ -202,10 +210,12 @@ function Visites() {
 
             <div className="visites-filters">
                 <input placeholder="Visiteur" value={filters.visiteur} onChange={(e) => setFilters({ ...filters, visiteur: e.target.value })} />
-                <input type="date" value={filters.date} onChange={(e) => setFilters({ ...filters, date: e.target.value })} />
+                <input type="number" min="1" placeholder="N° rendez-vous" value={filters.rendez_vous_id} onChange={(e) => setFilters({ ...filters, rendez_vous_id: e.target.value })} />
+                <input type="date" aria-label="Date de visite" value={filters.date} onChange={(e) => setFilters({ ...filters, date: e.target.value })} />
                 <select value={filters.statut} onChange={(e) => setFilters({ ...filters, statut: e.target.value })}><option value="">Tous statuts</option><option value="EN_ATTENTE">En attente</option><option value="EN_COURS">En cours</option><option value="TERMINEE">Terminée</option><option value="ANNULEE">Annulée</option></select>
-                <input type="date" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} />
-                <input type="date" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} />
+                <button type="button" className="btn-reset-filters" onClick={reinitialiserFiltres} title="Réinitialiser les recherches" aria-label="Réinitialiser les recherches">
+                    <RefreshCw size={16} /> Réinitialiser
+                </button>
             </div>
 
             <div className="visites-card">

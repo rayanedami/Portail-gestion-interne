@@ -78,7 +78,71 @@ function MonBadge() {
     };
 
     const imprimerBadge = () => {
-        window.print();
+        const qrCode = document.querySelector(".badge-qr-panel svg")?.outerHTML;
+        if (!qrCode || !badge) return;
+
+        const nom = `${utilisateur?.prenom || ""} ${utilisateur?.nom || ""}`.trim() || "Non renseigné";
+        const dateVisite = formaterDate(rendezVous?.date_rendez_vous);
+        const heureVisite = rendezVous?.heure_rendez_vous || "Non renseignée";
+        const personne = rendezVous?.personne_a_rencontrer || rendezVous?.collaborateur_nom || "Non renseignée";
+        const societe = utilisateur?.societe || "Non renseignée";
+        const printWindow = window.open("", "_blank", "width=900,height=700");
+
+        if (!printWindow) {
+            setError("Autorisez les fenêtres pop-up pour imprimer le badge.");
+            return;
+        }
+
+        printWindow.document.write(`
+            <!doctype html>
+            <html lang="fr">
+                <head>
+                    <meta charset="UTF-8" />
+                    <title>Badge QR - ${nom}</title>
+                    <style>
+                        * { box-sizing: border-box; }
+                        body { margin: 0; padding: 24px; font-family: Arial, sans-serif; color: #101828; background: #fff; }
+                        .badge { width: 100%; max-width: 760px; margin: 0 auto; border: 1px solid #d0d5dd; border-radius: 12px; padding: 28px; }
+                        h1 { margin: 0 0 6px; font-size: 24px; }
+                        .subtitle { margin: 0 0 24px; color: #667085; font-size: 13px; }
+                        .content { display: grid; grid-template-columns: 250px 1fr; gap: 30px; align-items: center; }
+                        .qr { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px; border: 1px solid #eaecf0; border-radius: 8px; }
+                        .qr svg { width: 205px; height: 205px; }
+                        .code { max-width: 220px; text-align: center; font-size: 11px; font-weight: 700; overflow-wrap: anywhere; }
+                        .valid { color: #067647; font-size: 12px; font-weight: 700; }
+                        .details { display: grid; gap: 0; }
+                        .row { display: grid; grid-template-columns: 150px 1fr; gap: 12px; padding: 13px 0; border-bottom: 1px solid #eaecf0; font-size: 13px; }
+                        .label { color: #667085; font-weight: 700; }
+                        .value { font-weight: 600; }
+                        @page { size: A4; margin: 16mm; }
+                        @media print { body { padding: 0; } .badge { border: 0; padding: 0; } }
+                    </style>
+                </head>
+                <body>
+                    <main class="badge">
+                        <h1>Badge visiteur QR</h1>
+                        <p class="subtitle">Présentez ce badge à l'accueil lors de votre arrivée.</p>
+                        <section class="content">
+                            <div class="qr">
+                                ${qrCode}
+                                <span class="code">${badge.qr_code}</span>
+                                <span class="valid">Valide</span>
+                            </div>
+                            <div class="details">
+                                <div class="row"><span class="label">Nom</span><span class="value">${nom}</span></div>
+                                <div class="row"><span class="label">Société</span><span class="value">${societe}</span></div>
+                                <div class="row"><span class="label">Personne à rencontrer</span><span class="value">${personne}</span></div>
+                                <div class="row"><span class="label">Date de visite</span><span class="value">${dateVisite}</span></div>
+                                <div class="row"><span class="label">Heure</span><span class="value">${heureVisite}</span></div>
+                            </div>
+                        </section>
+                    </main>
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
     };
 
 

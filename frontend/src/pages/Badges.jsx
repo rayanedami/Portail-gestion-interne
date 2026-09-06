@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { QrCode, Trash2, Edit, RefreshCw, X } from "lucide-react";
+import { QrCode, Trash2, Edit, RefreshCw, X, Plus } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -11,11 +11,13 @@ function Badges() {
     const currentUser = user || utilisateur;
 
     const [badges, setBadges] = useState([]);
+    const [rendezVousConfirmes, setRendezVousConfirmes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
 
     const [editingBadge, setEditingBadge] = useState(null);
+    const [showForm, setShowForm] = useState(false);
 
     const [formData, setFormData] = useState({
         qr_code: "",
@@ -33,7 +35,20 @@ function Badges() {
 
     useEffect(() => {
         fetchBadges();
+        fetchRendezVousConfirmes();
     }, []);
+
+    const fetchRendezVousConfirmes = async () => {
+        try {
+            const response = await api.get("/rendez-vous");
+            const rendezVous = Array.isArray(response.data) ? response.data : [];
+            setRendezVousConfirmes(
+                rendezVous.filter((rendezVousItem) => String(rendezVousItem.statut).toUpperCase() === "CONFIRME")
+            );
+        } catch (err) {
+            console.error("Erreur récupération rendez-vous confirmés :", err);
+        }
+    };
 
     const fetchBadges = async () => {
         try {
@@ -65,6 +80,7 @@ function Badges() {
         });
 
         setEditingBadge(null);
+        setShowForm(false);
     };
 
     const handleChange = (e) => {
@@ -124,6 +140,7 @@ function Badges() {
 
     const handleEdit = (badge) => {
         setEditingBadge(badge);
+        setShowForm(true);
 
         setFormData({
             qr_code: badge.qr_code || "",
@@ -248,6 +265,19 @@ function Badges() {
                     </p>
                 </div>
 
+                {canManage && (
+                    <button
+                        className="add-badge-button"
+                        type="button"
+                        onClick={() => {
+                            resetForm();
+                            setShowForm(true);
+                        }}
+                    >
+                        <Plus size={16} /> Nouveau badge
+                    </button>
+                )}
+
             </div>
 
 
@@ -268,7 +298,7 @@ function Badges() {
 
             {/* FORMULAIRE */}
 
-            {editingBadge && canManage && (
+            {showForm && canManage && (
                 <div className="badge-form-card">
 
                     <div className="form-header">
@@ -320,16 +350,21 @@ function Badges() {
                                     Rendez-vous ID *
                                 </label>
 
-                                <input
-                                    type="number"
+                                <select
                                     name="rendez_vous_id"
                                     value={
                                         formData.rendez_vous_id
                                     }
                                     onChange={handleChange}
-                                    placeholder="Ex: 1"
-                                    min="1"
-                                />
+                                    required
+                                >
+                                    <option value="">Sélectionner un rendez-vous confirmé</option>
+                                    {rendezVousConfirmes.map((rendezVousItem) => (
+                                        <option key={rendezVousItem.id} value={rendezVousItem.id}>
+                                            #{rendezVousItem.id} - {rendezVousItem.visiteur_nom || "Visiteur"} - {formatDate(rendezVousItem.date_rendez_vous)}
+                                        </option>
+                                    ))}
+                                </select>
 
                             </div>
 

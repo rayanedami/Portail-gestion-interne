@@ -60,12 +60,25 @@
 }
 
 .rdv-form input,
+.rdv-form select,
 .rdv-form textarea {
+    width: 100%;
+    min-height: 40px;
     border: 1px solid #d0d5dd;
     border-radius: 6px;
     padding: 9px 10px;
+    outline: none;
+    background: #fff;
+    color: #101828;
     font: inherit;
     font-size: 13px;
+}
+
+.rdv-form input:focus,
+.rdv-form select:focus,
+.rdv-form textarea:focus {
+    border-color: #ff591b;
+    box-shadow: 0 0 0 3px rgba(255, 89, 27, .1);
 }
 
 .rdv-form textarea {

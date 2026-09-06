@@ -94,6 +94,7 @@ const AuthController = {
                     u.email,
                     u.mot_de_passe,
                     u.telephone,
+                    v.societe,
                     u.actif,
                     u.role_id,
                     u.departement_id,
@@ -102,6 +103,7 @@ const AuthController = {
                  FROM utilisateur u
                  LEFT JOIN role r ON u.role_id = r.id
                       LEFT JOIN departement d ON d.id = u.departement_id
+                  LEFT JOIN visiteur v ON v.utilisateur_id = u.id
                  WHERE u.email = ?`,
                 [email]
             );
@@ -288,6 +290,7 @@ const AuthController = {
                     prenom,
                     email,
                     telephone: telephone || null,
+                    societe: societe || null,
                     role_id: roleVisiteurId,
                     role: "VISITEUR"
                 }
@@ -315,13 +318,19 @@ const AuthController = {
 
     async updateProfile(req, res) {
         try {
-            const { nom, prenom, email, telephone, departement_id } = req.body;
+            const { nom, prenom, email, telephone, societe, departement_id } = req.body;
 
             if (!nom || !prenom || !email) {
                 return res.status(400).json({
                     message: "Nom, prénom et email sont obligatoires"
                 });
             }
+
+            const [currentRows] = await db.query(
+                "SELECT email FROM utilisateur WHERE id = ?",
+                [req.auth.id]
+            );
+            const currentEmail = currentRows[0]?.email;
 
             const [existing] = await db.query(
                 "SELECT id FROM utilisateur WHERE email = ? AND id <> ?",
@@ -350,12 +359,35 @@ const AuthController = {
                 );
             }
 
+            if (req.auth.role === "VISITEUR") {
+                await db.query(
+                    `UPDATE visiteur
+                     SET utilisateur_id = ?, nom = ?, prenom = ?, email = ?, telephone = ?, societe = ?
+                     WHERE utilisateur_id = ? OR (utilisateur_id IS NULL AND email = ?)`,
+                    [req.auth.id, nom, prenom, email, telephone || null, societe || null, req.auth.id, currentEmail]
+                );
+
+                const [visitorRows] = await db.query(
+                    "SELECT id FROM visiteur WHERE utilisateur_id = ? LIMIT 1",
+                    [req.auth.id]
+                );
+                if (visitorRows.length === 0) {
+                    await db.query(
+                        `INSERT INTO visiteur
+                         (utilisateur_id, nom, prenom, email, telephone, societe)
+                         VALUES (?, ?, ?, ?, ?, ?)`,
+                        [req.auth.id, nom, prenom, email, telephone || null, societe || null]
+                    );
+                }
+            }
+
             const [rows] = await db.query(
-                `SELECT u.id, u.nom, u.prenom, u.email, u.telephone,
+                `SELECT u.id, u.nom, u.prenom, u.email, u.telephone, v.societe,
                     u.actif, u.role_id, r.nom AS role, d.nom AS departement
                  FROM utilisateur u
                  LEFT JOIN role r ON r.id = u.role_id
                  LEFT JOIN departement d ON d.id = u.departement_id
+                 LEFT JOIN visiteur v ON v.utilisateur_id = u.id
                  WHERE u.id = ?`,
                 [req.auth.id]
             );
