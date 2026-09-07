@@ -1,9 +1,7 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import {
     CalendarDays,
-    Clock,
-    MapPin,
     Search,
     Plus,
     Pencil,
@@ -14,8 +12,6 @@ import {
     CheckCircle2,
     XCircle,
     AlertCircle,
-    UsersRound,
-    Building2
 } from "lucide-react";
 import api from "../services/api";
 import { formatDate } from "../utils/formatDate";
@@ -45,11 +41,7 @@ function RendezVous() {
 
     const utilisateurId = utilisateur?.id;
 
-    useEffect(() => {
-        fetchRendezVous();
-    }, [utilisateur?.role]);
-
-    const fetchRendezVous = async () => {
+    const chargerRendezVous = useCallback(async () => {
         try {
             setLoading(true);
 
@@ -88,7 +80,11 @@ function RendezVous() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [utilisateur?.role]);
+
+    useEffect(() => {
+        chargerRendezVous();
+    }, [chargerRendezVous]);
 
     const ouvrirFormulaire = (rdv = null) => {
         setEditingRendezVous(rdv);
@@ -126,7 +122,7 @@ function RendezVous() {
             setMessage(response.data.message || "Rendez-vous enregistré.");
             setShowForm(false);
             setEditingRendezVous(null);
-            await fetchRendezVous();
+            await chargerRendezVous();
         } catch (error) {
             setMessage(error.response?.data?.message || "Impossible d'enregistrer le rendez-vous.");
         }
@@ -137,7 +133,7 @@ function RendezVous() {
         try {
             const response = await api.delete(`/rendez-vous/${id}`);
             setMessage(response.data.message || "Rendez-vous annulé.");
-            await fetchRendezVous();
+            await chargerRendezVous();
         } catch (error) {
             setMessage(error.response?.data?.message || "Impossible d'annuler le rendez-vous.");
         }
@@ -211,6 +207,21 @@ function RendezVous() {
         (badge) => Number(badge.rendez_vous_id) === Number(rdvId)
     );
     const formatTime = (time) => String(time || "").slice(0, 5);
+    const formatVisitorDate = (date) => {
+        const value = String(date || "").slice(0, 10);
+        if (!value) return "-";
+        const [year, month, day] = value.split("-");
+        return `${day}/${month}/${year}`;
+    };
+    const formatPersonName = (name) => String(name || "-").toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase());
+    const formatStatusLabel = (status) => ({
+        PLANIFIE: "Planifié",
+        CONFIRME: "Confirmé",
+        ANNULE: "Annulé",
+        TERMINE: "Terminé"
+    }[String(status || "").toUpperCase()] || "En attente");
+    const formatRendezVousId = (id) => `RV-${new Date().getFullYear()}-${String(id).padStart(4, "0")}`;
+    const getInitials = (name) => formatPersonName(name).split(" ").filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
 
     return (
         <div className="rendez-vous-page">
@@ -223,7 +234,7 @@ function RendezVous() {
 
                     <h1>{utilisateur?.role === "AGENT_ACCUEIL" ? "Liste des rendez-vous" : "Mes rendez-vous"}</h1>
 
-                    <p>Consultez vos rendez-vous et vos visites prévues.</p>
+                    <p>{utilisateur?.role === "VISITEUR" ? "Consultez ici tous vos rendez-vous avec nos collaborateurs." : "Consultez vos rendez-vous et vos visites prévues."}</p>
                 </div>
 
                 {canManage && (
@@ -362,7 +373,6 @@ function RendezVous() {
                         <tbody>
                             {filteredRendezVous.map((rdv) => {
                                 const status = getStatus(rdv.statut);
-                                const badge = badgeFor(rdv.id);
                                 return (
                                     <tr key={rdv.id}>
                                         <td className="rdv-date-cell"><strong>{formatDate(rdv.date_rendez_vous, false)}</strong><small>{formatTime(rdv.heure_rendez_vous)}</small></td>
@@ -385,39 +395,26 @@ function RendezVous() {
                         </tbody>
                     </table>
                 ) : (
-                    <table className="rdv-table rdv-visitor-table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Date</th>
-                                <th>Heure</th>
-                                <th>Motif</th>
-                                <th>Visiteur</th>
-                                <th>Statut</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredRendezVous.map((rdv) => {
-                                const status = getStatus(rdv.statut);
-                                return (
-                                    <tr key={rdv.id}>
-                                        <td className="rdv-id-cell">{rdv.id}</td>
-                                        <td>{formatDate(rdv.date_rendez_vous || rdv.date, false)}</td>
-                                        <td>{formatTime(rdv.heure_rendez_vous || rdv.heure)}</td>
-                                        <td className="rdv-motif-cell">{rdv.motif || "Rendez-vous"}</td>
-                                        <td>{rdv.visiteur_nom || "-"}</td>
-                                        <td><span className={`rdv-table-status ${status.className}`}>{rdv.statut || "EN ATTENTE"}</span></td>
-                                        <td>
-                                            <button className="rdv-details-button" type="button" onClick={() => ouvrirDetails(rdv)}>
-                                                <Eye size={16} /> Détails
-                                            </button>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
+                    <div className="rdv-visitor-list">
+                        <div className="rdv-visitor-list-header">
+                            <span>#</span><span>Date</span><span>Heure</span><span>Personne à rencontrer</span><span>Motif</span><span>Lieu</span><span>Statut</span><span>Actions</span>
+                        </div>
+                        {filteredRendezVous.map((rdv) => {
+                            const status = getStatus(rdv.statut);
+                            return (
+                                <div className="rdv-visitor-list-row" key={rdv.id}>
+                                    <span className="rdv-id-cell">{formatRendezVousId(rdv.id)}</span>
+                                    <span>{formatVisitorDate(rdv.date_rendez_vous || rdv.date)}</span>
+                                    <span>{formatTime(rdv.heure_rendez_vous || rdv.heure)}</span>
+                                    <span className="rdv-person-cell"><span className="rdv-person-avatar">{getInitials(rdv.collaborateur_nom)}</span><span><strong>{formatPersonName(rdv.collaborateur_nom)}</strong><small>{rdv.collaborateur_role || "Collaborateur"}</small></span></span>
+                                    <span className="rdv-motif-cell">{rdv.motif || "Rendez-vous"}</span>
+                                    <span>{rdv.lieu || "Accueil principal"}</span>
+                                    <span><span className={`rdv-table-status ${status.className}`}><span className="rdv-status-dot"></span>{formatStatusLabel(rdv.statut)}</span></span>
+                                    <span><button className="rdv-details-button" type="button" onClick={() => ouvrirDetails(rdv)}><Eye size={16} /> Détails</button></span>
+                                </div>
+                            );
+                        })}
+                    </div>
                 )}
 
             </div>

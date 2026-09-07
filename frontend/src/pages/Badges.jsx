@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { QrCode, Trash2, Edit, RefreshCw, X, Plus } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import api from "../services/api";
@@ -8,7 +8,7 @@ import "./Badges.css";
 function Badges() {
     const { user, utilisateur } = useAuth();
 
-    const currentUser = user || utilisateur;
+    const utilisateurCourant = user || utilisateur;
 
     const [badges, setBadges] = useState([]);
     const [rendezVousDisponibles, setRendezVousDisponibles] = useState([]);
@@ -27,18 +27,13 @@ function Badges() {
         rendez_vous_id: ""
     });
 
-    const role = String(currentUser?.role || "").toUpperCase();
+    const role = String(utilisateurCourant?.role || "").toUpperCase();
 
     const canManage =
         role === "AGENT_ACCUEIL" ||
         role === "ADMINISTRATEUR";
 
-    useEffect(() => {
-        fetchBadges();
-        fetchRendezVous();
-    }, []);
-
-    const fetchRendezVous = async () => {
+    const chargerRendezVous = useCallback(async () => {
         try {
             const response = await api.get("/rendez-vous");
             const rendezVous = Array.isArray(response.data)
@@ -48,9 +43,9 @@ function Badges() {
         } catch (err) {
             console.error("Erreur récupération rendez-vous :", err);
         }
-    };
+    }, []);
 
-    const fetchBadges = async () => {
+    const chargerBadges = useCallback(async () => {
         try {
             setLoading(true);
             setError("");
@@ -68,7 +63,12 @@ function Badges() {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        chargerBadges();
+        chargerRendezVous();
+    }, [chargerBadges, chargerRendezVous]);
 
     const resetForm = () => {
         setFormData({
@@ -126,7 +126,7 @@ function Badges() {
             }
 
             resetForm();
-            await fetchBadges();
+            await chargerBadges();
 
         } catch (err) {
             console.error("Erreur badge :", err);
@@ -175,7 +175,7 @@ function Badges() {
 
             setMessage("Badge supprimé avec succès.");
 
-            await fetchBadges();
+            await chargerBadges();
 
         } catch (err) {
             console.error("Erreur suppression badge :", err);
@@ -483,7 +483,7 @@ function Badges() {
 
                     <button
                         className="refresh-button"
-                        onClick={fetchBadges}
+                        onClick={chargerBadges}
                         title="Actualiser"
                     >
                         <RefreshCw size={18} />

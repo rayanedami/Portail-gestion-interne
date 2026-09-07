@@ -45,6 +45,7 @@ function Accueil() {
     const { utilisateur, logout, role, isLoggedIn } = useAuth();
 
     const [menuOuvert, setMenuOuvert] = useState(false);
+    const [moisStatistiques, setMoisStatistiques] = useState(() => new Date().toISOString().slice(0, 7));
 
     const [demandes, setDemandes] = useState([]);
     const [rendezVous, setRendezVous] = useState([]);
@@ -220,11 +221,27 @@ function Accueil() {
     const visitesAujourdHui = visites.filter((visite) =>
         String(visite.date_entree || "").slice(0, 10) === dateAujourdHui
     );
+    const demandesDuMois = demandes.filter((demande) =>
+        String(demande.date_soumission || "").slice(0, 7) === moisStatistiques
+    );
+    const demandesApprouveesDuMois = demandesDuMois.filter((demande) =>
+        ["ACCEPTEE", "ACCEPTÉE", "APPROUVEE", "APPROUVÉE", "VALIDEE", "VALIDÉE"].includes(
+            String(demande.statut || "").toUpperCase()
+        )
+    ).length;
+    const demandesEnAttenteDuMois = demandesDuMois.filter((demande) =>
+        ["EN_ATTENTE", "EN ATTENTE"].includes(String(demande.statut || "").toUpperCase())
+    ).length;
+    const demandesRefuseesDuMois = demandesDuMois.filter((demande) =>
+        ["REFUSEE", "REFUSÉE", "REJETEE", "REJETÉE"].includes(
+            String(demande.statut || "").toUpperCase()
+        )
+    ).length;
     const adminDemandesStats = [
-        { label: "Approuvees", value: demandesApprouvees, color: "green" },
-        { label: "En attente", value: demandesEnAttente, color: "orange" },
-        { label: "Refusees", value: demandesRefusees, color: "red" },
-        { label: "Autres", value: Math.max(demandes.length - demandesApprouvees - demandesEnAttente - demandesRefusees, 0), color: "gray" }
+        { label: "Approuvees", value: demandesApprouveesDuMois, color: "green" },
+        { label: "En attente", value: demandesEnAttenteDuMois, color: "orange" },
+        { label: "Refusees", value: demandesRefuseesDuMois, color: "red" },
+        { label: "Autres", value: Math.max(demandesDuMois.length - demandesApprouveesDuMois - demandesEnAttenteDuMois - demandesRefuseesDuMois, 0), color: "gray" }
     ];
     const adminActivity = Array.from({ length: 7 }, (_, index) => {
         const date = new Date();
@@ -506,7 +523,7 @@ function Accueil() {
                                     </div>
                                 </section>
 
-                                <section className="admin-panel admin-chart-panel"><div className="admin-panel-head"><div><h3>Statistiques des demandes</h3><p>Repartition actuelle</p></div><span className="admin-period">Ce mois</span></div><div className="admin-donut-wrap"><div className="admin-donut"><strong>{demandes.length}</strong><span>Total</span></div><div className="admin-legend">{adminDemandesStats.map((item) => <div key={item.label}><i className={`legend-dot ${item.color}`}></i><span>{item.label}</span><strong>{item.value}</strong></div>)}</div></div></section>
+                                <section className="admin-panel admin-chart-panel"><div className="admin-panel-head"><div><h3>Statistiques des demandes</h3><p>Repartition du mois selectionne</p></div><input className="admin-period" type="month" value={moisStatistiques} onChange={(event) => setMoisStatistiques(event.target.value)} aria-label="Choisir le mois des statistiques" /></div><div className="admin-donut-wrap"><div className="admin-donut"><strong>{demandesDuMois.length}</strong><span>Total</span></div><div className="admin-legend">{adminDemandesStats.map((item) => <div key={item.label}><i className={`legend-dot ${item.color}`}></i><span>{item.label}</span><strong>{item.value}</strong></div>)}</div></div></section>
 
                                 <section className="admin-panel admin-rdv-panel"><div className="admin-panel-head"><div><h3>Rendez-vous aujourd'hui</h3><p>{rendezVousAujourdHui} rendez-vous</p></div><button onClick={() => allerVers("/rendez-vous")}>Voir tous</button></div><div className="admin-list admin-timeline-list">{rendezVous.filter((rdv) => String(rdv.date_rendez_vous || "").slice(0, 10) === dateAujourdHui).slice(0, 5).map((rdv) => <div className="admin-list-row" key={rdv.id}><time>{String(rdv.heure_rendez_vous || "").slice(0, 5)}</time><div><strong>{rdv.visiteur_nom || "Visiteur"}</strong><small>{rdv.visiteur_societe || "Societe non renseignee"}</small></div><span className={`admin-pill ${String(rdv.statut || "").toLowerCase()}`}>{rdv.statut}</span></div>)}{rendezVousAujourdHui === 0 && <div className="admin-empty">Aucun rendez-vous aujourd'hui.</div>}</div></section>
                             </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { QRCodeSVG } from "qrcode.react";
 import { CalendarDays, MapPin, Printer, Ticket } from "lucide-react";
@@ -13,13 +13,7 @@ function MonBadge() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    useEffect(() => {
-        if (utilisateur?.id) {
-            chargerBadge();
-        }
-    }, [utilisateur?.id]);
-
-    const chargerBadge = async () => {
+    const chargerBadge = useCallback(async () => {
         try {
             setLoading(true);
             setError("");
@@ -56,7 +50,13 @@ function MonBadge() {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        if (utilisateur?.id) {
+            chargerBadge();
+        }
+    }, [utilisateur?.id, chargerBadge]);
 
     const formaterDate = (date) => {
         if (!date) return "Non renseignée";

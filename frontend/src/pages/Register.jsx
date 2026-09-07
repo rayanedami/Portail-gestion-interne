@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../services/api";
 import "./Register.css";
 
 function Register() {
@@ -67,35 +68,15 @@ function Register() {
         try {
             setLoading(true);
 
-            const response = await fetch(
-                "http://localhost:3000/api/auth/register",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        nom: formData.nom.trim(),
-                        prenom: formData.prenom.trim(),
-                        email: formData.email.trim(),
-                        mot_de_passe: formData.mot_de_passe,
-                        telephone:
-                            formData.telephone.trim() || null,
-                        societe:
-                            formData.societe.trim() || null
-                    })
-                }
-            );
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                setError(
-                    data.message ||
-                    "Erreur lors de la création du compte."
-                );
-                return;
-            }
+            const response = await api.post("/auth/register", {
+                nom: formData.nom.trim(),
+                prenom: formData.prenom.trim(),
+                email: formData.email.trim(),
+                mot_de_passe: formData.mot_de_passe,
+                telephone: formData.telephone.trim() || null,
+                societe: formData.societe.trim() || null
+            });
+            const data = response.data;
 
             setSuccess(
                 "Compte créé avec succès ! Redirection vers la connexion..."

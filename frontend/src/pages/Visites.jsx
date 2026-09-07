@@ -5,8 +5,6 @@ import { DoorOpen, RefreshCw, UsersRound, Download, Printer } from "lucide-react
 import { printTable } from "../utils/printTable";
 import { exportExcel } from "../utils/exportExcel";
 
-const API_URL = "http://localhost:3000/api";
-
 function Visites() {
     const [visites, setVisites] = useState([]);
     const [loading, setLoading] = useState(true);
