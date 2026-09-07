@@ -275,3 +275,78 @@ values (
         'Accès',
         'demande d''accès aux locaux ou aux systèmes'
     );
+
+-- comptes de démonstration : mot de passe pour tous les comptes : 123456
+insert into
+    utilisateur (
+        nom,
+        prenom,
+        email,
+        mot_de_passe,
+        telephone,
+        role_id,
+        departement_id
+    )
+values (
+        'Dami',
+        'Rayane',
+        'rayane@portail.ma',
+        '$2b$10$X4D9dR/qulrdMHUvLmHJt./h/deR0xdU5X/rd5kOExZwgVUOcDrxu',
+        '0600000000',
+        1,
+        1
+    ),
+    (
+        'Test',
+        'Responsable',
+        'responsable@portail.ma',
+        '$2b$10$X4D9dR/qulrdMHUvLmHJt./h/deR0xdU5X/rd5kOExZwgVUOcDrxu',
+        '0600000001',
+        2,
+        2
+    ),
+    (
+        'Test',
+        'Administrateur',
+        'admin@portail.ma',
+        '$2b$10$X4D9dR/qulrdMHUvLmHJt./h/deR0xdU5X/rd5kOExZwgVUOcDrxu',
+        '0600000002',
+        3,
+        3
+    ),
+    (
+        'Test',
+        'Accueil',
+        'accueil@portail.ma',
+        '$2b$10$X4D9dR/qulrdMHUvLmHJt./h/deR0xdU5X/rd5kOExZwgVUOcDrxu',
+        '0600000003',
+        4,
+        3
+    ),
+    (
+        'Test',
+        'Visiteur',
+        'visiteur@portail.ma',
+        '$2b$10$X4D9dR/qulrdMHUvLmHJt./h/deR0xdU5X/rd5kOExZwgVUOcDrxu',
+        '0600000004',
+        5,
+        null
+    );
+
+insert into
+    visiteur (
+        utilisateur_id,
+        nom,
+        prenom,
+        email,
+        telephone,
+        societe
+    )
+values (
+        5,
+        'Test',
+        'Visiteur',
+        'visiteur@portail.ma',
+        '0600000004',
+        'Entreprise de démonstration'
+    );

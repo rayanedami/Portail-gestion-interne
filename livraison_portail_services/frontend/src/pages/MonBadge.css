@@ -1,0 +1,433 @@
+.badge-page {
+    min-height: 100vh;
+
+    background: #f5f7fb;
+
+    padding: 40px 25px;
+}
+
+.badge-container {
+    max-width: 900px;
+
+    margin: 0 auto;
+}
+
+.badge-header {
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 18px;
+
+    padding: 30px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 25px;
+}
+
+.badge-header span {
+    font-size: 12px;
+
+    font-weight: 800;
+
+    color: #ea580c;
+
+    letter-spacing: 1px;
+}
+
+.badge-header h1 {
+    margin: 8px 0;
+
+    font-size: 28px;
+
+    color: #111827;
+}
+
+.badge-header p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+.badge-icon-large {
+    width: 70px;
+    height: 70px;
+
+    border-radius: 16px;
+
+    background: #fff7ed;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-size: 35px;
+}
+
+.badge-card {
+    max-width: 900px;
+
+    margin: 0 auto;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 20px;
+
+    padding: 28px;
+
+    display: grid;
+    grid-template-columns: 1fr 1.65fr;
+    gap: 35px;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+.badge-qr-panel {
+    display: flex;
+    min-height: 470px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 25px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+.badge-qr-panel svg {
+    max-width: 100%;
+    height: auto;
+}
+
+.badge-code-label {
+    margin-top: 22px;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.badge-code {
+    margin-top: 7px;
+    color: #111827;
+    font-size: 17px;
+    letter-spacing: .5px;
+    word-break: break-all;
+    text-align: center;
+}
+
+.badge-details-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+.badge-detail-row {
+    display: grid;
+    grid-template-columns: 230px 1fr;
+    gap: 15px;
+    min-height: 58px;
+    align-items: center;
+    border-bottom: 1px solid #eef0f3;
+}
+
+.badge-detail-row span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #344054;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.badge-detail-row strong {
+    color: #344054;
+    font-size: 14px;
+    word-break: break-word;
+}
+
+.badge-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: auto;
+    padding-top: 32px;
+}
+
+.badge-actions button {
+    min-height: 44px;
+    flex: 1;
+    border: 0;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.badge-print-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #f2f4f7;
+    color: #344054;
+}
+
+.badge-finish-button {
+    background: #175cd3;
+    color: #fff;
+}
+
+.badge-finish-button:disabled {
+    cursor: not-allowed;
+    opacity: .55;
+}
+
+.badge-status {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 8px 13px;
+
+    border-radius: 20px;
+
+    background: #ecfdf5;
+
+    color: #047857;
+
+    font-size: 12px;
+
+    font-weight: 800;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: #10b981;
+}
+
+.qr-container {
+    margin: 30px 0;
+}
+
+.qr-placeholder {
+    width: 220px;
+    height: 220px;
+
+    margin: 0 auto;
+
+    background: #ffffff;
+
+    border: 10px solid #111827;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+}
+
+.qr-pattern {
+    width: 150px;
+    height: 150px;
+
+    background:
+        repeating-linear-gradient(45deg,
+            #111827 0,
+            #111827 5px,
+            #ffffff 5px,
+            #ffffff 10px);
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-size: 28px;
+
+    font-weight: 900;
+
+    color: #ffffff;
+
+    text-shadow:
+        1px 1px 0 #111827,
+        -1px -1px 0 #111827;
+}
+
+.badge-card h2 {
+    margin: 0;
+
+    color: #111827;
+}
+
+.badge-instruction {
+    color: #6b7280;
+
+    font-size: 14px;
+
+    margin: 8px 0 25px;
+}
+
+.badge-information {
+    text-align: left;
+
+    border-top: 1px solid #e5e7eb;
+
+    padding-top: 20px;
+}
+
+.badge-information>div {
+    padding: 10px 0;
+
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.badge-information span {
+    display: block;
+
+    font-size: 12px;
+
+    color: #9ca3af;
+
+    margin-bottom: 4px;
+}
+
+.badge-information strong {
+    display: block;
+
+    font-size: 14px;
+
+    color: #111827;
+
+    word-break: break-word;
+}
+
+.no-badge {
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 18px;
+
+    padding: 60px 30px;
+
+    text-align: center;
+}
+
+.no-badge-icon {
+    font-size: 50px;
+
+    margin-bottom: 15px;
+}
+
+.no-badge h2 {
+    margin: 0 0 10px;
+
+    color: #111827;
+}
+
+.no-badge p {
+    max-width: 500px;
+
+    margin: 0 auto;
+
+    color: #6b7280;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+}
+
+.badge-error {
+    background: #fef2f2;
+
+    border: 1px solid #fecaca;
+
+    color: #b91c1c;
+
+    border-radius: 12px;
+
+    padding: 15px;
+
+    margin-bottom: 20px;
+
+    text-align: center;
+}
+
+.badge-loading {
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 15px;
+
+    padding: 50px;
+
+    text-align: center;
+
+    color: #6b7280;
+}
+
+@media (max-width: 600px) {
+
+    .badge-card {
+        grid-template-columns: 1fr;
+    }
+
+    .badge-qr-panel {
+        min-height: auto;
+    }
+
+    .badge-detail-row {
+        grid-template-columns: 1fr;
+        gap: 5px;
+        padding: 12px 0;
+    }
+
+    .badge-actions {
+        flex-direction: column;
+    }
+
+    .badge-page {
+        padding: 20px 15px;
+    }
+
+    .badge-header {
+        padding: 22px;
+    }
+
+    .badge-header h1 {
+        font-size: 23px;
+    }
+
+    .badge-icon-large {
+        width: 55px;
+        height: 55px;
+
+        font-size: 27px;
+    }
+
+    .badge-card {
+        padding: 22px;
+    }
+
+    .qr-placeholder {
+        width: 190px;
+        height: 190px;
+    }
+
+    .qr-pattern {
+        width: 125px;
+        height: 125px;
+    }
+}
