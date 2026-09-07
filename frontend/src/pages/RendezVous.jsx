@@ -57,13 +57,13 @@ function RendezVous() {
             if (utilisateur?.role !== "VISITEUR") {
                 requests.push(api.get("/rendez-vous/options"));
             }
-            if (utilisateur?.role === "AGENT_ACCUEIL" || utilisateur?.role === "ADMINISTRATEUR") {
+            if (utilisateur?.role === "AGENT_ACCUEIL" || utilisateur?.role === "ADMINISTRATEUR" || utilisateur?.role === "VISITEUR") {
                 requests.push(api.get("/badges"));
             }
             const responses = await Promise.all(requests);
             const response = responses[0];
             const optionsResponse = utilisateur?.role !== "VISITEUR" ? responses[1] : null;
-            const badgesResponse = utilisateur?.role === "AGENT_ACCUEIL" || utilisateur?.role === "ADMINISTRATEUR"
+            const badgesResponse = utilisateur?.role === "AGENT_ACCUEIL" || utilisateur?.role === "ADMINISTRATEUR" || utilisateur?.role === "VISITEUR"
                 ? responses[responses.length - 1]
                 : null;
 
@@ -292,7 +292,7 @@ function RendezVous() {
                                 </div>
                                 <div className="rdv-detail-section">
                                     <h3>Badge / QR associé</h3>
-                                    {badgeFor(detailRendezVous.id) ? <p className="rdv-detail-code"><QrCode /> {badgeFor(detailRendezVous.id).qr_code}</p> : <p>Aucun badge généré.</p>}
+                                    {badgeFor(detailRendezVous.id) ? <p className="rdv-detail-code"><QrCode /> {badgeFor(detailRendezVous.id).qr_code} <span>({badgeFor(detailRendezVous.id).statut})</span></p> : <p>Aucun badge généré.</p>}
                                 </div>
                                 <div className="rdv-detail-section">
                                     <h3>Historique de la visite</h3>
@@ -325,7 +325,7 @@ function RendezVous() {
 
             </div>
 
-            <div className={utilisateur?.role !== "VISITEUR" ? "rdv-table-wrapper" : "rdv-list"}>
+            <div className="rdv-table-wrapper">
 
                 {loading ? (
                     <div className="rdv-empty">
@@ -385,81 +385,39 @@ function RendezVous() {
                         </tbody>
                     </table>
                 ) : (
-                    filteredRendezVous.map((rdv) => {
-
-                        const status = getStatus(rdv.statut);
-
-                        return (
-                            <div
-                                className="rdv-card"
-                                key={rdv.id}
-                            >
-
-                                <div className="rdv-date">
-                                    <small>Date du rendez-vous</small>
-                                    <strong>
-                                        {formatDate(
-                                            rdv.date_rendez_vous || rdv.date,
-                                            false
-                                        )}
-                                    </strong>
-                                </div>
-
-                                <div className="rdv-content">
-
-                                    <div className="rdv-content-header">
-
-                                        <div>
-                                            <span className="rdv-card-id">Rendez-vous #RDV-{String(rdv.id).padStart(5, "0")}</span>
-                                            <h3>{rdv.motif || "Rendez-vous"}</h3>
-                                        </div>
-
-                                        <span
-                                            className={`rdv-status ${status.className}`}
-                                        >
-                                            {status.icon}
-                                            {rdv.statut ||
-                                                "En attente"}
-                                        </span>
-
-                                    </div>
-
-                                    <div className="rdv-details">
-
-                                        <span className="rdv-detail-item">
-                                            <Clock />
-                                            <span><small>Heure</small>{rdv.heure_rendez_vous || rdv.heure || "Non définie"}</span>
-                                        </span>
-
-                                        <span className="rdv-detail-item">
-                                            <MapPin />
-                                            <span><small>Visiteur</small>{rdv.visiteur_nom || "Non renseigné"}</span>
-                                        </span>
-
-                                        <span className="rdv-detail-item">
-                                            <UsersRound />
-                                            <span><small>Personne à rencontrer</small>{rdv.collaborateur_nom || "Non renseigné"}</span>
-                                        </span>
-
-                                        <span className="rdv-detail-item rdv-company">
-                                            <Building2 />
-                                            <span><small>Société</small>{rdv.visiteur_societe || "Non renseignée"}</span>
-                                        </span>
-
-                                    </div>
-
-                                </div>
-
-                                {canManage && rdv.statut !== "ANNULE" && (
-                                    <div className="rdv-item-actions">
-                                        <button title="Modifier" type="button" onClick={() => ouvrirFormulaire(rdv)}><Pencil /></button>
-                                        <button title="Annuler" type="button" onClick={() => annulerRendezVous(rdv.id)}><Ban /></button>
-                                    </div>
-                                )}
-
-                            </div>
-                        );
-                    })
+                    <table className="rdv-table rdv-visitor-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Date</th>
+                                <th>Heure</th>
+                                <th>Motif</th>
+                                <th>Visiteur</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredRendezVous.map((rdv) => {
+                                const status = getStatus(rdv.statut);
+                                return (
+                                    <tr key={rdv.id}>
+                                        <td className="rdv-id-cell">{rdv.id}</td>
+                                        <td>{formatDate(rdv.date_rendez_vous || rdv.date, false)}</td>
+                                        <td>{formatTime(rdv.heure_rendez_vous || rdv.heure)}</td>
+                                        <td className="rdv-motif-cell">{rdv.motif || "Rendez-vous"}</td>
+                                        <td>{rdv.visiteur_nom || "-"}</td>
+                                        <td><span className={`rdv-table-status ${status.className}`}>{rdv.statut || "EN ATTENTE"}</span></td>
+                                        <td>
+                                            <button className="rdv-details-button" type="button" onClick={() => ouvrirDetails(rdv)}>
+                                                <Eye size={16} /> Détails
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
                 )}
 
             </div>

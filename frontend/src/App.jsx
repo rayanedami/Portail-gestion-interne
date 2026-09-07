@@ -22,7 +22,6 @@ import Badges from "./pages/Badges";
 import MonBadge from "./pages/MonBadge";
 import Visites from "./pages/Visites";
 import ScannerQR from "./pages/ScannerQR";
-import ResetPassword from "./pages/ResetPassword";
 
 function App() {
     return (
@@ -42,9 +41,6 @@ function App() {
                         path="/register"
                         element={<Register />}
                     />
-
-                    <Route path="/reset-password" element={<ResetPassword />} />
-
 
                     {/* VISITEUR */}
 

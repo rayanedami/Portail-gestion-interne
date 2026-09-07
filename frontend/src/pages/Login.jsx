@@ -18,8 +18,6 @@ function Login() {
     const [email, setEmail] = useState("");
     const [motDePasse, setMotDePasse] = useState("");
     const [message, setMessage] = useState("");
-    const [showForgot, setShowForgot] = useState(false);
-    const [forgotEmail, setForgotEmail] = useState("");
 
     const navigate = useNavigate();
     const { login } = useAuth();
@@ -48,17 +46,6 @@ function Login() {
                 error.response?.data?.message ||
                 "Erreur de connexion"
             );
-        }
-    };
-
-    const handleForgotPassword = async (event) => {
-        event.preventDefault();
-        try {
-            const response = await api.post("/auth/forgot-password", { email: forgotEmail });
-            setMessage(response.data.message);
-            setShowForgot(false);
-        } catch (error) {
-            setMessage(error.response?.data?.message || "Impossible d'envoyer l'email.");
         }
     };
 
@@ -157,12 +144,6 @@ function Login() {
                             </div>
 
 
-                            {/* MOT DE PASSE OUBLIE */}
-                            <button type="button" className="forgot-password" onClick={() => setShowForgot(true)}>
-                                Mot de passe oublié ?
-                            </button>
-
-
                             {/* LOGIN */}
                             <button
                                 type="submit"
@@ -172,15 +153,6 @@ function Login() {
                             </button>
 
                         </form>
-
-                        {showForgot && (
-                            <form className="forgot-password-form" onSubmit={handleForgotPassword}>
-                                <label>Email du compte</label>
-                                <input type="email" required value={forgotEmail} onChange={(event) => setForgotEmail(event.target.value)} placeholder="vous@exemple.com" />
-                                <button type="submit">Envoyer le lien</button>
-                            </form>
-                        )}
-
 
                         {/* OU */}
                         <div className="separator">

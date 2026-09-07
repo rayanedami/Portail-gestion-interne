@@ -24,36 +24,22 @@ function MonBadge() {
             setLoading(true);
             setError("");
 
-            const rendezVousResponse = await api.get("/rendez-vous");
+            const [rendezVousResponse, badgesResponse] = await Promise.all([
+                api.get("/rendez-vous"),
+                api.get("/badges")
+            ]);
             const rendezVous = Array.isArray(rendezVousResponse.data)
                 ? rendezVousResponse.data
                 : rendezVousResponse.data?.rendezVous || [];
-
-            const mesRendezVous = rendezVous.filter(
-                (rdv) => Number(rdv.visiteur_id) > 0
-            );
-
-            if (mesRendezVous.length === 0) {
-                setBadge(null);
-                return;
-            }
-
-            const badgesResponse = await api.get("/badges");
-            const badges = badgesResponse.data;
-
-            const mesRendezVousIds = mesRendezVous.map(
-                (rdv) => Number(rdv.id)
-            );
-
-            const badgeValide = badges.find(
-                (item) =>
-                    mesRendezVousIds.includes(
-                        Number(item.rendez_vous_id)
-                    ) &&
-                    ["VALIDE"].includes(
-                        String(item.statut || "").toUpperCase()
-                    )
-            );
+            const badges = Array.isArray(badgesResponse.data)
+                ? badgesResponse.data
+                : badgesResponse.data?.badges || [];
+            const mesRendezVous = rendezVous.filter((rdv) => Number(rdv.visiteur_id) > 0);
+            const mesRendezVousIds = new Set(mesRendezVous.map((rdv) => Number(rdv.id)));
+            const badgeValide = badges.find((item) => (
+                ["VALIDE", "UTILISE"].includes(String(item.statut || "").toUpperCase()) &&
+                (mesRendezVousIds.size === 0 || mesRendezVousIds.has(Number(item.rendez_vous_id)))
+            ));
 
             setBadge(badgeValide || null);
             setRendezVous(
@@ -219,7 +205,7 @@ function MonBadge() {
                             <QRCodeSVG value={badge.qr_code} size={220} level="H" includeMargin />
                             <span className="badge-code-label">Code de validation</span>
                             <strong className="badge-code">{badge.qr_code}</strong>
-                            <span className="badge-status"><span className="status-dot"></span>Valide</span>
+                            <span className="badge-status"><span className="status-dot"></span>{badge.statut === "UTILISE" ? "Déjà utilisé" : "Valide"}</span>
                         </div>
 
                         <div className="badge-details-panel">

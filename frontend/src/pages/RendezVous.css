@@ -350,6 +350,72 @@
     font-size: 12px;
 }
 
+.rdv-visitor-table {
+    min-width: 760px;
+}
+
+.rdv-visitor-table th,
+.rdv-visitor-table td {
+    padding: 16px 14px;
+}
+
+.rdv-visitor-table td {
+    height: 76px;
+    font-size: 13px;
+}
+
+.rdv-visitor-table th:nth-child(1),
+.rdv-visitor-table td:nth-child(1) {
+    width: 54px;
+}
+
+.rdv-visitor-table th:nth-child(2),
+.rdv-visitor-table td:nth-child(2) {
+    width: 130px;
+}
+
+.rdv-visitor-table th:nth-child(3),
+.rdv-visitor-table td:nth-child(3) {
+    width: 90px;
+}
+
+.rdv-visitor-table th:nth-child(5),
+.rdv-visitor-table td:nth-child(5) {
+    width: 170px;
+}
+
+.rdv-visitor-table th:nth-child(6),
+.rdv-visitor-table td:nth-child(6) {
+    width: 125px;
+}
+
+.rdv-motif-cell {
+    max-width: 220px;
+    overflow-wrap: anywhere;
+    font-weight: 600;
+}
+
+.rdv-details-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 38px;
+    padding: 0 14px;
+    border: 1px solid #dbe5f0;
+    border-radius: 8px;
+    background: #fff;
+    color: #3976b8;
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.rdv-details-button:hover {
+    border-color: #86b7e7;
+    background: #f4f9ff;
+}
+
 .rdv-table th {
     padding: 13px 10px;
     background: #f8f9fb;
@@ -460,27 +526,36 @@
 .rdv-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
 }
 
 .rdv-card {
     display: flex;
-    min-height: 100px;
-    border: 1px solid #eaecf0;
-    border-radius: 9px;
+    min-height: 116px;
+    border: 1px solid #e7ebf0;
+    border-radius: 10px;
     background: #fff;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(16, 24, 40, .04);
+    box-shadow: 0 4px 14px rgba(16, 24, 40, .045);
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.rdv-card:hover {
+    border-color: #d9e0e8;
+    box-shadow: 0 7px 18px rgba(16, 24, 40, .08);
+    transform: translateY(-1px);
 }
 
 .rdv-date {
     display: flex;
-    width: 170px;
+    width: 154px;
+    flex: 0 0 154px;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 20px;
-    background: #fff7f3;
+    padding: 18px 14px;
+    border-right: 1px solid #f4dcd2;
+    background: #fff8f5;
     color: #ff591b;
     font-size: 13px;
     font-weight: 700;
@@ -490,7 +565,7 @@
 .rdv-content {
     flex: 1;
     min-width: 0;
-    padding: 20px 24px;
+    padding: 18px 22px;
 }
 
 .rdv-content-header {
@@ -501,9 +576,10 @@
 }
 
 .rdv-content-header h3 {
-    margin: 0 0 12px;
+    margin: 0 0 14px;
     color: #101828;
-    font-size: 18px;
+    font-size: 16px;
+    font-weight: 700;
     text-align: left;
 }
 
@@ -534,10 +610,12 @@
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    padding: 5px 9px;
+    flex: 0 0 auto;
+    padding: 5px 10px;
     border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .02em;
 }
 
 .rdv-status svg {
@@ -554,14 +632,15 @@
 .rdv-details {
     display: flex;
     flex-wrap: wrap;
-    gap: 16px 24px;
+    gap: 12px 28px;
 }
 
 .rdv-details .rdv-detail-item {
     align-items: flex-start;
     gap: 8px;
     color: #475467;
-    font-size: 12px;
+    min-width: 112px;
+    font-size: 11px;
 }
 
 .rdv-detail-item>span {
@@ -581,6 +660,8 @@
 .rdv-details svg {
     width: 14px;
     height: 14px;
+    margin-top: 1px;
+    color: #667085;
 }
 
 .rdv-details .rdv-company {

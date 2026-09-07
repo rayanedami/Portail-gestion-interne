@@ -76,11 +76,14 @@
 .scanner-actions {
     margin-top: 20px;
     display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
     justify-content: center;
 }
 
 .btn-start-scanner,
-.btn-stop-scanner {
+.btn-stop-scanner,
+.btn-image-scanner {
     border: none;
     border-radius: 8px;
     padding: 13px 22px;
@@ -99,14 +102,34 @@
     color: white;
 }
 
+.btn-image-scanner {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid #f58220;
+    background: #fff;
+    color: #c45e0c;
+}
+
 .btn-start-scanner:hover,
-.btn-stop-scanner:hover {
+.btn-stop-scanner:hover,
+.btn-image-scanner:hover {
     opacity: 0.9;
 }
 
 .btn-start-scanner:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+.btn-image-scanner:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.qr-file-input,
+.qr-file-reader {
+    display: none;
 }
 
 .scanner-info-card h2 {

@@ -1,30 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import api from "../services/api";
-import { Camera, Square } from "lucide-react";
+import { Camera, FileImage, Square } from "lucide-react";
 import "./ScannerQR.css";
-
-const API_URL = "http://localhost:3000/api";
 
 function ScannerQR() {
     const scannerRef = useRef(null);
+    const fichierQrRef = useRef(null);
     const [scannerActif, setScannerActif] = useState(false);
     const [loading, setLoading] = useState(false);
     const [resultat, setResultat] = useState(null);
     const [error, setError] = useState("");
-
-    const obtenirUtilisateur = () => {
-        try {
-            const utilisateur = JSON.parse(
-                localStorage.getItem("utilisateur")
-            );
-
-            return utilisateur;
-        } catch (error) {
-            console.error("Erreur utilisateur :", error);
-            return null;
-        }
-    };
 
     const obtenirDateLocale = () => {
         const maintenant = new Date();
@@ -157,6 +143,29 @@ function ScannerQR() {
         }
     };
 
+    const scannerDepuisImage = async (event) => {
+        const fichier = event.target.files?.[0];
+        event.target.value = "";
+        if (!fichier) return;
+
+        try {
+            setError("");
+            setResultat(null);
+            setLoading(true);
+            await arreterScanner();
+
+            const scanner = new Html5Qrcode("qr-file-reader");
+            const qrCode = await scanner.scanFile(fichier, true);
+            await scanner.clear();
+            await verifierQRCode(qrCode);
+        } catch (error) {
+            console.error("Erreur lecture image QR :", error);
+            setError("Aucun QR Code lisible n'a été trouvé dans cette image.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         return () => {
             if (scannerRef.current) {
@@ -231,7 +240,14 @@ function ScannerQR() {
 
                         )}
 
+                        <input ref={fichierQrRef} className="qr-file-input" type="file" accept="image/*" onChange={scannerDepuisImage} />
+                        <button className="btn-image-scanner" type="button" onClick={() => fichierQrRef.current?.click()} disabled={loading}>
+                            <FileImage size={17} /> Scanner une image
+                        </button>
+
                     </div>
+
+                    <div id="qr-file-reader" className="qr-file-reader" aria-hidden="true"></div>
 
                 </div>
 

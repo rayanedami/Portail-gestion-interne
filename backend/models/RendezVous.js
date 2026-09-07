@@ -88,7 +88,7 @@ const RendezVous = {
     ownerFilter(auth, alias = "r") {
         if (auth?.role === "VISITEUR") {
             return {
-                clause: "(v.utilisateur_id = ? OR (v.utilisateur_id IS NULL AND v.email = (SELECT email FROM utilisateur WHERE id = ?)))",
+                clause: "(v.utilisateur_id = ? OR v.email = (SELECT email FROM utilisateur WHERE id = ?))",
                 params: [auth.id, auth.id]
             };
         }

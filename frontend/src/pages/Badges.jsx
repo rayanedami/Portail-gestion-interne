@@ -11,7 +11,7 @@ function Badges() {
     const currentUser = user || utilisateur;
 
     const [badges, setBadges] = useState([]);
-    const [rendezVousConfirmes, setRendezVousConfirmes] = useState([]);
+    const [rendezVousDisponibles, setRendezVousDisponibles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
@@ -35,18 +35,18 @@ function Badges() {
 
     useEffect(() => {
         fetchBadges();
-        fetchRendezVousConfirmes();
+        fetchRendezVous();
     }, []);
 
-    const fetchRendezVousConfirmes = async () => {
+    const fetchRendezVous = async () => {
         try {
             const response = await api.get("/rendez-vous");
-            const rendezVous = Array.isArray(response.data) ? response.data : [];
-            setRendezVousConfirmes(
-                rendezVous.filter((rendezVousItem) => String(rendezVousItem.statut).toUpperCase() === "CONFIRME")
-            );
+            const rendezVous = Array.isArray(response.data)
+                ? response.data
+                : response.data?.rendezVous || response.data?.rendez_vous || [];
+            setRendezVousDisponibles(rendezVous);
         } catch (err) {
-            console.error("Erreur récupération rendez-vous confirmés :", err);
+            console.error("Erreur récupération rendez-vous :", err);
         }
     };
 
@@ -358,12 +358,15 @@ function Badges() {
                                     onChange={handleChange}
                                     required
                                 >
-                                    <option value="">Sélectionner un rendez-vous confirmé</option>
-                                    {rendezVousConfirmes.map((rendezVousItem) => (
-                                        <option key={rendezVousItem.id} value={rendezVousItem.id}>
-                                            #{rendezVousItem.id} - {rendezVousItem.visiteur_nom || "Visiteur"} - {formatDate(rendezVousItem.date_rendez_vous)}
-                                        </option>
-                                    ))}
+                                    <option value="">Sélectionner un rendez-vous</option>
+                                    {rendezVousDisponibles.map((rendezVousItem) => {
+                                        const confirme = String(rendezVousItem.statut || "").toUpperCase() === "CONFIRME";
+                                        return (
+                                            <option key={rendezVousItem.id} value={rendezVousItem.id} disabled={!confirme}>
+                                                #{rendezVousItem.id} - {rendezVousItem.visiteur_nom || "Visiteur"} - {formatDate(rendezVousItem.date_rendez_vous)} ({rendezVousItem.statut || "INCONNU"})
+                                            </option>
+                                        );
+                                    })}
                                 </select>
 
                             </div>

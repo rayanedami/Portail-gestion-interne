@@ -180,7 +180,7 @@ const Badge = {
     async getAll(auth) {
         await this.expireBadges();
         const visitorFilter = auth?.role === "VISITEUR"
-            ? "WHERE (u.id = ? OR (u.id IS NULL AND v.email = (SELECT email FROM utilisateur WHERE id = ?)))"
+            ? "WHERE (v.utilisateur_id = ? OR v.email = (SELECT email FROM utilisateur WHERE id = ?))"
             : "";
         const params = auth?.role === "VISITEUR" ? [auth.id, auth.id] : [];
         const [rows] = await db.query(`
@@ -199,7 +199,7 @@ const Badge = {
             LEFT JOIN visiteur v ON v.id = r.visiteur_id
             LEFT JOIN utilisateur u ON u.id = v.utilisateur_id
             ${visitorFilter}
-            ORDER BY b.id DESC
+                ORDER BY b.id DESC
         `, params);
 
         return rows;
@@ -208,7 +208,7 @@ const Badge = {
     async getById(id, auth) {
         await this.expireBadges();
         const visitorFilter = auth?.role === "VISITEUR"
-            ? "AND (u.id = ? OR (u.id IS NULL AND v.email = (SELECT email FROM utilisateur WHERE id = ?)))"
+            ? "AND (v.utilisateur_id = ? OR v.email = (SELECT email FROM utilisateur WHERE id = ?))"
             : "";
         const params = auth?.role === "VISITEUR" ? [id, auth.id, auth.id] : [id];
         const [rows] = await db.query(`

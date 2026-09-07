@@ -77,7 +77,7 @@ CREATE TABLE piece_jointe (
     taille BIGINT,
     date_ajout DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     demande_id INT NOT NULL,
-    FOREIGN KEY (demande_id) REFERENCES demande (id)
+    CONSTRAINT fk_piece_jointe_demande FOREIGN KEY (demande_id) REFERENCES demande (id) ON DELETE CASCADE
 );
 
 -- =====================================================
@@ -95,8 +95,8 @@ CREATE TABLE validation (
     demande_id INT NOT NULL,
     responsable_id INT NOT NULL,
     CONSTRAINT uq_validation_demande_niveau UNIQUE (demande_id, niveau),
-    FOREIGN KEY (demande_id) REFERENCES demande (id),
-    FOREIGN KEY (responsable_id) REFERENCES utilisateur (id)
+    CONSTRAINT fk_validation_demande FOREIGN KEY (demande_id) REFERENCES demande (id) ON DELETE CASCADE,
+    CONSTRAINT fk_validation_responsable FOREIGN KEY (responsable_id) REFERENCES utilisateur (id)
 );
 
 -- =====================================================
@@ -175,10 +175,10 @@ CREATE TABLE notification (
     expediteur_id INT,
     demande_id INT,
     rendez_vous_id INT,
-    FOREIGN KEY (utilisateur_id) REFERENCES utilisateur (id),
-    FOREIGN KEY (expediteur_id) REFERENCES utilisateur (id),
-    FOREIGN KEY (demande_id) REFERENCES demande (id),
-    FOREIGN KEY (rendez_vous_id) REFERENCES rendez_vous (id) ON DELETE SET NULL
+    CONSTRAINT fk_notification_utilisateur FOREIGN KEY (utilisateur_id) REFERENCES utilisateur (id),
+    CONSTRAINT fk_notification_expediteur FOREIGN KEY (expediteur_id) REFERENCES utilisateur (id),
+    CONSTRAINT fk_notification_demande FOREIGN KEY (demande_id) REFERENCES demande (id) ON DELETE SET NULL,
+    CONSTRAINT fk_notification_rendez_vous FOREIGN KEY (rendez_vous_id) REFERENCES rendez_vous (id) ON DELETE SET NULL
 );
 
 -- =====================================================

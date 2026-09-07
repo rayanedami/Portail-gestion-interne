@@ -115,8 +115,8 @@ const Notification = {
             est_lue = 0,
             utilisateur_id,
             demande_id,
-                rendez_vous_id,
-                expediteur_id
+            rendez_vous_id,
+            expediteur_id
         } = data;
 
         const [result] = await db.query(
@@ -130,8 +130,8 @@ const Notification = {
                 est_lue,
                 utilisateur_id,
                 demande_id,
-                    rendez_vous_id,
-                    expediteur_id
+                rendez_vous_id,
+                expediteur_id
             ]
         );
 
@@ -181,7 +181,7 @@ const Notification = {
             FROM notification n
             LEFT JOIN utilisateur exp ON exp.id = n.expediteur_id
             ${where}
-            ORDER BY id DESC
+            ORDER BY n.id DESC
         `, params);
 
         return rows;
@@ -189,8 +189,8 @@ const Notification = {
 
     async getById(id, auth) {
         const where = (!auth || auth.role === "ADMINISTRATEUR")
-            ? "WHERE id = ?"
-            : "WHERE id = ? AND utilisateur_id = ?";
+            ? "WHERE n.id = ?"
+            : "WHERE n.id = ? AND n.utilisateur_id = ?";
         const params = (!auth || auth.role === "ADMINISTRATEUR") ? [id] : [id, auth.id];
         const [rows] = await db.query(`
             SELECT n.id, n.message, n.type, n.date_envoi, n.est_lue,
