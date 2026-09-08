@@ -212,10 +212,20 @@
 .statut-visite {
     display: inline-flex;
     align-items: center;
+    gap: 7px;
     padding: 6px 11px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: 700;
+    white-space: nowrap;
+}
+
+.statut-point {
+    width: 8px;
+    height: 8px;
+    flex: 0 0 8px;
+    border-radius: 50%;
+    background: currentColor;
 }
 
 .statut-present {
@@ -250,6 +260,29 @@
 .statut-termine {
     background: #f0f0f0;
     color: #666;
+}
+
+.statut-visite+.btn-retry-visites {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    margin: 0 0 0 10px;
+    padding: 0 15px;
+    border: 1px solid #d97706;
+    border-radius: 7px;
+    background: #fff7ed;
+    color: #b45309;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.statut-visite+.btn-retry-visites:hover {
+    background: #ffedd5;
+    border-color: #b45309;
 }
 
 .visites-message {

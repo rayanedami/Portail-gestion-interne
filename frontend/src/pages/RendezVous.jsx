@@ -381,7 +381,7 @@ function RendezVous() {
                                         <td>{rdv.visiteur_societe || "-"}</td>
                                         <td>{rdv.lieu || "Accueil principal"}</td>
                                         <td><strong>{rdv.motif || "-"}</strong></td>
-                                        <td><span className={`rdv-table-status ${status.className}`}>{rdv.statut || "EN ATTENTE"}</span></td>
+                                        <td><span className={`rdv-table-status ${status.className}`}><span className="rdv-status-dot" aria-hidden="true"></span>{formatStatusLabel(rdv.statut)}</span></td>
                                         <td>
                                             <div className="rdv-table-actions">
                                                 <button type="button" title="Voir" onClick={() => ouvrirDetails(rdv)}><Eye /></button>

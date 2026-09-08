@@ -318,6 +318,7 @@ function Visites() {
                                                         .toLowerCase()
                                                         .replace("é", "e")}`}
                                                 >
+                                                    <span className="statut-point" aria-hidden="true"></span>
                                                     {statut}
                                                 </span>
                                                 {(statut === "EN_COURS" || statut === "PRESENT" || statut === "PRÉSENT") && (
@@ -325,7 +326,7 @@ function Visites() {
                                                         className="btn-retry-visites"
                                                         onClick={() => enregistrerSortie(visite)}
                                                     >
-                                                        Sortie
+                                                        Terminer
                                                     </button>
                                                 )}
                                             </td>
